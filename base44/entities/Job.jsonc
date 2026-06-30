@@ -1,0 +1,64 @@
+{
+  "name": "Job",
+  "type": "object",
+  "properties": {
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "equipment_type": {
+      "type": "string",
+      "enum": [
+        "Lawn Mower",
+        "Motorcycle/ATV",
+        "Generator",
+        "Compressor",
+        "Chainsaw",
+        "Weed Eater",
+        "Other"
+      ]
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "serial_number": {
+      "type": "string"
+    },
+    "problem_description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Intake",
+        "Diagnosed",
+        "Estimate Sent",
+        "Approved",
+        "In Progress",
+        "Waiting on Parts",
+        "Ready for Pickup",
+        "Closed"
+      ],
+      "default": "Intake"
+    },
+    "tax_rate": {
+      "type": "number",
+      "default": 7
+    },
+    "default_labor_rate": {
+      "type": "number",
+      "default": 75
+    }
+  },
+  "required": [
+    "customer_id",
+    "customer_name",
+    "equipment_type",
+    "problem_description"
+  ]
+}

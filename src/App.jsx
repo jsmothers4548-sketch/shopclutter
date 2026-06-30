@@ -6,7 +6,13 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-// Add page imports here
+import Layout from '@/components/Layout';
+import Home from '@/pages/Home';
+import Customers from '@/pages/Customers';
+import CustomerDetail from '@/pages/CustomerDetail';
+import JobDetail from '@/pages/JobDetail';
+import Estimate from '@/pages/Estimate';
+import Invoice from '@/pages/Invoice';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,7 +40,14 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/customers/:id" element={<CustomerDetail />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/jobs/:id/estimate" element={<Estimate />} />
+        <Route path="/jobs/:id/invoice" element={<Invoice />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

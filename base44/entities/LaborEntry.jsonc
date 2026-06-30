@@ -1,0 +1,26 @@
+{
+  "name": "LaborEntry",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "hours": {
+      "type": "number",
+      "default": 0
+    },
+    "hourly_rate": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "job_id",
+    "description",
+    "hours",
+    "hourly_rate"
+  ]
+}

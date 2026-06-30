@@ -1,0 +1,28 @@
+{
+  "name": "Part",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "part_number": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "job_id",
+    "name",
+    "unit_cost"
+  ]
+}
