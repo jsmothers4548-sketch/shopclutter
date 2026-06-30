@@ -179,12 +179,12 @@ export default function JobDetail() {
       {/* Timeline */}
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-slate-900">Timeline</h2>
+          <h2 className="font-bold text-slate-900">Timeline &amp; Photos</h2>
           <button
             onClick={() => setShowTimelineForm(true)}
-            className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
+            className="flex items-center gap-1.5 bg-amber-500 text-slate-900 px-3 py-1.5 rounded-lg font-semibold text-sm active:bg-amber-600"
           >
-            <Plus className="w-4 h-4" /> Add
+            <Plus className="w-4 h-4" /> Add Note / Photos
           </button>
         </div>
         <div className="space-y-3">
