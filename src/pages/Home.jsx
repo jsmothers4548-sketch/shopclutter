@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
+import JobQuickAdd from '@/components/JobQuickAdd';
+import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 const STATUSES = [
   'Intake',
@@ -28,6 +31,8 @@ export default function Home() {
   const [labor, setLabor] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Active');
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadData();
@@ -75,7 +80,15 @@ export default function Home() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
+        <button
+          onClick={() => setShowQuickAdd(true)}
+          className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
+        >
+          <Plus className="w-4 h-4" /> New Job
+        </button>
+      </div>
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 no-scrollbar">
         {['Active', ...STATUSES, 'All'].map((s) => (
           <button
@@ -101,6 +114,15 @@ export default function Home() {
             <JobCard key={job.id} job={job} totalCost={getJobCost(job.id)} />
           ))}
         </div>
+      )}
+      {showQuickAdd && (
+        <JobQuickAdd
+          onClose={() => setShowQuickAdd(false)}
+          onSaved={(job) => {
+            setShowQuickAdd(false);
+            navigate(`/jobs/${job.id}`);
+          }}
+        />
       )}
     </div>
   );
