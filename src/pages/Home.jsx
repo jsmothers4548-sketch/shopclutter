@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
+import StatusFilterBar from '@/components/StatusFilterBar';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
@@ -89,21 +90,7 @@ export default function Home() {
           <Plus className="w-4 h-4" /> New Job
         </button>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 no-scrollbar">
-        {['Active', ...STATUSES, 'All'].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              filter === s
-                ? 'bg-slate-900 text-white'
-                : 'bg-white text-slate-600 border border-slate-200'
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <StatusFilterBar filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
           <p className="text-sm">No jobs in this view</p>
