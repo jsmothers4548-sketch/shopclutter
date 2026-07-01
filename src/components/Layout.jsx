@@ -1,10 +1,11 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate } from 'lucide-react';
 
 const navItems = [
   { to: '/', label: 'Jobs', icon: Wrench, end: true },
-  { to: '/customers', label: 'Customers', icon: Users }
+  { to: '/customers', label: 'Customers', icon: Users },
+  { to: '/templates', label: 'Templates', icon: LayoutTemplate }
 ];
 
 export default function Layout() {

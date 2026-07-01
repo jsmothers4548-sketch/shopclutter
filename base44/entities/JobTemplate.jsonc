@@ -1,0 +1,41 @@
+{
+  "name": "JobTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "equipment_type": {
+      "type": "string",
+      "enum": [
+        "Lawn Mower",
+        "Motorcycle/ATV",
+        "Generator",
+        "Compressor",
+        "Chainsaw",
+        "Weed Eater",
+        "Other"
+      ]
+    },
+    "problem_description": {
+      "type": "string"
+    },
+    "tax_rate": {
+      "type": "number",
+      "default": 7
+    },
+    "default_labor_rate": {
+      "type": "number",
+      "default": 75
+    },
+    "parts_data": {
+      "type": "string"
+    },
+    "labor_data": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

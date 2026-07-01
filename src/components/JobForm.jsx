@@ -21,18 +21,18 @@ const EQUIPMENT_TYPES = [
   'Other',
 ];
 
-export default function JobForm({ customer, job, onClose, onSaved }) {
+export default function JobForm({ customer, job, template, onClose, onSaved }) {
   const [form, setForm] = useState({
     customer_id: customer?.id || job?.customer_id,
     customer_name: customer?.name || job?.customer_name || '',
-    equipment_type: job?.equipment_type || 'Lawn Mower',
+    equipment_type: job?.equipment_type || template?.equipment_type || 'Lawn Mower',
     make: job?.make || '',
     model: job?.model || '',
     serial_number: job?.serial_number || '',
-    problem_description: job?.problem_description || '',
+    problem_description: job?.problem_description || template?.problem_description || '',
     status: job?.status || 'Intake',
-    tax_rate: job?.tax_rate ?? 7,
-    default_labor_rate: job?.default_labor_rate ?? 75,
+    tax_rate: job?.tax_rate ?? template?.tax_rate ?? 7,
+    default_labor_rate: job?.default_labor_rate ?? template?.default_labor_rate ?? 75,
   });
   const [saving, setSaving] = useState(false);
 
@@ -45,6 +45,20 @@ export default function JobForm({ customer, job, onClose, onSaved }) {
         saved = await base44.entities.Job.update(job.id, form);
       } else {
         saved = await base44.entities.Job.create(form);
+        if (template) {
+          const parts = template.parts_data ? JSON.parse(template.parts_data) : [];
+          const labor = template.labor_data ? JSON.parse(template.labor_data) : [];
+          if (parts.length) {
+            await base44.entities.Part.bulkCreate(
+              parts.map((p) => ({ ...p, job_id: saved.id }))
+            );
+          }
+          if (labor.length) {
+            await base44.entities.LaborEntry.bulkCreate(
+              labor.map((l) => ({ ...l, job_id: saved.id }))
+            );
+          }
+        }
       }
       onSaved(saved);
     } finally {
@@ -57,7 +71,7 @@ export default function JobForm({ customer, job, onClose, onSaved }) {
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {job ? 'Edit Job' : `New Job — ${customer?.name}`}
+            {job ? 'Edit Job' : `New Job — ${customer?.name}${template ? ` (Template: ${template.name})` : ''}`}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
