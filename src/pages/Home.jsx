@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import StatusFilterBar from '@/components/StatusFilterBar';
+import JobStatusChart from '@/components/JobStatusChart';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
@@ -90,6 +91,7 @@ export default function Home() {
           <Plus className="w-4 h-4" /> New Job
         </button>
       </div>
+      <JobStatusChart jobs={jobs} />
       <StatusFilterBar filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
