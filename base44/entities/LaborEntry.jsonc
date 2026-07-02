@@ -22,5 +22,11 @@
     "description",
     "hours",
     "hourly_rate"
-  ]
+  ],
+  "rls": {
+    "create": null,
+    "read": null,
+    "update": null,
+    "delete": null
+  }
 }
