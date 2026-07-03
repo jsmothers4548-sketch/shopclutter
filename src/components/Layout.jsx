@@ -3,15 +3,15 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { Wrench, Users, LayoutTemplate } from 'lucide-react';
 
 const navItems = [
-  { to: '/', label: 'Jobs', icon: Wrench, end: true },
-  { to: '/customers', label: 'Customers', icon: Users },
-  { to: '/templates', label: 'Templates', icon: LayoutTemplate }
-];
+{ to: '/', label: 'Jobs', icon: Wrench, end: true },
+{ to: '/customers', label: 'Customers', icon: Users },
+{ to: '/templates', label: 'Templates', icon: LayoutTemplate }];
+
 
 export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-slate-900 text-white px-4 py-3 flex items-center gap-2 sticky top-0 z-30 print:hidden">
+      <header className="text-white px-4 py-3 flex items-center gap-2 sticky top-0 z-30 print:hidden bg-[hsl(var(--muted-foreground))]">
         <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
           <Wrench className="w-5 h-5 text-slate-900" />
         </div>
@@ -30,18 +30,18 @@ export default function Layout() {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-colors ${
-                    isActive ? 'text-amber-400' : 'text-slate-400'
-                  }`
-                }
-              >
+                `flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-colors ${
+                isActive ? 'text-amber-400' : 'text-slate-400'}`
+
+                }>
+                
                 <Icon className="w-5 h-5" />
                 <span className="text-xs font-medium">{item.label}</span>
-              </NavLink>
-            );
+              </NavLink>);
+
           })}
         </div>
       </nav>
-    </div>
-  );
+    </div>);
+
 }
