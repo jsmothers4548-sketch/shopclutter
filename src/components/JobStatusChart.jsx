@@ -44,7 +44,7 @@ export default function JobStatusChart({ jobs }) {
       <h2 className="text-sm font-bold text-slate-700 mb-2">
         Jobs by Status
       </h2>
-      <ResponsiveContainer width="100%" height={data.length * 36 + 8}>
+      <ResponsiveContainer width="100%" height={data.length * 36 + 8} debounce={50}>
         <BarChart
           data={data}
           layout="vertical"
