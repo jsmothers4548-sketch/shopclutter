@@ -14,6 +14,8 @@ import JobDetail from '@/pages/JobDetail';
 import Estimate from '@/pages/Estimate';
 import Invoice from '@/pages/Invoice';
 import Templates from '@/pages/Templates';
+import Inventory from '@/pages/Inventory';
+import StaffTasks from '@/pages/StaffTasks';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,6 +51,8 @@ const AuthenticatedApp = () => {
         <Route path="/jobs/:id/estimate" element={<Estimate />} />
         <Route path="/jobs/:id/invoice" element={<Invoice />} />
         <Route path="/templates" element={<Templates />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/staff-tasks" element={<StaffTasks />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

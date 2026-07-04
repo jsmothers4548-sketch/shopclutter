@@ -1,10 +1,12 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users, LayoutTemplate } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate, Package, ClipboardList } from 'lucide-react';
 
 const navItems = [
 { to: '/', label: 'Jobs', icon: Wrench, end: true },
 { to: '/customers', label: 'Customers', icon: Users },
+{ to: '/inventory', label: 'Inventory', icon: Package },
+{ to: '/staff-tasks', label: 'Tasks', icon: ClipboardList },
 { to: '/templates', label: 'Templates', icon: LayoutTemplate }];
 
 
