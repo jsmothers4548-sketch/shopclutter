@@ -15,7 +15,7 @@ export default function Layout() {
         <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
           <Wrench className="w-5 h-5 text-slate-900" />
         </div>
-        <span className="font-bold text-lg tracking-tight">Watford </span>
+        <span className="font-bold text-lg tracking-tight">Watford Sma</span>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full pb-20 print:pb-0">
         <Outlet />
