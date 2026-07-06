@@ -42,7 +42,9 @@
     "create": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "user_condition": {
+            "role": "user"
+          }
         },
         {
           "user_condition": {
@@ -54,7 +56,9 @@
     "read": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "user_condition": {
+            "role": "user"
+          }
         },
         {
           "user_condition": {
@@ -66,7 +70,9 @@
     "update": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "user_condition": {
+            "role": "user"
+          }
         },
         {
           "user_condition": {
@@ -78,7 +84,9 @@
     "delete": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "user_condition": {
+            "role": "user"
+          }
         },
         {
           "user_condition": {
