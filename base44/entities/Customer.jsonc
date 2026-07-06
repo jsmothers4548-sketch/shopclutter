@@ -24,28 +24,10 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "created_by_id": "{{user.id}}"
     },
     "read": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "created_by_id": "{{user.id}}"
     },
     "update": {
       "$or": [
@@ -54,7 +36,7 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "user"
           }
         }
       ]
@@ -66,7 +48,7 @@
         },
         {
           "user_condition": {
-            "role": "admin"
+            "role": "user"
           }
         }
       ]
