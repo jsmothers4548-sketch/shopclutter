@@ -77,7 +77,7 @@ export default function JobStatusButtons({ jobs, filter, setFilter }) {
   }
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 justify-items-center">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-x-2 gap-y-3">
       {ORDER.map((status) => {
         const cfg = STATUS_CONFIG[status];
         const isActive = filter === status;
@@ -86,13 +86,13 @@ export default function JobStatusButtons({ jobs, filter, setFilter }) {
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+            className={`flex items-center justify-center gap-1.5 w-full px-2 py-2 rounded-xl text-xs font-semibold border transition-colors ${
               isActive ? cfg.active : cfg.inactive
             }`}
           >
-            {status}
+            <span className="text-center leading-tight">{status}</span>
             <span
-              className={`min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[11px] font-bold ${
+              className={`min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                 isActive ? cfg.badgeActive : cfg.badgeInactive
               }`}
             >
