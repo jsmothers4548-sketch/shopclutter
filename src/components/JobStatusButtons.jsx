@@ -77,7 +77,7 @@ export default function JobStatusButtons({ jobs, filter, setFilter }) {
   }
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 justify-items-center">
       {ORDER.map((status) => {
         const cfg = STATUS_CONFIG[status];
         const isActive = filter === status;
