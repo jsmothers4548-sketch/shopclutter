@@ -22,6 +22,7 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
     description: reminder?.description || '',
     due_date: reminder?.due_date || '',
     appointment_type: reminder?.appointment_type || 'General',
+    priority: reminder?.priority || 'medium',
     status: reminder?.status || 'pending',
     customer_id: reminder?.customer_id || '',
     customer_name: reminder?.customer_name || '',
@@ -99,17 +100,29 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
               />
             </div>
             <div>
-              <Label>Type</Label>
+              <Label>Priority</Label>
               <select
-                value={form.appointment_type}
-                onChange={(e) => setForm({ ...form, appointment_type: e.target.value })}
+                value={form.priority}
+                onChange={(e) => setForm({ ...form, priority: e.target.value })}
                 className={selectClass}
               >
-                {APPOINTMENT_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
               </select>
             </div>
+          </div>
+          <div>
+            <Label>Type</Label>
+            <select
+              value={form.appointment_type}
+              onChange={(e) => setForm({ ...form, appointment_type: e.target.value })}
+              className={selectClass}
+            >
+              {APPOINTMENT_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
           </div>
           <div>
             <Label>Link to Customer (optional)</Label>

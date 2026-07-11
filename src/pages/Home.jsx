@@ -2,31 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
-import StatusFilterBar from '@/components/StatusFilterBar';
-import JobStatusChart from '@/components/JobStatusChart';
+import JobStatusButtons from '@/components/JobStatusButtons';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Bell, Calendar, MapPin } from 'lucide-react';
-import ReminderForm from '@/components/ReminderForm';
-
-const STATUSES = [
-  'Intake',
-  'Diagnosed',
-  'Estimate Sent',
-  'Approved',
-  'In Progress',
-  'Waiting on Parts',
-  'Ready for Pickup',
-  'Closed',
-];
-const ACTIVE_STATUSES = [
-  'Intake',
-  'Diagnosed',
-  'Estimate Sent',
-  'Approved',
-  'In Progress',
-  'Waiting on Parts',
-  'Ready for Pickup',
-];
 
 export default function Home() {
   const [jobs, setJobs] = useState([]);
@@ -34,10 +12,9 @@ export default function Home() {
   const [labor, setLabor] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('Active');
+  const [filter, setFilter] = useState('All');
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [reminders, setReminders] = useState([]);
-  const [showReminderForm, setShowReminderForm] = useState(false);
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
@@ -99,11 +76,7 @@ export default function Home() {
   const safeJobs = Array.isArray(jobs) ? jobs : [];
 
   const filteredJobs =
-    filter === 'Active'
-      ? safeJobs.filter((j) => ACTIVE_STATUSES.includes(j.status))
-      : filter === 'All'
-      ? safeJobs
-      : safeJobs.filter((j) => j.status === filter);
+    filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter);
 
   if (loading) {
     return (
@@ -135,7 +108,7 @@ export default function Home() {
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowReminderForm(true)}
+            onClick={() => navigate('/reminders')}
             className="relative flex items-center gap-1 bg-red-500 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-red-600"
           >
             <Bell className="w-4 h-4" /> Reminders
@@ -185,8 +158,7 @@ export default function Home() {
           </div>
         </div>
       )}
-      <JobStatusChart jobs={safeJobs} />
-      <StatusFilterBar filter={filter} setFilter={setFilter} />
+      <JobStatusButtons jobs={safeJobs} filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
           <p className="text-sm">No jobs in this view</p>
@@ -205,12 +177,6 @@ export default function Home() {
             setShowQuickAdd(false);
             navigate(`/jobs/${job.id}`);
           }}
-        />
-      )}
-      {showReminderForm && (
-        <ReminderForm
-          onClose={() => setShowReminderForm(false)}
-          onSaved={() => { setShowReminderForm(false); loadData(); }}
         />
       )}
     </div>

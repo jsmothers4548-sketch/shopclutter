@@ -10,6 +10,14 @@ const TYPE_STYLES = {
   'General': 'bg-slate-100 text-slate-600',
 };
 
+const PRIORITY_STYLES = {
+  high: 'bg-red-100 text-red-700 border-red-300',
+  medium: 'bg-amber-100 text-amber-800 border-amber-300',
+  low: 'bg-slate-100 text-slate-600 border-slate-300',
+};
+
+const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+
 export default function Reminders() {
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,12 +68,18 @@ export default function Reminders() {
 
   const todayStr = new Date().toISOString().split('T')[0];
   const safeReminders = Array.isArray(reminders) ? reminders : [];
-  const filtered =
+  const filtered = (
     filter === 'pending'
       ? safeReminders.filter((r) => r.status !== 'completed')
       : filter === 'completed'
       ? safeReminders.filter((r) => r.status === 'completed')
-      : safeReminders;
+      : safeReminders
+  ).slice().sort((a, b) => {
+    const pa = PRIORITY_ORDER[a.priority] ?? 1;
+    const pb = PRIORITY_ORDER[b.priority] ?? 1;
+    if (pa !== pb) return pa - pb;
+    return (a.due_date || '').localeCompare(b.due_date || '');
+  });
 
   if (loading) {
     return (
@@ -149,6 +163,9 @@ export default function Reminders() {
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${TYPE_STYLES[r.appointment_type] || TYPE_STYLES.General}`}>
                       {r.appointment_type}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium border ${PRIORITY_STYLES[r.priority] || PRIORITY_STYLES.medium}`}>
+                      {r.priority || 'medium'}
                     </span>
                     {r.due_date && (
                       <span className={`text-xs font-medium ${isOverdue ? 'text-red-600' : isToday ? 'text-amber-600' : 'text-slate-400'}`}>

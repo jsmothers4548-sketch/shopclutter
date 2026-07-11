@@ -21,6 +21,15 @@
       ],
       "default": "General"
     },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
     "status": {
       "type": "string",
       "enum": [
