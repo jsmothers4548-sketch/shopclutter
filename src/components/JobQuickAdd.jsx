@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
-import { Search, UserPlus, Check, LayoutTemplate, ArrowLeft } from 'lucide-react';
+import { Search, UserPlus, Check, LayoutTemplate, ArrowLeft, Home, Truck } from 'lucide-react';
 import JobForm from '@/components/JobForm';
 import CustomerForm from '@/components/CustomerForm';
 
@@ -19,7 +19,8 @@ export default function JobQuickAdd({ onClose, onSaved }) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [mode, setMode] = useState('customer');
+  const [jobLocation, setJobLocation] = useState('On-site');
+  const [mode, setMode] = useState('location');
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showJobForm, setShowJobForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -70,9 +71,50 @@ export default function JobQuickAdd({ onClose, onSaved }) {
       <JobForm
         customer={selected}
         template={selectedTemplate}
+        jobLocation={jobLocation}
         onClose={() => setShowJobForm(false)}
         onSaved={(job) => onSaved(job)}
       />
+    );
+  }
+
+  // Location selection mode
+  if (mode === 'location') {
+    return (
+      <Dialog open onOpenChange={() => onClose()}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>New Job</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-500">Where will the work be performed?</p>
+            <button
+              onClick={() => { setJobLocation('On-site'); setMode('customer'); }}
+              className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50 active:bg-amber-100 transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Home className="w-5 h-5 text-amber-500" />
+                <span className="font-semibold text-slate-900">On-site Job</span>
+              </div>
+              <p className="text-sm text-slate-500">Work performed at the shop. Standard labor rate.</p>
+            </button>
+            <button
+              onClick={() => { setJobLocation('Off-site'); setMode('customer'); }}
+              className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 active:bg-blue-100 transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Truck className="w-5 h-5 text-blue-500" />
+                <span className="font-semibold text-slate-900">Off-site Job</span>
+              </div>
+              <p className="text-sm text-slate-500">Mobile service at the customer's location.</p>
+              <div className="flex gap-2 mt-2 flex-wrap">
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">$80 service call fee</span>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">$40/hr labor</span>
+              </div>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   }
 
@@ -130,7 +172,15 @@ export default function JobQuickAdd({ onClose, onSaved }) {
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New Job — Select Customer</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <button
+              onClick={() => setMode('location')}
+              className="text-slate-400 hover:text-slate-700"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            New Job — {jobLocation} — Select Customer
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           {selectedTemplate && (

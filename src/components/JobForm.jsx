@@ -21,10 +21,13 @@ const EQUIPMENT_TYPES = [
   'Other',
 ];
 
-export default function JobForm({ customer, job, template, onClose, onSaved }) {
+export default function JobForm({ customer, job, template, jobLocation, onClose, onSaved }) {
   const [form, setForm] = useState({
     customer_id: customer?.id || job?.customer_id,
     customer_name: customer?.name || job?.customer_name || '',
+    job_location: jobLocation || job?.job_location || 'On-site',
+    offsite_address: job?.offsite_address || '',
+    service_call_fee: job?.service_call_fee ?? (jobLocation === 'Off-site' ? 80 : 0),
     equipment_type: job?.equipment_type || template?.equipment_type || 'Lawn Mower',
     make: job?.make || '',
     model: job?.model || '',
@@ -32,9 +35,23 @@ export default function JobForm({ customer, job, template, onClose, onSaved }) {
     problem_description: job?.problem_description || template?.problem_description || '',
     status: job?.status || 'Intake',
     tax_rate: job?.tax_rate ?? template?.tax_rate ?? 7,
-    default_labor_rate: job?.default_labor_rate ?? template?.default_labor_rate ?? 75,
+    default_labor_rate: job?.default_labor_rate ?? (jobLocation === 'Off-site' ? 40 : template?.default_labor_rate ?? 75),
   });
   const [saving, setSaving] = useState(false);
+
+  const handleLocationChange = (loc) => {
+    setForm((prev) => {
+      const updates = { job_location: loc };
+      if (loc === 'Off-site') {
+        if (!prev.service_call_fee) updates.service_call_fee = 80;
+        if (!prev.default_labor_rate || prev.default_labor_rate === 75) updates.default_labor_rate = 40;
+      } else {
+        updates.service_call_fee = 0;
+        if (prev.default_labor_rate === 40) updates.default_labor_rate = 75;
+      }
+      return { ...prev, ...updates };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,6 +92,33 @@ export default function JobForm({ customer, job, template, onClose, onSaved }) {
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <Label>Job Location</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleLocationChange('On-site')}
+                className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                  form.job_location === 'On-site'
+                    ? 'bg-amber-500 text-slate-900 border-amber-600'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                On-site
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLocationChange('Off-site')}
+                className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
+                  form.job_location === 'Off-site'
+                    ? 'bg-blue-500 text-white border-blue-600'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                Off-site
+              </button>
+            </div>
+          </div>
           <div>
             <Label>Equipment Type *</Label>
             <select
@@ -129,6 +173,32 @@ export default function JobForm({ customer, job, template, onClose, onSaved }) {
               required
             />
           </div>
+          {form.job_location === 'Off-site' && (
+            <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div>
+                <Label>Off-site Address *</Label>
+                <textarea
+                  value={form.offsite_address}
+                  onChange={(e) =>
+                    setForm({ ...form, offsite_address: e.target.value })
+                  }
+                  className="w-full min-h-[70px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="123 Main St, Springfield, IL 62701"
+                  required
+                />
+              </div>
+              <div>
+                <Label>Service Call Fee ($)</Label>
+                <Input
+                  type="number"
+                  value={form.service_call_fee}
+                  onChange={(e) =>
+                    setForm({ ...form, service_call_fee: parseFloat(e.target.value) || 0 })
+                  }
+                />
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Tax Rate (%)</Label>

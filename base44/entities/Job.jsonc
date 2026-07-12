@@ -8,6 +8,21 @@
     "customer_name": {
       "type": "string"
     },
+    "job_location": {
+      "type": "string",
+      "enum": [
+        "On-site",
+        "Off-site"
+      ],
+      "default": "On-site"
+    },
+    "offsite_address": {
+      "type": "string"
+    },
+    "service_call_fee": {
+      "type": "number",
+      "default": 0
+    },
     "equipment_type": {
       "type": "string",
       "enum": [
