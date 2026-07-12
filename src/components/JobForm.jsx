@@ -119,6 +119,32 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
               </button>
             </div>
           </div>
+          {form.job_location === 'Off-site' && (
+            <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div>
+                <Label>Off-site Address *</Label>
+                <textarea
+                  value={form.offsite_address}
+                  onChange={(e) =>
+                    setForm({ ...form, offsite_address: e.target.value })
+                  }
+                  className="w-full min-h-[70px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="123 Main St, Springfield, IL 62701 (can differ from customer's address)"
+                  required
+                />
+              </div>
+              <div>
+                <Label>Service Call Fee ($)</Label>
+                <Input
+                  type="number"
+                  value={form.service_call_fee}
+                  onChange={(e) =>
+                    setForm({ ...form, service_call_fee: parseFloat(e.target.value) || 0 })
+                  }
+                />
+              </div>
+            </div>
+          )}
           <div>
             <Label>Equipment Type *</Label>
             <select
@@ -173,32 +199,6 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
               required
             />
           </div>
-          {form.job_location === 'Off-site' && (
-            <div className="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div>
-                <Label>Off-site Address *</Label>
-                <textarea
-                  value={form.offsite_address}
-                  onChange={(e) =>
-                    setForm({ ...form, offsite_address: e.target.value })
-                  }
-                  className="w-full min-h-[70px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder="123 Main St, Springfield, IL 62701"
-                  required
-                />
-              </div>
-              <div>
-                <Label>Service Call Fee ($)</Label>
-                <Input
-                  type="number"
-                  value={form.service_call_fee}
-                  onChange={(e) =>
-                    setForm({ ...form, service_call_fee: parseFloat(e.target.value) || 0 })
-                  }
-                />
-              </div>
-            </div>
-          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Tax Rate (%)</Label>
