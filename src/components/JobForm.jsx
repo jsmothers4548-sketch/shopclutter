@@ -36,6 +36,10 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
     status: job?.status || 'Intake',
     tax_rate: job?.tax_rate ?? template?.tax_rate ?? 7,
     default_labor_rate: job?.default_labor_rate ?? (jobLocation === 'Off-site' ? 40 : template?.default_labor_rate ?? 75),
+    parts_discount_type: job?.parts_discount_type || 'fixed',
+    parts_discount_value: job?.parts_discount_value ?? 0,
+    labor_discount_type: job?.labor_discount_type || 'fixed',
+    labor_discount_value: job?.labor_discount_value ?? 0,
   });
   const [saving, setSaving] = useState(false);
 
@@ -198,6 +202,71 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
               placeholder="Won't start, oil leak, needs tune-up..."
               required
             />
+          </div>
+          <div className="space-y-3 p-3 bg-green-50 rounded-lg border border-green-200">
+            <p className="text-sm font-semibold text-green-800">Discounts</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Parts Discount Type</Label>
+                <select
+                  value={form.parts_discount_type}
+                  onChange={(e) =>
+                    setForm({ ...form, parts_discount_type: e.target.value })
+                  }
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="fixed">Fixed $</option>
+                  <option value="percentage">Percentage %</option>
+                </select>
+              </div>
+              <div>
+                <Label>
+                  Parts Discount {form.parts_discount_type === 'percentage' ? '(%)' : '($)'}
+                </Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={form.parts_discount_value}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      parts_discount_value: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Labor Discount Type</Label>
+                <select
+                  value={form.labor_discount_type}
+                  onChange={(e) =>
+                    setForm({ ...form, labor_discount_type: e.target.value })
+                  }
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="fixed">Fixed $</option>
+                  <option value="percentage">Percentage %</option>
+                </select>
+              </div>
+              <div>
+                <Label>
+                  Labor Discount {form.labor_discount_type === 'percentage' ? '(%)' : '($)'}
+                </Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={form.labor_discount_value}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      labor_discount_value: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

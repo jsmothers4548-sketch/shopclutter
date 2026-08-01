@@ -16,6 +16,7 @@ import {
   Receipt,
   Clock,
 } from 'lucide-react';
+import { computeBilling } from '@/lib/billing';
 
 const STATUSES = [
   'Intake',
@@ -70,14 +71,16 @@ export default function JobDetail() {
     loadData();
   }, [id]);
 
-  const partsTotal = parts.reduce(
-    (s, p) => s + p.quantity * p.unit_cost,
-    0
-  );
-  const laborTotal = labor.reduce((s, l) => s + l.hours * l.hourly_rate, 0);
-  const subtotal = partsTotal + laborTotal;
-  const taxAmount = (subtotal * (job?.tax_rate || 0)) / 100;
-  const grandTotal = subtotal + taxAmount;
+  const billing = computeBilling({ parts, labor, job });
+  const {
+    partsTotal,
+    laborTotal,
+    partsDiscount,
+    laborDiscount,
+    subtotal,
+    taxAmount,
+    grandTotal,
+  } = billing;
 
   const updateStatus = async (newStatus) => {
     await base44.entities.Job.update(job.id, { status: newStatus });
@@ -331,10 +334,22 @@ export default function JobDetail() {
           <span>Parts</span>
           <span>${partsTotal.toFixed(2)}</span>
         </div>
+        {partsDiscount > 0 && (
+          <div className="flex justify-between text-sm text-green-400">
+            <span>Parts Discount</span>
+            <span>−${partsDiscount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm text-slate-300">
           <span>Labor</span>
           <span>${laborTotal.toFixed(2)}</span>
         </div>
+        {laborDiscount > 0 && (
+          <div className="flex justify-between text-sm text-green-400">
+            <span>Labor Discount</span>
+            <span>−${laborDiscount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm text-slate-300">
           <span>Subtotal</span>
           <span>${subtotal.toFixed(2)}</span>

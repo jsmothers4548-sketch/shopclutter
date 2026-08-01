@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, MessageSquare } from 'lucide-react';
+import { computeBilling } from '@/lib/billing';
 
 export default function Invoice() {
   const { id } = useParams();
@@ -29,14 +30,19 @@ export default function Invoice() {
   }
 
   const { job, customer, parts, labor } = data;
-  const partsTotal = parts.reduce((s, p) => s + p.quantity * p.unit_cost, 0);
-  const laborTotal = labor.reduce((s, l) => s + l.hours * l.hourly_rate, 0);
-  const subtotal = partsTotal + laborTotal;
-  const taxAmount = (subtotal * (job.tax_rate || 0)) / 100;
-  const grandTotal = subtotal + taxAmount;
+  const {
+    partsTotal,
+    laborTotal,
+    partsDiscount,
+    laborDiscount,
+    subtotal,
+    taxAmount,
+    grandTotal,
+  } = computeBilling({ parts, labor, job });
 
   const handleText = () => {
-    const msg = `Invoice for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}, Tax $${taxAmount.toFixed(2)}, Amount Due $${grandTotal.toFixed(2)}. Thank you for your business!`;
+    const discountTotal = partsDiscount + laborDiscount;
+    const msg = `Invoice for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}${discountTotal > 0 ? `, Discount -$${discountTotal.toFixed(2)}` : ''}, Tax $${taxAmount.toFixed(2)}, Amount Due $${grandTotal.toFixed(2)}. Thank you for your business!`;
     window.location.href = `sms:${customer.phone?.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(msg)}`;
   };
 
@@ -172,7 +178,27 @@ export default function Invoice() {
           </div>
         )}
 
-        <div className="py-4 space-y-1 ml-auto max-w-[200px]">
+        <div className="py-4 space-y-1 ml-auto max-w-[220px]">
+          <div className="flex justify-between text-sm text-slate-500">
+            <span>Parts</span>
+            <span>${partsTotal.toFixed(2)}</span>
+          </div>
+          {partsDiscount > 0 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Parts Discount</span>
+              <span>−${partsDiscount.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm text-slate-500">
+            <span>Labor</span>
+            <span>${laborTotal.toFixed(2)}</span>
+          </div>
+          {laborDiscount > 0 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Labor Discount</span>
+              <span>−${laborDiscount.toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm text-slate-500">
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>

@@ -68,6 +68,30 @@
     "default_labor_rate": {
       "type": "number",
       "default": 75
+    },
+    "parts_discount_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "percentage"
+      ],
+      "default": "fixed"
+    },
+    "parts_discount_value": {
+      "type": "number",
+      "default": 0
+    },
+    "labor_discount_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "percentage"
+      ],
+      "default": "fixed"
+    },
+    "labor_discount_value": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [
