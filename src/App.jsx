@@ -18,6 +18,7 @@ import Inventory from '@/pages/Inventory';
 import StaffTasks from '@/pages/StaffTasks';
 import Reminders from '@/pages/Reminders';
 import Reports from '@/pages/Reports';
+import Staff from '@/pages/Staff';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
           <Route path="/staff-tasks" element={<StaffTasks />} />
           <Route path="/reminders" element={<Reminders />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/staff" element={<Staff />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
