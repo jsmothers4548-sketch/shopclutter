@@ -41,3 +41,24 @@ export function computeBilling({ parts, labor, job }) {
     grandTotal,
   };
 }
+
+export function computeJobProfit({ parts, labor, job }) {
+  const billing = computeBilling({ parts, labor, job });
+  const partsCost = parts.reduce(
+    (s, p) => s + (p.quantity || 0) * (p.unit_cost || 0),
+    0
+  );
+  const laborCost = labor.reduce(
+    (s, l) => s + (l.hours || 0) * (l.pay_rate || 0),
+    0
+  );
+  const revenue = billing.subtotal;
+  const profit = revenue - partsCost - laborCost;
+  return {
+    ...billing,
+    partsCost,
+    laborCost,
+    revenue,
+    profit,
+  };
+}

@@ -16,7 +16,8 @@ import {
   Receipt,
   Clock,
 } from 'lucide-react';
-import { computeBilling } from '@/lib/billing';
+import { computeBilling, computeJobProfit } from '@/lib/billing';
+import { useAuth } from '@/lib/AuthContext';
 
 const STATUSES = [
   'Intake',
@@ -81,6 +82,9 @@ export default function JobDetail() {
     taxAmount,
     grandTotal,
   } = billing;
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const profitData = computeJobProfit({ parts, labor, job });
 
   const updateStatus = async (newStatus) => {
     await base44.entities.Job.update(job.id, { status: newStatus });
@@ -363,6 +367,41 @@ export default function JobDetail() {
           <span>${grandTotal.toFixed(2)}</span>
         </div>
       </div>
+
+      {/* Profit Analysis (Admin only) */}
+      {isAdmin && (
+        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-2">
+          <h2 className="font-bold text-slate-900">Profit Analysis</h2>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Revenue</span>
+            <span className="font-medium">
+              ${profitData.revenue.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Parts Cost</span>
+            <span className="font-medium text-red-600">
+              −${profitData.partsCost.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Labor Cost (wages)</span>
+            <span className="font-medium text-red-600">
+              −${profitData.laborCost.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between font-bold pt-2 border-t border-slate-200">
+            <span>Net Profit</span>
+            <span
+              className={
+                profitData.profit >= 0 ? 'text-green-600' : 'text-red-600'
+              }
+            >
+              ${profitData.profit.toFixed(2)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {showJobForm && (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3 } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
 { to: '/', label: 'Jobs', icon: Wrench, end: true },
@@ -12,6 +13,8 @@ const navItems = [
 
 
 export default function Layout() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="text-white px-4 py-3 flex items-center gap-2 sticky top-0 z-30 print:hidden bg-[hsl(var(--chart-3))]">
@@ -19,6 +22,18 @@ export default function Layout() {
           <Wrench className="w-5 h-5 text-slate-900" />
         </div>
         <span className="font-bold text-lg tracking-tight">Shop Flow</span>
+        {isAdmin && (
+          <NavLink
+            to="/reports"
+            className={({ isActive }) =>
+              `ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
+              }`
+            }
+          >
+            <BarChart3 className="w-4 h-4" /> Reports
+          </NavLink>
+        )}
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full pb-20 print:pb-0">
         <Outlet />

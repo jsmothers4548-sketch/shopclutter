@@ -15,6 +15,13 @@
     "hourly_rate": {
       "type": "number",
       "default": 0
+    },
+    "pay_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "technician": {
+      "type": "string"
     }
   },
   "required": [
