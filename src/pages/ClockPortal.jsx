@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Clock, LogIn, LogOut } from 'lucide-react';
+import { Clock, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
 export default function ClockPortal() {
   const [employeeId, setEmployeeId] = useState('');
@@ -88,6 +89,12 @@ export default function ClockPortal() {
             >
               Done
             </button>
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-slate-700"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleClock} className="space-y-4">
@@ -115,6 +122,12 @@ export default function ClockPortal() {
             >
               {loading ? 'Please wait...' : 'Clock In / Out'}
             </button>
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-slate-700"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </Link>
           </form>
         )}
       </div>
