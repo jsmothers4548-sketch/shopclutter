@@ -10,6 +10,7 @@ export default function Staff() {
   const navigate = useNavigate();
   const [staff, setStaff] = useState([]);
   const [labor, setLabor] = useState([]);
+  const [timeClocks, setTimeClocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
@@ -22,12 +23,14 @@ export default function Staff() {
 
   const loadData = async () => {
     try {
-      const [staffData, laborData] = await Promise.all([
+      const [staffData, laborData, clockData] = await Promise.all([
         base44.entities.Staff.list('-created_date'),
         base44.entities.LaborEntry.list(),
+        base44.entities.TimeClock.list('-timestamp', 50),
       ]);
       setStaff(Array.isArray(staffData) ? staffData : []);
       setLabor(Array.isArray(laborData) ? laborData : []);
+      setTimeClocks(Array.isArray(clockData) ? clockData : []);
     } finally {
       setLoading(false);
     }
@@ -112,6 +115,11 @@ export default function Staff() {
                       <p className="font-bold text-slate-900 truncate">
                         {s.name}
                       </p>
+                      {s.employee_id && (
+                        <span className="text-xs font-mono bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                          ID: {s.employee_id}
+                        </span>
+                      )}
                       {s.status === 'inactive' && (
                         <span className="text-xs bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">
                           Inactive
@@ -185,6 +193,48 @@ export default function Staff() {
           })}
         </div>
       )}
+
+      {/* Time Clock Logs */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <h2 className="font-bold text-slate-900 mb-3">Time Clock Logs</h2>
+        {timeClocks.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-4">
+            No clock entries yet
+          </p>
+        ) : (
+          <div className="space-y-1">
+            {timeClocks.slice(0, 20).map((tc) => {
+              const staffMatch = staff.find(
+                (s) => s.employee_id === tc.employee_id
+              );
+              return (
+                <div
+                  key={tc.id}
+                  className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {staffMatch?.name || `ID: ${tc.employee_id}`}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(tc.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded ${
+                      tc.action === 'clock_in'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}
+                  >
+                    {tc.action === 'clock_in' ? 'In' : 'Out'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {showForm && (
         <StaffForm

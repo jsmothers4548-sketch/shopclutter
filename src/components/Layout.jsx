@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog, Clock } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
@@ -22,30 +22,42 @@ export default function Layout() {
           <Wrench className="w-5 h-5 text-slate-900" />
         </div>
         <span className="font-bold text-lg tracking-tight">Shop Flow</span>
-        {isAdmin && (
-          <div className="ml-auto flex items-center gap-1.5">
-            <NavLink
-              to="/staff"
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
-                }`
-              }
-            >
-              <UserCog className="w-4 h-4" /> Staff
-            </NavLink>
-            <NavLink
-              to="/reports"
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
-                }`
-              }
-            >
-              <BarChart3 className="w-4 h-4" /> Reports
-            </NavLink>
-          </div>
-        )}
+        <div className="ml-auto flex items-center gap-1.5">
+          <NavLink
+            to="/clock"
+            className={({ isActive }) =>
+              `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
+              }`
+            }
+          >
+            <Clock className="w-4 h-4" /> Clock
+          </NavLink>
+          {isAdmin && (
+            <>
+              <NavLink
+                to="/staff"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                    isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
+                  }`
+                }
+              >
+                <UserCog className="w-4 h-4" /> Staff
+              </NavLink>
+              <NavLink
+                to="/reports"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                    isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
+                  }`
+                }
+              >
+                <BarChart3 className="w-4 h-4" /> Reports
+              </NavLink>
+            </>
+          )}
+        </div>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full pb-20 print:pb-0">
         <Outlet />

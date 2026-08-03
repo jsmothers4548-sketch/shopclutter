@@ -11,9 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 
+const generateId = () =>
+  Math.floor(1000 + Math.random() * 9000).toString();
+
 export default function StaffForm({ staff, onClose, onSaved }) {
   const [form, setForm] = useState({
     name: staff?.name || '',
+    employee_id: staff?.employee_id || generateId(),
     phone: staff?.phone || '',
     email: staff?.email || '',
     address: staff?.address || '',
@@ -56,6 +60,16 @@ export default function StaffForm({ staff, onClose, onSaved }) {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
               placeholder="John Doe"
+            />
+          </div>
+          <div>
+            <Label>Employee ID (for clock-in)</Label>
+            <Input
+              value={form.employee_id}
+              onChange={(e) =>
+                setForm({ ...form, employee_id: e.target.value })
+              }
+              placeholder="4-digit PIN"
             />
           </div>
           <div>

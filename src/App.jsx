@@ -19,6 +19,7 @@ import StaffTasks from '@/pages/StaffTasks';
 import Reminders from '@/pages/Reminders';
 import Reports from '@/pages/Reports';
 import Staff from '@/pages/Staff';
+import ClockPortal from '@/pages/ClockPortal';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
           <Route path="/reports" element={<Reports />} />
           <Route path="/staff" element={<Staff />} />
         </Route>
+        <Route path="/clock" element={<ClockPortal />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

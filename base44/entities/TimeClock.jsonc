@@ -1,0 +1,54 @@
+{
+  "name": "TimeClock",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "employee_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "clock_in",
+        "clock_out"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "staff_id",
+    "staff_name",
+    "action",
+    "timestamp"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -35,6 +35,9 @@
         "inactive"
       ],
       "default": "active"
+    },
+    "employee_id": {
+      "type": "string"
     }
   },
   "required": [
