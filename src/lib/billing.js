@@ -23,9 +23,11 @@ export function computeBilling({ parts, labor, job }) {
       ? (laborTotal * laborDiscountValue) / 100
       : Math.min(laborDiscountValue, laborTotal);
 
+  const serviceCallFee = job?.service_call_fee || 0;
+
   const discountedParts = Math.max(partsTotal - partsDiscount, 0);
   const discountedLabor = Math.max(laborTotal - laborDiscount, 0);
-  const subtotal = discountedParts + discountedLabor;
+  const subtotal = discountedParts + discountedLabor + serviceCallFee;
   const taxAmount = (subtotal * (job?.tax_rate || 0)) / 100;
   const grandTotal = subtotal + taxAmount;
 
@@ -36,6 +38,7 @@ export function computeBilling({ parts, labor, job }) {
     laborDiscount,
     discountedParts,
     discountedLabor,
+    serviceCallFee,
     subtotal,
     taxAmount,
     grandTotal,

@@ -78,6 +78,7 @@ export default function JobDetail() {
     laborTotal,
     partsDiscount,
     laborDiscount,
+    serviceCallFee,
     subtotal,
     taxAmount,
     grandTotal,
@@ -352,6 +353,12 @@ export default function JobDetail() {
           <div className="flex justify-between text-sm text-green-400">
             <span>Labor Discount</span>
             <span>−${laborDiscount.toFixed(2)}</span>
+          </div>
+        )}
+        {serviceCallFee > 0 && (
+          <div className="flex justify-between text-sm text-slate-300">
+            <span>Service Call Fee</span>
+            <span>${serviceCallFee.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm text-slate-300">
