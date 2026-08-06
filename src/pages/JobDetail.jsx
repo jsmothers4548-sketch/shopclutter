@@ -41,7 +41,9 @@ export default function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [showJobForm, setShowJobForm] = useState(false);
   const [showPartForm, setShowPartForm] = useState(false);
+  const [activePart, setActivePart] = useState(null);
   const [showLaborForm, setShowLaborForm] = useState(false);
+  const [activeLabor, setActiveLabor] = useState(null);
   const [showTimelineForm, setShowTimelineForm] = useState(false);
 
   const loadData = async () => {
@@ -237,7 +239,10 @@ export default function JobDetail() {
         <div className="flex items-center! justify-between mb-3">
           <h2 className="font-bold text-slate-900">Parts</h2>
           <button
-            onClick={() => setShowPartForm(true)}
+            onClick={() => {
+              setActivePart(null);
+              setShowPartForm(true);
+            }}
             className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
           >
             <Plus className="w-4 h-4" /> Add
@@ -249,7 +254,13 @@ export default function JobDetail() {
               key={p.id}
               className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
             >
-              <div className="min-w-0 flex-1">
+              <div
+                className="min-w-0 flex-1 cursor-pointer"
+                onClick={() => {
+                  setActivePart(p);
+                  setShowPartForm(true);
+                }}
+              >
                 <p className="text-sm font-medium text-slate-900 truncate">
                   {p.name}
                 </p>
@@ -261,6 +272,15 @@ export default function JobDetail() {
               <span className="text-sm font-semibold">
                 ${(p.quantity * p.unit_cost).toFixed(2)}
               </span>
+              <button
+                onClick={() => {
+                  setActivePart(p);
+                  setShowPartForm(true);
+                }}
+                className="text-slate-400 hover:text-amber-600"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => deletePart(p.id)}
                 className="text-slate-300 hover:text-red-500"
@@ -288,7 +308,10 @@ export default function JobDetail() {
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-bold text-slate-900">Labor</h2>
           <button
-            onClick={() => setShowLaborForm(true)}
+            onClick={() => {
+              setActiveLabor(null);
+              setShowLaborForm(true);
+            }}
             className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
           >
             <Plus className="w-4 h-4" /> Add
@@ -300,7 +323,13 @@ export default function JobDetail() {
               key={l.id}
               className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
             >
-              <div className="min-w-0 flex-1">
+              <div
+                className="min-w-0 flex-1 cursor-pointer"
+                onClick={() => {
+                  setActiveLabor(l);
+                  setShowLaborForm(true);
+                }}
+              >
                 <p className="text-sm font-medium text-slate-900 truncate">
                   {l.description}
                 </p>
@@ -311,6 +340,15 @@ export default function JobDetail() {
               <span className="text-sm font-semibold">
                 ${(l.hours * l.hourly_rate).toFixed(2)}
               </span>
+              <button
+                onClick={() => {
+                  setActiveLabor(l);
+                  setShowLaborForm(true);
+                }}
+                className="text-slate-400 hover:text-amber-600"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => deleteLabor(l.id)}
                 className="text-slate-300 hover:text-red-500"
@@ -424,9 +462,14 @@ export default function JobDetail() {
       {showPartForm && (
         <PartForm
           jobId={id}
-          onClose={() => setShowPartForm(false)}
+          part={activePart}
+          onClose={() => {
+            setShowPartForm(false);
+            setActivePart(null);
+          }}
           onSaved={() => {
             setShowPartForm(false);
+            setActivePart(null);
             loadData();
           }}
         />
@@ -435,9 +478,14 @@ export default function JobDetail() {
         <LaborForm
           jobId={id}
           defaultRate={job.default_labor_rate}
-          onClose={() => setShowLaborForm(false)}
+          labor={activeLabor}
+          onClose={() => {
+            setShowLaborForm(false);
+            setActiveLabor(null);
+          }}
           onSaved={() => {
             setShowLaborForm(false);
+            setActiveLabor(null);
             loadData();
           }}
         />
