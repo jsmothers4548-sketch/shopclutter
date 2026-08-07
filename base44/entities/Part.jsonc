@@ -5,6 +5,9 @@
     "job_id": {
       "type": "string"
     },
+    "job_status": {
+      "type": "string"
+    },
     "name": {
       "type": "string"
     },
@@ -58,12 +61,12 @@
       "$or": [
         {
           "user_condition": {
-            "role": "user"
+            "role": "admin"
           }
         },
         {
-          "user_condition": {
-            "role": "admin"
+          "data.job_status": {
+            "$ne": "Closed"
           }
         }
       ]
@@ -72,12 +75,12 @@
       "$or": [
         {
           "user_condition": {
-            "role": "user"
+            "role": "admin"
           }
         },
         {
-          "user_condition": {
-            "role": "admin"
+          "data.job_status": {
+            "$ne": "Closed"
           }
         }
       ]
