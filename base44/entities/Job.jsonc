@@ -133,29 +133,20 @@
       "$or": [
         {
           "user_condition": {
-            "role": "user"
+            "role": "admin"
           }
         },
         {
-          "user_condition": {
-            "role": "admin"
+          "data.status": {
+            "$ne": "Closed"
           }
         }
       ]
     },
     "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }
