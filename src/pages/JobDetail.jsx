@@ -87,6 +87,8 @@ export default function JobDetail() {
   } = billing;
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isClosed = job?.status === 'Closed';
+  const canEdit = isAdmin || !isClosed;
   const profitData = computeJobProfit({ parts, labor, job });
 
   const updateStatus = async (newStatus) => {
@@ -139,9 +141,11 @@ export default function JobDetail() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold flex-1 truncate">Job Details</h1>
-        <button onClick={() => setShowJobForm(true)} className="p-2 text-slate-500">
-          <Edit className="w-5 h-5" />
-        </button>
+        {canEdit && (
+          <button onClick={() => setShowJobForm(true)} className="p-2 text-slate-500">
+            <Edit className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Status control */}
@@ -151,7 +155,8 @@ export default function JobDetail() {
           <select
             value={job.status}
             onChange={(e) => updateStatus(e.target.value)}
-            className="text-sm rounded-lg border border-slate-200 px-2 py-1.5 bg-white"
+            disabled={!canEdit}
+            className="text-sm rounded-lg border border-slate-200 px-2 py-1.5 bg-white disabled:opacity-50"
           >
             {STATUSES.map((s) => (
               <option key={s}>{s}</option>
@@ -248,15 +253,17 @@ export default function JobDetail() {
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center! justify-between mb-3">
           <h2 className="font-bold text-slate-900">Parts</h2>
-          <button
-            onClick={() => {
-              setActivePart(null);
-              setShowPartForm(true);
-            }}
-            className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
-          >
-            <Plus className="w-4 h-4" /> Add
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => {
+                setActivePart(null);
+                setShowPartForm(true);
+              }}
+              className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
+            >
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          )}
         </div>
         <div className="space-y-2">
           {parts.map((p) => (
@@ -265,11 +272,11 @@ export default function JobDetail() {
               className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
             >
               <div
-                className="min-w-0 flex-1 cursor-pointer"
-                onClick={() => {
+                className={`min-w-0 flex-1 ${canEdit ? 'cursor-pointer' : ''}`}
+                onClick={canEdit ? () => {
                   setActivePart(p);
                   setShowPartForm(true);
-                }}
+                } : undefined}
               >
                 <p className="text-sm font-medium text-slate-900 truncate">
                   {p.name}
@@ -282,21 +289,25 @@ export default function JobDetail() {
               <span className="text-sm font-semibold">
                 ${(p.quantity * p.unit_cost).toFixed(2)}
               </span>
-              <button
-                onClick={() => {
-                  setActivePart(p);
-                  setShowPartForm(true);
-                }}
-                className="text-slate-400 hover:text-amber-600"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => deletePart(p.id)}
-                className="text-slate-300 hover:text-red-500"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    setActivePart(p);
+                    setShowPartForm(true);
+                  }}
+                  className="text-slate-400 hover:text-amber-600"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  onClick={() => deletePart(p.id)}
+                  className="text-slate-300 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
           ))}
           {parts.length === 0 && (
@@ -317,15 +328,17 @@ export default function JobDetail() {
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-bold text-slate-900">Labor</h2>
-          <button
-            onClick={() => {
-              setActiveLabor(null);
-              setShowLaborForm(true);
-            }}
-            className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
-          >
-            <Plus className="w-4 h-4" /> Add
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => {
+                setActiveLabor(null);
+                setShowLaborForm(true);
+              }}
+              className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
+            >
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          )}
         </div>
         <div className="space-y-2">
           {labor.map((l) => (
@@ -334,11 +347,11 @@ export default function JobDetail() {
               className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
             >
               <div
-                className="min-w-0 flex-1 cursor-pointer"
-                onClick={() => {
+                className={`min-w-0 flex-1 ${canEdit ? 'cursor-pointer' : ''}`}
+                onClick={canEdit ? () => {
                   setActiveLabor(l);
                   setShowLaborForm(true);
-                }}
+                } : undefined}
               >
                 <p className="text-sm font-medium text-slate-900 truncate">
                   {l.description}
@@ -350,21 +363,25 @@ export default function JobDetail() {
               <span className="text-sm font-semibold">
                 ${(l.hours * l.hourly_rate).toFixed(2)}
               </span>
-              <button
-                onClick={() => {
-                  setActiveLabor(l);
-                  setShowLaborForm(true);
-                }}
-                className="text-slate-400 hover:text-amber-600"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => deleteLabor(l.id)}
-                className="text-slate-300 hover:text-red-500"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    setActiveLabor(l);
+                    setShowLaborForm(true);
+                  }}
+                  className="text-slate-400 hover:text-amber-600"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  onClick={() => deleteLabor(l.id)}
+                  className="text-slate-300 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
           ))}
           {labor.length === 0 && (
