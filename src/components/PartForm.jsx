@@ -11,9 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 
-export default function PartForm({ jobId, part, onClose, onSaved }) {
+export default function PartForm({ jobId, jobStatus, part, onClose, onSaved }) {
   const [form, setForm] = useState({
     job_id: jobId,
+    job_status: part?.job_status || jobStatus || 'Intake',
     name: part?.name || '',
     part_number: part?.part_number || '',
     quantity: part?.quantity ?? 1,

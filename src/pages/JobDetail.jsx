@@ -91,6 +91,16 @@ export default function JobDetail() {
 
   const updateStatus = async (newStatus) => {
     await base44.entities.Job.update(job.id, { status: newStatus });
+    await Promise.all([
+      base44.entities.Part.updateMany(
+        { job_id: id },
+        { $set: { job_status: newStatus } }
+      ),
+      base44.entities.LaborEntry.updateMany(
+        { job_id: id },
+        { $set: { job_status: newStatus } }
+      ),
+    ]);
     await base44.entities.JobTimeline.create({
       job_id: id,
       stage: newStatus,
@@ -462,6 +472,7 @@ export default function JobDetail() {
       {showPartForm && (
         <PartForm
           jobId={id}
+          jobStatus={job.status}
           part={activePart}
           onClose={() => {
             setShowPartForm(false);
@@ -477,6 +488,7 @@ export default function JobDetail() {
       {showLaborForm && (
         <LaborForm
           jobId={id}
+          jobStatus={job.status}
           defaultRate={job.default_labor_rate}
           labor={activeLabor}
           onClose={() => {

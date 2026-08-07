@@ -71,12 +71,12 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
           const labor = template.labor_data ? JSON.parse(template.labor_data) : [];
           if (parts.length) {
             await base44.entities.Part.bulkCreate(
-              parts.map((p) => ({ ...p, job_id: saved.id }))
+              parts.map((p) => ({ ...p, job_id: saved.id, job_status: saved.status }))
             );
           }
           if (labor.length) {
             await base44.entities.LaborEntry.bulkCreate(
-              labor.map((l) => ({ ...l, job_id: saved.id }))
+              labor.map((l) => ({ ...l, job_id: saved.id, job_status: saved.status }))
             );
           }
         }

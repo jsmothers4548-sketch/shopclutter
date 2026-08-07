@@ -11,9 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 
-export default function LaborForm({ jobId, defaultRate, labor, onClose, onSaved }) {
+export default function LaborForm({ jobId, jobStatus, defaultRate, labor, onClose, onSaved }) {
   const [form, setForm] = useState({
     job_id: jobId,
+    job_status: labor?.job_status || jobStatus || 'Intake',
     description: labor?.description || '',
     hours: labor?.hours ?? 1,
     hourly_rate: labor?.hourly_rate ?? defaultRate ?? 75,
