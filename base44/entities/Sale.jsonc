@@ -1,0 +1,100 @@
+{
+  "name": "Sale",
+  "type": "object",
+  "properties": {
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "item_description": {
+      "type": "string"
+    },
+    "total_price": {
+      "type": "number",
+      "default": 0
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0
+    },
+    "sale_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Open",
+        "Paid"
+      ],
+      "default": "Open"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "item_description",
+    "total_price"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog, Clock } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog, Clock, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
@@ -9,7 +9,8 @@ const navItems = [
 { to: '/inventory', label: 'Inventory', icon: Package },
 { to: '/staff-tasks', label: 'Tasks', icon: ClipboardList },
 { to: '/reminders', label: 'Reminders', icon: Bell },
-{ to: '/templates', label: 'Templates', icon: LayoutTemplate }];
+{ to: '/templates', label: 'Templates', icon: LayoutTemplate },
+{ to: '/sales', label: 'Sales', icon: ShoppingBag }];
 
 
 export default function Layout() {

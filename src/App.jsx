@@ -17,6 +17,7 @@ import Templates from '@/pages/Templates';
 import Inventory from '@/pages/Inventory';
 import StaffTasks from '@/pages/StaffTasks';
 import Reminders from '@/pages/Reminders';
+import Sales from '@/pages/Sales';
 import Reports from '@/pages/Reports';
 import Staff from '@/pages/Staff';
 import ClockPortal from '@/pages/ClockPortal';
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/staff-tasks" element={<StaffTasks />} />
           <Route path="/reminders" element={<Reminders />} />
+          <Route path="/sales" element={<Sales />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/staff" element={<Staff />} />
         </Route>
