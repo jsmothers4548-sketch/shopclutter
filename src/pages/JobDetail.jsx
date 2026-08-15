@@ -7,6 +7,7 @@ import JobForm from '@/components/JobForm';
 import PartForm from '@/components/PartForm';
 import LaborForm from '@/components/LaborForm';
 import TimelineForm from '@/components/TimelineForm';
+import PaymentForm from '@/components/PaymentForm';
 import {
   ArrowLeft,
   Edit,
@@ -16,7 +17,7 @@ import {
   Receipt,
   Clock,
 } from 'lucide-react';
-import { computeBilling, computeJobProfit } from '@/lib/billing';
+import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { useAuth } from '@/lib/AuthContext';
 
 const STATUSES = [
@@ -45,19 +46,24 @@ export default function JobDetail() {
   const [showLaborForm, setShowLaborForm] = useState(false);
   const [activeLabor, setActiveLabor] = useState(null);
   const [showTimelineForm, setShowTimelineForm] = useState(false);
+  const [payments, setPayments] = useState([]);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [activePayment, setActivePayment] = useState(null);
 
   const loadData = async () => {
     try {
-      const [jobData, partsData, laborData, timelineData] = await Promise.all([
+      const [jobData, partsData, laborData, timelineData, paymentsData] = await Promise.all([
         base44.entities.Job.get(id),
         base44.entities.Part.filter({ job_id: id }),
         base44.entities.LaborEntry.filter({ job_id: id }),
         base44.entities.JobTimeline.filter({ job_id: id }, '-created_date'),
+        base44.entities.Payment.filter({ job_id: id }, '-payment_date'),
       ]);
       setJob(jobData);
       setParts(partsData);
       setLabor(laborData);
       setTimeline(timelineData);
+      setPayments(paymentsData);
       if (jobData.customer_id) {
         try {
           setCustomer(
@@ -90,6 +96,8 @@ export default function JobDetail() {
   const isClosed = job?.status === 'Closed';
   const canEdit = isAdmin || !isClosed;
   const profitData = computeJobProfit({ parts, labor, job });
+  const paidAmount = sumPayments(payments);
+  const balanceDue = Math.max(grandTotal - paidAmount, 0);
 
   const updateStatus = async (newStatus) => {
     await base44.entities.Job.update(job.id, { status: newStatus });
@@ -99,6 +107,10 @@ export default function JobDetail() {
         { $set: { job_status: newStatus } }
       ),
       base44.entities.LaborEntry.updateMany(
+        { job_id: id },
+        { $set: { job_status: newStatus } }
+      ),
+      base44.entities.Payment.updateMany(
         { job_id: id },
         { $set: { job_status: newStatus } }
       ),
@@ -120,6 +132,11 @@ export default function JobDetail() {
   const deleteLabor = async (laborId) => {
     await base44.entities.LaborEntry.delete(laborId);
     setLabor(labor.filter((l) => l.id !== laborId));
+  };
+
+  const deletePayment = async (paymentId) => {
+    await base44.entities.Payment.delete(paymentId);
+    setPayments(payments.filter((p) => p.id !== paymentId));
   };
 
   if (loading) {
@@ -398,6 +415,72 @@ export default function JobDetail() {
         )}
       </div>
 
+      {/* Payments */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-bold text-slate-900">Payments</h2>
+          {canEdit && (
+            <button
+              onClick={() => {
+                setActivePayment(null);
+                setShowPaymentForm(true);
+              }}
+              className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
+            >
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          )}
+        </div>
+        <div className="space-y-2">
+          {payments.map((p) => (
+            <div
+              key={p.id}
+              className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-slate-900 truncate">
+                  {p.payment_type}
+                  {p.method ? ` · ${p.method}` : ''}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {p.payment_date
+                    ? new Date(p.payment_date).toLocaleDateString()
+                    : ''}
+                  {p.notes ? ` · ${p.notes}` : ''}
+                </p>
+              </div>
+              <span className="text-sm font-semibold text-green-600">
+                ${p.amount.toFixed(2)}
+              </span>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    setActivePayment(p);
+                    setShowPaymentForm(true);
+                  }}
+                  className="text-slate-400 hover:text-amber-600"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  onClick={() => deletePayment(p.id)}
+                  className="text-slate-300 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          {payments.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-4">
+              No payments recorded
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Cost Summary */}
       <div className="bg-slate-900 text-white rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm text-slate-300">
@@ -437,6 +520,16 @@ export default function JobDetail() {
         <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-700">
           <span>Total</span>
           <span>${grandTotal.toFixed(2)}</span>
+        </div>
+        {paidAmount > 0 && (
+          <div className="flex justify-between text-sm text-green-400">
+            <span>Payments Received</span>
+            <span>−${paidAmount.toFixed(2)}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-700">
+          <span>Balance Due</span>
+          <span>${balanceDue.toFixed(2)}</span>
         </div>
       </div>
 
@@ -515,6 +608,22 @@ export default function JobDetail() {
           onSaved={() => {
             setShowLaborForm(false);
             setActiveLabor(null);
+            loadData();
+          }}
+        />
+      )}
+      {showPaymentForm && (
+        <PaymentForm
+          jobId={id}
+          jobStatus={job.status}
+          payment={activePayment}
+          onClose={() => {
+            setShowPaymentForm(false);
+            setActivePayment(null);
+          }}
+          onSaved={() => {
+            setShowPaymentForm(false);
+            setActivePayment(null);
             loadData();
           }}
         />

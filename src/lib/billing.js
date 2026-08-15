@@ -45,6 +45,10 @@ export function computeBilling({ parts, labor, job }) {
   };
 }
 
+export function sumPayments(payments = []) {
+  return payments.reduce((s, p) => s + (p.amount || 0), 0);
+}
+
 export function computeJobProfit({ parts, labor, job }) {
   const billing = computeBilling({ parts, labor, job });
   const partsCost = parts.reduce(
