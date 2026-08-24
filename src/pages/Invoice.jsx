@@ -75,7 +75,7 @@ export default function Invoice() {
             <p className="text-xs text-[hsl(var(--ring))]">Small Engine Repair</p>
           </div>
           <div className="text-right">
-            <h2 className="text-xl font-bold text-slate-900">INVOICE</h2>
+            <h2 className="text-xl font-bold text-[hsl(var(--primary))]">INVOICE</h2>
             <p className="text-xs text-slate-400">
               {new Date().toLocaleDateString()}
             </p>
