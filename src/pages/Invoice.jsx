@@ -71,7 +71,7 @@ export default function Invoice() {
       <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-2xl mx-auto print:border-0 print:shadow-none">
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Watford</h1>
+            <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Watford</h1>
             <p className="text-xs text-slate-400">Small Engine Repair</p>
           </div>
           <div className="text-right">
