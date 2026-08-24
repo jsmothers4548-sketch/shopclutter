@@ -72,7 +72,7 @@ export default function Invoice() {
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Watford</h1>
-            <p className="text-xs text-slate-400">Small Engine Repair</p>
+            <p className="text-xs text-[hsl(var(--ring))]">Small Engine Repair</p>
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold text-slate-900">INVOICE</h2>
