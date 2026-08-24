@@ -13,10 +13,10 @@ export default function Invoice() {
     (async () => {
       const job = await base44.entities.Job.get(id);
       const [customer, parts, labor] = await Promise.all([
-        base44.entities.Customer.get(job.customer_id),
-        base44.entities.Part.filter({ job_id: id }),
-        base44.entities.LaborEntry.filter({ job_id: id }),
-      ]);
+      base44.entities.Customer.get(job.customer_id),
+      base44.entities.Part.filter({ job_id: id }),
+      base44.entities.LaborEntry.filter({ job_id: id })]
+      );
       setData({ job, customer, parts, labor });
     })();
   }, [id]);
@@ -25,8 +25,8 @@ export default function Invoice() {
     return (
       <div className="flex justify-center py-20">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin" />
-      </div>
-    );
+      </div>);
+
   }
 
   const { job, customer, parts, labor } = data;
@@ -38,7 +38,7 @@ export default function Invoice() {
     serviceCallFee,
     subtotal,
     taxAmount,
-    grandTotal,
+    grandTotal
   } = computeBilling({ parts, labor, job });
 
   const handleText = () => {
@@ -56,14 +56,14 @@ export default function Invoice() {
         <h1 className="text-lg font-bold flex-1">Invoice</h1>
         <button
           onClick={handleText}
-          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold"
-        >
+          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold">
+          
           <MessageSquare className="w-4 h-4" /> Text
         </button>
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-1 bg-slate-900 text-white px-3 py-2 rounded-lg text-sm font-semibold"
-        >
+          className="flex items-center gap-1 bg-slate-900 text-white px-3 py-2 rounded-lg text-sm font-semibold">
+          
           <Printer className="w-4 h-4" /> Print
         </button>
       </div>
@@ -71,7 +71,7 @@ export default function Invoice() {
       <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-2xl mx-auto print:border-0 print:shadow-none">
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">ShopTrack</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Watford</h1>
             <p className="text-xs text-slate-400">Small Engine Repair</p>
           </div>
           <div className="text-right">
@@ -89,9 +89,9 @@ export default function Invoice() {
             </p>
             <p className="font-bold text-slate-900">{customer?.name}</p>
             <p className="text-sm text-slate-500">{customer?.phone}</p>
-            {customer?.address && (
-              <p className="text-sm text-slate-500">{customer.address}</p>
-            )}
+            {customer?.address &&
+            <p className="text-sm text-slate-500">{customer.address}</p>
+            }
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase mb-1">
@@ -102,14 +102,14 @@ export default function Invoice() {
               {job.make ? ` · ${job.make}` : ''}
               {job.model ? ` ${job.model}` : ''}
             </p>
-            {job.serial_number && (
-              <p className="text-sm text-slate-500">SN: {job.serial_number}</p>
-            )}
+            {job.serial_number &&
+            <p className="text-sm text-slate-500">SN: {job.serial_number}</p>
+            }
           </div>
         </div>
 
-        {parts.length > 0 && (
-          <div className="py-4 border-b border-slate-200">
+        {parts.length > 0 &&
+        <div className="py-4 border-b border-slate-200">
             <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
               Parts
             </p>
@@ -123,15 +123,15 @@ export default function Invoice() {
                 </tr>
               </thead>
               <tbody>
-                {parts.map((p) => (
-                  <tr key={p.id} className="border-b border-slate-50">
+                {parts.map((p) =>
+              <tr key={p.id} className="border-b border-slate-50">
                     <td className="py-1.5">
                       {p.name}
-                      {p.part_number && (
-                        <span className="text-xs text-slate-400 ml-1">
+                      {p.part_number &&
+                  <span className="text-xs text-slate-400 ml-1">
                           ({p.part_number})
                         </span>
-                      )}
+                  }
                     </td>
                     <td className="py-1.5 text-center">{p.quantity}</td>
                     <td className="py-1.5 text-right">
@@ -141,14 +141,14 @@ export default function Invoice() {
                       ${(p.quantity * p.unit_cost).toFixed(2)}
                     </td>
                   </tr>
-                ))}
+              )}
               </tbody>
             </table>
           </div>
-        )}
+        }
 
-        {labor.length > 0 && (
-          <div className="py-4 border-b border-slate-200">
+        {labor.length > 0 &&
+        <div className="py-4 border-b border-slate-200">
             <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
               Labor
             </p>
@@ -162,8 +162,8 @@ export default function Invoice() {
                 </tr>
               </thead>
               <tbody>
-                {labor.map((l) => (
-                  <tr key={l.id} className="border-b border-slate-50">
+                {labor.map((l) =>
+              <tr key={l.id} className="border-b border-slate-50">
                     <td className="py-1.5">{l.description}</td>
                     <td className="py-1.5 text-center">{l.hours}</td>
                     <td className="py-1.5 text-right">
@@ -173,39 +173,39 @@ export default function Invoice() {
                       ${(l.hours * l.hourly_rate).toFixed(2)}
                     </td>
                   </tr>
-                ))}
+              )}
               </tbody>
             </table>
           </div>
-        )}
+        }
 
         <div className="py-4 space-y-1 ml-auto max-w-[220px]">
           <div className="flex justify-between text-sm text-slate-500">
             <span>Parts</span>
             <span>${partsTotal.toFixed(2)}</span>
           </div>
-          {partsDiscount > 0 && (
-            <div className="flex justify-between text-sm text-green-600">
+          {partsDiscount > 0 &&
+          <div className="flex justify-between text-sm text-green-600">
               <span>Parts Discount</span>
               <span>−${partsDiscount.toFixed(2)}</span>
             </div>
-          )}
+          }
           <div className="flex justify-between text-sm text-slate-500">
             <span>Labor</span>
             <span>${laborTotal.toFixed(2)}</span>
           </div>
-          {laborDiscount > 0 && (
-            <div className="flex justify-between text-sm text-green-600">
+          {laborDiscount > 0 &&
+          <div className="flex justify-between text-sm text-green-600">
               <span>Labor Discount</span>
               <span>−${laborDiscount.toFixed(2)}</span>
             </div>
-          )}
-          {serviceCallFee > 0 && (
-            <div className="flex justify-between text-sm text-slate-500">
+          }
+          {serviceCallFee > 0 &&
+          <div className="flex justify-between text-sm text-slate-500">
               <span>Service Call Fee</span>
               <span>${serviceCallFee.toFixed(2)}</span>
             </div>
-          )}
+          }
           <div className="flex justify-between text-sm text-slate-500">
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
@@ -224,6 +224,6 @@ export default function Invoice() {
           Thank you for your business! Payment is due upon pickup.
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 }
