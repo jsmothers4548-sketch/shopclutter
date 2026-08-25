@@ -220,7 +220,7 @@ export default function Invoice() {
           </div>
         </div>
 
-        <p className="text-slate-400 mt-4 pt-4 border-t border-slate-100 text-sm">
+        <p className="text-slate-400 mt-4 pt-4 border-t border-slate-100 text-xs">
           Thank you for your business! Payment is due upon pickup.
         </p>
       </div>
