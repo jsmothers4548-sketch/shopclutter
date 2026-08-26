@@ -22,42 +22,42 @@ export default function Layout() {
         <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
           <Wrench className="w-5 h-5 text-slate-900" />
         </div>
-        <span className="font-bold text-lg tracking-tight">Shop Flow</span>
+        <span className="font-bold text-lg tracking-tight">Shop Clutter</span>
         <div className="ml-auto flex items-center gap-1.5">
           <NavLink
             to="/clock"
             className={({ isActive }) =>
-              `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
-              }`
-            }
-          >
+            `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+            isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'}`
+
+            }>
+            
             <Clock className="w-4 h-4" /> Clock
           </NavLink>
-          {isAdmin && (
-            <>
+          {isAdmin &&
+          <>
               <NavLink
-                to="/staff"
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                    isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
-                  }`
-                }
-              >
+              to="/staff"
+              className={({ isActive }) =>
+              `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+              isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'}`
+
+              }>
+              
                 <UserCog className="w-4 h-4" /> Staff
               </NavLink>
               <NavLink
-                to="/reports"
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                    isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'
-                  }`
-                }
-              >
+              to="/reports"
+              className={({ isActive }) =>
+              `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+              isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'}`
+
+              }>
+              
                 <BarChart3 className="w-4 h-4" /> Reports
               </NavLink>
             </>
-          )}
+          }
         </div>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full pb-20 print:pb-0">
