@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
   Dialog,
@@ -27,12 +27,34 @@ export default function SaleForm({ sale, onClose, onSaved }) {
     sale?.sale_date || new Date().toISOString().slice(0, 10)
   );
   const [status, setStatus] = useState(sale?.status || 'Open');
+  const [partNumber, setPartNumber] = useState(sale?.part_number || '');
+  const [manualUnitCost, setManualUnitCost] = useState(
+    sale?.unit_cost !== undefined ? sale.unit_cost : ''
+  );
+  const [shopItems, setShopItems] = useState([]);
   const [notes, setNotes] = useState(sale?.notes || '');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     base44.entities.Customer.list('-created_date', 200).then(setCustomers).catch(() => {});
+    base44.entities.ShopItem.list('-created_date', 500).then(setShopItems).catch(() => {});
   }, []);
+
+  const matchedItem = useMemo(() => {
+    const pn = partNumber.trim().toLowerCase();
+    const desc = itemDescription.trim().toLowerCase();
+    if (!pn && !desc) return null;
+    return (
+      shopItems.find((s) => s.part_number && s.part_number.toLowerCase() === pn) ||
+      shopItems.find((s) => s.name && s.name.toLowerCase() === desc) ||
+      shopItems.find((s) => s.name && desc && s.name.toLowerCase().includes(desc))
+    );
+  }, [partNumber, itemDescription, shopItems]);
+
+  const effectiveCost = matchedItem
+    ? Number(matchedItem.unit_cost) || 0
+    : Number(manualUnitCost) || 0;
+  const saleProfit = (Number(totalPrice) || 0) - effectiveCost;
 
   const totalNum = Number(totalPrice) || 0;
   const paidNum = Number(amountPaid) || 0;
@@ -47,6 +69,8 @@ export default function SaleForm({ sale, onClose, onSaved }) {
       customer_id: customerId || undefined,
       customer_name: customerId ? cust?.name || '' : 'Walk-in',
       item_description: itemDescription,
+      part_number: partNumber,
+      unit_cost: effectiveCost,
       total_price: totalNum,
       amount_paid: paidNum,
       sale_date: saleDate,
@@ -95,6 +119,15 @@ export default function SaleForm({ sale, onClose, onSaved }) {
               placeholder="e.g. Husqvarna chainsaw"
             />
           </div>
+          <div>
+            <Label htmlFor="pn">Part Number (optional)</Label>
+            <Input
+              id="pn"
+              value={partNumber}
+              onChange={(e) => setPartNumber(e.target.value)}
+              placeholder="Links cost from inventory"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="total">Total Price</Label>
@@ -127,6 +160,39 @@ export default function SaleForm({ sale, onClose, onSaved }) {
                 className={`font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}`}
               >
                 ${balance.toFixed(2)}
+              </span>
+            </div>
+          )}
+          {matchedItem ? (
+            <div className="flex items-center justify-between text-sm bg-green-50 rounded-md px-3 py-2">
+              <span className="text-green-700 font-medium">
+                Linked to inventory: {matchedItem.name}
+              </span>
+              <span className="text-green-700 font-semibold">
+                Cost ${effectiveCost.toFixed(2)}
+              </span>
+            </div>
+          ) : (
+            <div>
+              <Label htmlFor="ucost">Unit Cost (optional)</Label>
+              <Input
+                id="ucost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={manualUnitCost}
+                onChange={(e) => setManualUnitCost(e.target.value)}
+                placeholder="No inventory match"
+              />
+            </div>
+          )}
+          {totalPrice !== '' && (
+            <div className="flex justify-between text-sm bg-slate-50 rounded-md px-3 py-2">
+              <span className="text-slate-500">Profit</span>
+              <span
+                className={`font-bold ${saleProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                ${saleProfit.toFixed(2)}
               </span>
             </div>
           )}

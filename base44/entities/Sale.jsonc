@@ -11,6 +11,13 @@
     "item_description": {
       "type": "string"
     },
+    "part_number": {
+      "type": "string"
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0
+    },
     "total_price": {
       "type": "number",
       "default": 0

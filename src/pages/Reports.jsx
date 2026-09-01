@@ -11,6 +11,8 @@ export default function Reports() {
   const [jobs, setJobs] = useState([]);
   const [parts, setParts] = useState([]);
   const [labor, setLabor] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [shopItems, setShopItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -25,14 +27,18 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, shopItemsData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
+          base44.entities.Sale.list('-sale_date', 500),
+          base44.entities.ShopItem.list(),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
         setLabor(Array.isArray(laborData) ? laborData : []);
+        setSales(Array.isArray(salesData) ? salesData : []);
+        setShopItems(Array.isArray(shopItemsData) ? shopItemsData : []);
       } finally {
         setLoading(false);
       }
@@ -90,6 +96,52 @@ export default function Reports() {
       profit: revenue - partsCost - laborCost,
     };
   }, [jobProfits]);
+
+  const filteredSales = useMemo(() => {
+    return sales.filter(
+      (s) => new Date(s.sale_date || s.created_date).getFullYear() === year
+    );
+  }, [sales, year]);
+
+  const salesRows = useMemo(() => {
+    return filteredSales.map((s) => {
+      const pn = (s.part_number || '').trim().toLowerCase();
+      const desc = (s.item_description || '').trim().toLowerCase();
+      const matched =
+        shopItems.find((si) => si.part_number && si.part_number.toLowerCase() === pn) ||
+        shopItems.find((si) => si.name && si.name.toLowerCase() === desc);
+      const cost = matched ? Number(matched.unit_cost) || 0 : Number(s.unit_cost) || 0;
+      const revenue = Number(s.total_price) || 0;
+      return {
+        id: s.id,
+        customer_name: s.customer_name || 'Walk-in',
+        item_description: s.item_description,
+        sale_date: s.sale_date,
+        revenue,
+        cost,
+        profit: revenue - cost,
+      };
+    });
+  }, [filteredSales, shopItems]);
+
+  const salesTotals = useMemo(() => {
+    let revenue = 0,
+      cost = 0;
+    for (const r of salesRows) {
+      revenue += r.revenue;
+      cost += r.cost;
+    }
+    return { revenue, cost, profit: revenue - cost };
+  }, [salesRows]);
+
+  const combined = useMemo(
+    () => ({
+      revenue: totals.revenue + salesTotals.revenue,
+      cost: totals.partsCost + totals.laborCost + salesTotals.cost,
+      profit: totals.profit + salesTotals.profit,
+    }),
+    [totals, salesTotals]
+  );
 
   const employeeStats = useMemo(() => {
     const map = {};
@@ -170,6 +222,39 @@ export default function Reports() {
         <p className="text-sm text-slate-500">
           Generated {new Date().toLocaleDateString()}
         </p>
+      </div>
+
+      {/* Combined Summary */}
+      <div className="bg-slate-900 text-white rounded-xl p-4 space-y-3">
+        <h2 className="font-bold">Combined — Shop + Sales — {year}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p className="text-xs text-slate-400">Total Revenue</p>
+            <p className="text-lg font-bold">${combined.revenue.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Total Cost</p>
+            <p className="text-lg font-bold">${combined.cost.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Net Profit</p>
+            <p
+              className={`text-lg font-bold ${combined.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+            >
+              ${combined.profit.toFixed(2)}
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700 text-sm">
+          <div className="flex justify-between">
+            <span className="text-slate-400">Shop (Jobs)</span>
+            <span className="font-semibold">${totals.profit.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-400">Sales</span>
+            <span className="font-semibold">${salesTotals.profit.toFixed(2)}</span>
+          </div>
+        </div>
       </div>
 
       {/* P&L Summary */}
@@ -308,6 +393,83 @@ export default function Reports() {
                   >
                     {jp.profit >= 0 ? '+' : ''}
                     ${jp.profit.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Sales P&L */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+        <h2 className="font-bold text-slate-900">Sales — {year}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-green-50 rounded-lg p-3">
+            <p className="text-xs text-green-600 font-medium">Sales Revenue</p>
+            <p className="text-lg font-bold text-green-700">
+              ${salesTotals.revenue.toFixed(2)}
+            </p>
+          </div>
+          <div className="bg-red-50 rounded-lg p-3">
+            <p className="text-xs text-red-600 font-medium">Item Cost</p>
+            <p className="text-lg font-bold text-red-700">
+              −${salesTotals.cost.toFixed(2)}
+            </p>
+          </div>
+          <div
+            className={`rounded-lg p-3 ${salesTotals.profit >= 0 ? 'bg-blue-50' : 'bg-red-50'}`}
+          >
+            <p
+              className={`text-xs font-medium ${salesTotals.profit >= 0 ? 'text-blue-600' : 'text-red-600'}`}
+            >
+              Sales Profit
+            </p>
+            <p
+              className={`text-lg font-bold ${salesTotals.profit >= 0 ? 'text-blue-700' : 'text-red-700'}`}
+            >
+              ${salesTotals.profit.toFixed(2)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Sales Breakdown */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <h2 className="font-bold text-slate-900 mb-3">
+          Sales Breakdown — {year}
+        </h2>
+        {salesRows.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-4">
+            No sales in this period
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {salesRows.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-900 truncate">
+                    {r.item_description || '—'}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {r.customer_name}
+                    {r.sale_date
+                      ? ` · ${new Date(r.sale_date).toLocaleDateString()}`
+                      : ''}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-semibold">
+                    ${r.revenue.toFixed(2)}
+                  </p>
+                  <p
+                    className={`text-xs font-medium ${r.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {r.profit >= 0 ? '+' : ''}
+                    ${r.profit.toFixed(2)}
                   </p>
                 </div>
               </div>
