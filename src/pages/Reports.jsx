@@ -17,6 +17,8 @@ export default function Reports() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [visibleJobs, setVisibleJobs] = useState(10);
+  const [visibleSales, setVisibleSales] = useState(10);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -368,7 +370,7 @@ export default function Reports() {
           </p>
         ) : (
           <div className="space-y-2">
-            {jobProfits.map((jp) => (
+            {jobProfits.slice(0, visibleJobs).map((jp) => (
               <div
                 key={jp.job.id}
                 className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
@@ -397,6 +399,22 @@ export default function Reports() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {jobProfits.length > visibleJobs && (
+          <div className="flex justify-center gap-3 pt-3 print:hidden">
+            <button
+              onClick={() => setVisibleJobs((v) => v + 10)}
+              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
+            >
+              Show 10 more
+            </button>
+            <button
+              onClick={() => setVisibleJobs(jobProfits.length)}
+              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
+            >
+              Show all ({jobProfits.length})
+            </button>
           </div>
         )}
       </div>
@@ -445,7 +463,7 @@ export default function Reports() {
           </p>
         ) : (
           <div className="space-y-2">
-            {salesRows.map((r) => (
+            {salesRows.slice(0, visibleSales).map((r) => (
               <div
                 key={r.id}
                 className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
@@ -474,6 +492,22 @@ export default function Reports() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {salesRows.length > visibleSales && (
+          <div className="flex justify-center gap-3 pt-3 print:hidden">
+            <button
+              onClick={() => setVisibleSales((v) => v + 10)}
+              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
+            >
+              Show 10 more
+            </button>
+            <button
+              onClick={() => setVisibleSales(salesRows.length)}
+              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
+            >
+              Show all ({salesRows.length})
+            </button>
           </div>
         )}
       </div>
