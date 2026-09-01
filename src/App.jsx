@@ -20,6 +20,8 @@ import Reminders from '@/pages/Reminders';
 import Sales from '@/pages/Sales';
 import Reports from '@/pages/Reports';
 import Staff from '@/pages/Staff';
+import StaffDetail from '@/pages/StaffDetail';
+import SaleDetail from '@/pages/SaleDetail';
 import ClockPortal from '@/pages/ClockPortal';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
@@ -60,6 +62,8 @@ const AuthenticatedApp = () => {
           <Route path="/sales" element={<Sales />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/staff" element={<Staff />} />
+          <Route path="/staff/:id" element={<StaffDetail />} />
+          <Route path="/sales/:id" element={<SaleDetail />} />
         </Route>
         <Route path="/clock" element={<ClockPortal />} />
       </Route>

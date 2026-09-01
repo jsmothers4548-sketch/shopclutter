@@ -13,6 +13,7 @@ export default function Reports() {
   const [labor, setLabor] = useState([]);
   const [sales, setSales] = useState([]);
   const [shopItems, setShopItems] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -29,18 +30,20 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData, salesData, shopItemsData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, shopItemsData, staffData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
           base44.entities.Sale.list('-sale_date', 500),
           base44.entities.ShopItem.list(),
+          base44.entities.Staff.list('-created_date'),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
         setLabor(Array.isArray(laborData) ? laborData : []);
         setSales(Array.isArray(salesData) ? salesData : []);
         setShopItems(Array.isArray(shopItemsData) ? shopItemsData : []);
+        setStaff(Array.isArray(staffData) ? staffData : []);
       } finally {
         setLoading(false);
       }
@@ -167,6 +170,12 @@ export default function Reports() {
       }))
       .sort((a, b) => b.earned - a.earned);
   }, [labor, filteredJobIds]);
+
+  const staffByName = useMemo(() => {
+    const m = {};
+    for (const s of staff) m[s.name] = s.id;
+    return m;
+  }, [staff]);
 
   if (loading) {
     return (
@@ -339,8 +348,14 @@ export default function Reports() {
               </tr>
             </thead>
             <tbody>
-              {employeeStats.map((emp) => (
-                <tr key={emp.name} className="border-b border-slate-50">
+              {employeeStats.map((emp) => {
+                const sid = staffByName[emp.name];
+                return (
+                <tr
+                  key={emp.name}
+                  className={`border-b border-slate-50 ${sid ? 'cursor-pointer hover:bg-slate-50' : ''}`}
+                  onClick={sid ? () => navigate(`/staff/${sid}`) : undefined}
+                >
                   <td className="py-2 font-medium text-slate-900">
                     {emp.name}
                   </td>
@@ -353,7 +368,8 @@ export default function Reports() {
                     ${emp.earned.toFixed(2)}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -373,7 +389,8 @@ export default function Reports() {
             {jobProfits.slice(0, visibleJobs).map((jp) => (
               <div
                 key={jp.job.id}
-                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
+                onClick={() => navigate(`/jobs/${jp.job.id}`)}
+                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-900 truncate">
@@ -466,7 +483,8 @@ export default function Reports() {
             {salesRows.slice(0, visibleSales).map((r) => (
               <div
                 key={r.id}
-                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
+                onClick={() => navigate(`/sales/${r.id}`)}
+                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-900 truncate">

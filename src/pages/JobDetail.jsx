@@ -16,6 +16,7 @@ import {
   FileText,
   Receipt,
   Clock,
+  Printer,
 } from 'lucide-react';
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { useAuth } from '@/lib/AuthContext';
@@ -158,6 +159,12 @@ export default function JobDetail() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold flex-1 truncate">Job Details</h1>
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
+        >
+          <Printer className="w-4 h-4" /> Print
+        </button>
         {canEdit && (
           <button onClick={() => setShowJobForm(true)} className="p-2 text-slate-500">
             <Edit className="w-5 h-5" />
