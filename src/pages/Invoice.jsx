@@ -113,19 +113,25 @@ export default function Invoice() {
             <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
               Parts
             </p>
-            <table className="w-full text-sm">
+            <table className="w-full table-fixed text-sm">
+              <colgroup>
+                <col />
+                <col className="w-20" />
+                <col className="w-28" />
+                <col className="w-32" />
+              </colgroup>
               <thead>
                 <tr className="text-left text-xs text-slate-400 border-b border-slate-200">
-                  <th className="pb-2">Part</th>
-                  <th className="pb-2 text-center">Qty</th>
-                  <th className="pb-2 text-right">Unit</th>
-                  <th className="pb-2 text-right">Total</th>
+                  <th className="pb-2 px-2">Part</th>
+                  <th className="pb-2 px-2 text-center">Qty</th>
+                  <th className="pb-2 px-2 text-right">Unit</th>
+                  <th className="pb-2 px-2 text-right">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {parts.map((p) =>
               <tr key={p.id} className="border-b border-slate-50">
-                    <td className="py-3">
+                    <td className="py-3 px-2">
                       {p.name}
                       {p.part_number &&
                   <span className="text-xs text-slate-400 ml-1">
@@ -133,11 +139,11 @@ export default function Invoice() {
                         </span>
                   }
                     </td>
-                    <td className="py-3 text-center">{p.quantity}</td>
-                    <td className="py-3 text-right">
+                    <td className="py-3 px-2 text-center">{p.quantity}</td>
+                    <td className="py-3 px-2 text-right">
                       ${p.unit_cost.toFixed(2)}
                     </td>
-                    <td className="py-3 text-right font-medium">
+                    <td className="py-3 px-2 text-right font-medium">
                       ${(p.quantity * p.unit_cost).toFixed(2)}
                     </td>
                   </tr>
@@ -152,24 +158,30 @@ export default function Invoice() {
             <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
               Labor
             </p>
-            <table className="w-full text-sm">
+            <table className="w-full table-fixed text-sm">
+              <colgroup>
+                <col />
+                <col className="w-20" />
+                <col className="w-28" />
+                <col className="w-32" />
+              </colgroup>
               <thead>
                 <tr className="text-left text-xs text-slate-400 border-b border-slate-200">
-                  <th className="pb-2">Description</th>
-                  <th className="pb-2 text-center">Hours</th>
-                  <th className="pb-2 text-right">Rate</th>
-                  <th className="pb-2 text-right">Total</th>
+                  <th className="pb-2 px-2">Description</th>
+                  <th className="pb-2 px-2 text-center">Hours</th>
+                  <th className="pb-2 px-2 text-right">Rate</th>
+                  <th className="pb-2 px-2 text-right">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {labor.map((l) =>
               <tr key={l.id} className="border-b border-slate-50">
-                    <td className="py-3">{l.description}</td>
-                    <td className="py-3 text-center">{l.hours}</td>
-                    <td className="py-3 text-right">
+                    <td className="py-3 px-2">{l.description}</td>
+                    <td className="py-3 px-2 text-center">{l.hours}</td>
+                    <td className="py-3 px-2 text-right">
                       ${l.hourly_rate.toFixed(2)}
                     </td>
-                    <td className="py-3 text-right font-medium">
+                    <td className="py-3 px-2 text-right font-medium">
                       ${(l.hours * l.hourly_rate).toFixed(2)}
                     </td>
                   </tr>
