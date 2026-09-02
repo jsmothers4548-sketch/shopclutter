@@ -60,11 +60,11 @@ export default function Layout() {
           }
         </div>
       </header>
-      <main className="flex-1 max-w-2xl mx-auto w-full pb-20 print:pb-0">
+      <main className="flex-1 w-full max-w-6xl mx-auto pb-20 print:pb-0">
         <Outlet />
       </main>
       <nav className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 z-30 print:hidden">
-        <div className="max-w-2xl mx-auto flex">
+        <div className="max-w-6xl mx-auto flex">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
