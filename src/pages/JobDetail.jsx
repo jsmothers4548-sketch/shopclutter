@@ -17,6 +17,7 @@ import {
   Receipt,
   Clock,
   Printer,
+  AlertTriangle,
 } from 'lucide-react';
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { useAuth } from '@/lib/AuthContext';
@@ -140,6 +141,25 @@ export default function JobDetail() {
     setPayments(payments.filter((p) => p.id !== paymentId));
   };
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteJob = async () => {
+    setDeleting(true);
+    try {
+      await Promise.all([
+        base44.entities.Part.deleteMany({ job_id: id }),
+        base44.entities.LaborEntry.deleteMany({ job_id: id }),
+        base44.entities.Payment.deleteMany({ job_id: id }),
+        base44.entities.JobTimeline.deleteMany({ job_id: id }),
+      ]);
+      await base44.entities.Job.delete(id);
+      navigate('/');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -168,6 +188,14 @@ export default function JobDetail() {
         {canEdit && (
           <button onClick={() => setShowJobForm(true)} className="p-2 text-slate-500">
             <Edit className="w-5 h-5" />
+          </button>
+        )}
+        {isAdmin && (
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="p-2 text-red-500"
+          >
+            <Trash2 className="w-5 h-5" />
           </button>
         )}
       </div>
@@ -645,6 +673,38 @@ export default function JobDetail() {
             loadData();
           }}
         />
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-5 max-w-sm w-full space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Delete this job?</h3>
+            </div>
+            <p className="text-sm text-slate-500">
+              This permanently removes the job and all its parts, labor, payments,
+              and timeline entries. This can't be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-2.5 rounded-lg border border-slate-200 font-semibold text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteJob}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-semibold text-sm disabled:opacity-50"
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,22 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
     labor_discount_value: job?.labor_discount_value ?? 0,
   });
   const [saving, setSaving] = useState(false);
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    base44.entities.Customer.list('-created_date', 500).then((list) =>
+      setCustomers(Array.isArray(list) ? list : [])
+    );
+  }, []);
+
+  const handleCustomerChange = (customerId) => {
+    const c = customers.find((x) => x.id === customerId);
+    setForm((prev) => ({
+      ...prev,
+      customer_id: customerId,
+      customer_name: c?.name || '',
+    }));
+  };
 
   const handleLocationChange = (loc) => {
     setForm((prev) => {
@@ -96,6 +112,24 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <Label>Customer *</Label>
+            <select
+              value={form.customer_id || ''}
+              onChange={(e) => handleCustomerChange(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              required
+            >
+              <option value="" disabled>
+                Select a customer…
+              </option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <Label>Job Location</Label>
             <div className="grid grid-cols-2 gap-2">
