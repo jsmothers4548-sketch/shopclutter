@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import ShopItemForm from '@/components/ShopItemForm';
 import RestockDialog from '@/components/RestockDialog';
+import CategoryForm from '@/components/CategoryForm';
+import { useAuth } from '@/lib/AuthContext';
 import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search } from 'lucide-react';
 
 const CATEGORY_COLORS = {
@@ -14,6 +16,8 @@ const CATEGORY_COLORS = {
   'Other': 'bg-slate-100 text-slate-600',
 };
 
+const DEFAULT_CATEGORIES = ['Spark Plugs', 'Filters', 'Oil & Fluids', 'Belts', 'Blades', 'Hardware', 'Other'];
+
 export default function Inventory() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,13 +27,21 @@ export default function Inventory() {
   const [restockItem, setRestockItem] = useState(null);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [savedCategories, setSavedCategories] = useState([]);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const loadItems = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await base44.entities.ShopItem.list('-created_date', 200);
+      const [data, catData] = await Promise.all([
+        base44.entities.ShopItem.list('-created_date', 200),
+        base44.entities.InventoryCategory.list('name', 200),
+      ]);
       setItems(Array.isArray(data) ? data : []);
+      setSavedCategories(Array.isArray(catData) ? catData.map((c) => c.name) : []);
     } catch (err) {
       setError(err);
       setItems([]);
@@ -58,8 +70,13 @@ export default function Inventory() {
   }, [items]);
 
   const categories = useMemo(
-    () => [...new Set(items.map((i) => i.category).filter(Boolean))].sort(),
-    [items]
+    () =>
+      [...new Set([
+        ...DEFAULT_CATEGORIES,
+        ...savedCategories,
+        ...items.map((i) => i.category).filter(Boolean),
+      ])].sort(),
+    [items, savedCategories]
   );
 
   const filteredItems = useMemo(() => {
@@ -134,6 +151,32 @@ export default function Inventory() {
         </div>
       </div>
 
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
+        {['All', ...categories].map((cat) => (
+          <button
+            key={cat}
+            onClick={() =>
+              setActiveCategory(activeCategory === cat ? 'All' : cat)
+            }
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+              activeCategory === cat
+                ? 'bg-amber-500 text-slate-900 border-amber-500'
+                : 'bg-white text-slate-600 border-slate-200'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+        {isAdmin && (
+          <button
+            onClick={() => setShowCategoryForm(true)}
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-amber-500 text-amber-600 bg-white active:bg-amber-50"
+          >
+            <Plus className="w-3.5 h-3.5" /> Category
+          </button>
+        )}
+      </div>
+
       {items.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
           <Package className="w-12 h-12 mx-auto mb-3 opacity-40" />
@@ -150,25 +193,6 @@ export default function Inventory() {
               className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
-          {categories.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
-              {['All', ...categories].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() =>
-                    setActiveCategory(activeCategory === cat ? 'All' : cat)
-                  }
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                    activeCategory === cat
-                      ? 'bg-amber-500 text-slate-900 border-amber-500'
-                      : 'bg-white text-slate-600 border-slate-200'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          )}
           <div className="space-y-2">
             {filteredItems.map((item) => {
             const stock = Number(item.stock_quantity) || 0;
@@ -237,6 +261,15 @@ export default function Inventory() {
           categories={categories}
           onClose={() => { setShowForm(false); setEditItem(null); }}
           onSaved={() => { setShowForm(false); setEditItem(null); loadItems(); }}
+        />
+      )}
+      {showCategoryForm && (
+        <CategoryForm
+          onClose={() => setShowCategoryForm(false)}
+          onSaved={() => {
+            setShowCategoryForm(false);
+            loadItems();
+          }}
         />
       )}
       {restockItem && (
