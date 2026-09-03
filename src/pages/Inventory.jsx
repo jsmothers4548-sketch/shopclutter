@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import ShopItemForm from '@/components/ShopItemForm';
 import RestockDialog from '@/components/RestockDialog';
-import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus } from 'lucide-react';
+import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search } from 'lucide-react';
 
 const CATEGORY_COLORS = {
   'Spark Plugs': 'bg-orange-100 text-orange-700',
@@ -21,6 +21,8 @@ export default function Inventory() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [restockItem, setRestockItem] = useState(null);
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
   const loadItems = useCallback(async () => {
     setLoading(true);
@@ -54,6 +56,24 @@ export default function Inventory() {
         (Number(i.stock_quantity) || 0) <= (Number(i.reorder_threshold) || 0)
     ).length;
   }, [items]);
+
+  const categories = useMemo(
+    () => [...new Set(items.map((i) => i.category).filter(Boolean))].sort(),
+    [items]
+  );
+
+  const filteredItems = useMemo(() => {
+    const q = search.toLowerCase();
+    return items.filter((i) => {
+      const matchesSearch =
+        !q ||
+        i.name?.toLowerCase().includes(q) ||
+        i.part_number?.toLowerCase().includes(q);
+      const matchesCategory =
+        activeCategory === 'All' || i.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, search, activeCategory]);
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}" from inventory?`)) return;
@@ -120,8 +140,37 @@ export default function Inventory() {
           <p className="text-sm">No inventory items yet</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {items.map((item) => {
+        <>
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name or part number..."
+              className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+          </div>
+          {categories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
+              {['All', ...categories].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() =>
+                    setActiveCategory(activeCategory === cat ? 'All' : cat)
+                  }
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    activeCategory === cat
+                      ? 'bg-amber-500 text-slate-900 border-amber-500'
+                      : 'bg-white text-slate-600 border-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="space-y-2">
+            {filteredItems.map((item) => {
             const stock = Number(item.stock_quantity) || 0;
             const threshold = Number(item.reorder_threshold) || 0;
             const isLow = threshold > 0 && stock <= threshold;
@@ -173,12 +222,19 @@ export default function Inventory() {
               </div>
             );
           })}
-        </div>
+          </div>
+          {filteredItems.length === 0 && (
+            <p className="text-center text-slate-400 text-sm py-10">
+              No items found
+            </p>
+          )}
+        </>
       )}
 
       {showForm && (
         <ShopItemForm
           item={editItem}
+          categories={categories}
           onClose={() => { setShowForm(false); setEditItem(null); }}
           onSaved={() => { setShowForm(false); setEditItem(null); loadItems(); }}
         />

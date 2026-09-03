@@ -15,7 +15,10 @@ const CATEGORIES = ['Spark Plugs', 'Filters', 'Oil & Fluids', 'Belts', 'Blades',
 
 const selectClass = 'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm md:text-sm';
 
-export default function ShopItemForm({ item, onClose, onSaved }) {
+const NEW_CATEGORY = '__new__';
+
+export default function ShopItemForm({ item, categories = CATEGORIES, onClose, onSaved }) {
+  const [newCategory, setNewCategory] = useState('');
   const [form, setForm] = useState({
     name: item?.name || '',
     part_number: item?.part_number || '',
@@ -31,10 +34,14 @@ export default function ShopItemForm({ item, onClose, onSaved }) {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload =
+        form.category === NEW_CATEGORY
+          ? { ...form, category: newCategory.trim() || 'Other' }
+          : form;
       if (item) {
-        await base44.entities.ShopItem.update(item.id, form);
+        await base44.entities.ShopItem.update(item.id, payload);
       } else {
-        await base44.entities.ShopItem.create(form);
+        await base44.entities.ShopItem.create(payload);
       }
       onSaved();
     } finally {
@@ -74,12 +81,23 @@ export default function ShopItemForm({ item, onClose, onSaved }) {
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className={selectClass}
               >
-                {CATEGORIES.map((c) => (
+                {[...new Set(categories)].map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
+                <option value={NEW_CATEGORY}>Add new category…</option>
               </select>
             </div>
           </div>
+          {form.category === NEW_CATEGORY && (
+            <div>
+              <Label>New Category Name *</Label>
+              <Input
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="e.g. Carburetors"
+              />
+            </div>
+          )}
           <div>
             <Label>Supplier</Label>
             <Input

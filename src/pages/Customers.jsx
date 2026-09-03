@@ -29,11 +29,13 @@ export default function Customers() {
     }
   };
 
-  const filtered = customers.filter(
-    (c) =>
-      c.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone?.includes(search)
-  );
+  const filtered = customers
+    .filter(
+      (c) =>
+        c.name?.toLowerCase().includes(search.toLowerCase()) ||
+        c.phone?.includes(search)
+    )
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
   const getJobCount = (customerId) =>
     jobs.filter((j) => j.customer_id === customerId).length;
