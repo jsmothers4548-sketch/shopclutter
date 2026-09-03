@@ -178,7 +178,14 @@ export default function JobDetail() {
         <button onClick={() => navigate(-1)} className="p-1">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-bold flex-1 truncate">Job Details</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-bold leading-tight truncate">Job Details</h1>
+          {job.customer_name && (
+            <p className="text-sm font-semibold text-amber-600 truncate">
+              {job.customer_name}
+            </p>
+          )}
+        </div>
         <button
           onClick={() => window.print()}
           className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
