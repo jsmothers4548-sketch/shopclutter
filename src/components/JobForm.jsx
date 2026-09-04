@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import QrScanner from '@/components/QrScanner';
+import { ScanLine } from 'lucide-react';
 
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
@@ -21,17 +23,17 @@ const EQUIPMENT_TYPES = [
   'Other',
 ];
 
-export default function JobForm({ customer, job, template, jobLocation, onClose, onSaved }) {
+export default function JobForm({ customer, unit, job, template, jobLocation, onClose, onSaved }) {
   const [form, setForm] = useState({
-    customer_id: customer?.id || job?.customer_id,
-    customer_name: customer?.name || job?.customer_name || '',
+    customer_id: customer?.id || unit?.customer_id || job?.customer_id,
+    customer_name: customer?.name || unit?.customer_name || job?.customer_name || '',
     job_location: jobLocation || job?.job_location || 'On-site',
     offsite_address: job?.offsite_address || '',
     service_call_fee: job?.service_call_fee ?? (jobLocation === 'Off-site' ? 80 : 0),
-    equipment_type: job?.equipment_type || template?.equipment_type || 'Lawn Mower',
-    make: job?.make || '',
-    model: job?.model || '',
-    serial_number: job?.serial_number || '',
+    equipment_type: unit?.equipment_type || job?.equipment_type || template?.equipment_type || 'Lawn Mower',
+    make: unit?.make || job?.make || '',
+    model: unit?.model || job?.model || '',
+    serial_number: unit?.serial_number || job?.serial_number || '',
     problem_description: job?.problem_description || template?.problem_description || '',
     status: job?.status || 'Intake',
     tax_rate: job?.tax_rate ?? template?.tax_rate ?? 7,
@@ -43,12 +45,53 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
   });
   const [saving, setSaving] = useState(false);
   const [customers, setCustomers] = useState([]);
+  const [unitId, setUnitId] = useState(unit?.id || job?.unit_id || null);
+  const [unitLabel, setUnitLabel] = useState(unit?.label_number || '');
+  const [unitNote, setUnitNote] = useState(unit ? `Unit #${unit.label_number} linked` : '');
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     base44.entities.Customer.list('-created_date', 500).then((list) =>
       setCustomers(Array.isArray(list) ? list : [])
     );
   }, []);
+
+  useEffect(() => {
+    if (job?.unit_id) {
+      base44.entities.Equipment.get(job.unit_id)
+        .then((u) => u && setUnitLabel(u.label_number || ''))
+        .catch(() => {});
+    }
+  }, [job]);
+
+  const lookupUnit = async (raw) => {
+    const value = (raw || '').trim();
+    if (!value) {
+      setUnitId(null);
+      setUnitNote('');
+      return;
+    }
+    const found = await base44.entities.Equipment.filter({
+      label_number: value,
+    });
+    const u = Array.isArray(found) ? found[0] : null;
+    if (u) {
+      setUnitId(u.id);
+      setForm((prev) => ({
+        ...prev,
+        equipment_type: u.equipment_type || prev.equipment_type,
+        make: u.make || prev.make,
+        model: u.model || prev.model,
+        serial_number: u.serial_number || prev.serial_number,
+        customer_id: u.customer_id || prev.customer_id,
+        customer_name: u.customer_name || prev.customer_name,
+      }));
+      setUnitNote(`Unit #${u.label_number} — existing unit, details loaded`);
+    } else {
+      setUnitId(null);
+      setUnitNote(`Unit #${value} is new — it will be created for this job`);
+    }
+  };
 
   const handleCustomerChange = (customerId) => {
     const c = customers.find((x) => x.id === customerId);
@@ -77,11 +120,26 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
     e.preventDefault();
     setSaving(true);
     try {
+      let finalUnitId = unitId;
+      const label = unitLabel.trim();
+      if (label && !finalUnitId) {
+        const createdUnit = await base44.entities.Equipment.create({
+          label_number: label,
+          customer_id: form.customer_id,
+          customer_name: form.customer_name,
+          equipment_type: form.equipment_type,
+          make: form.make,
+          model: form.model,
+          serial_number: form.serial_number,
+        });
+        finalUnitId = createdUnit.id;
+      }
+      const payload = { ...form, unit_id: finalUnitId || null };
       let saved;
       if (job) {
-        saved = await base44.entities.Job.update(job.id, form);
+        saved = await base44.entities.Job.update(job.id, payload);
       } else {
-        saved = await base44.entities.Job.create(form);
+        saved = await base44.entities.Job.create(payload);
         if (template) {
           const parts = template.parts_data ? JSON.parse(template.parts_data) : [];
           const labor = template.labor_data ? JSON.parse(template.labor_data) : [];
@@ -129,6 +187,29 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <Label>Unit Label #</Label>
+            <div className="flex gap-2">
+              <Input
+                value={unitLabel}
+                onChange={(e) => setUnitLabel(e.target.value)}
+                onBlur={(e) => lookupUnit(e.target.value)}
+                placeholder="e.g. 1001"
+                inputMode="numeric"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowScanner(true)}
+                className="px-3"
+              >
+                <ScanLine className="w-4 h-4" />
+              </Button>
+            </div>
+            {unitNote && (
+              <p className="text-xs text-amber-600 mt-1">{unitNote}</p>
+            )}
           </div>
           <div>
             <Label>Job Location</Label>
@@ -337,6 +418,17 @@ export default function JobForm({ customer, job, template, jobLocation, onClose,
             </Button>
           </DialogFooter>
         </form>
+        {showScanner && (
+          <QrScanner
+            onClose={() => setShowScanner(false)}
+            onResult={(text) => {
+              setShowScanner(false);
+              const value = (text.match(/\d+/) || [])[0] || text;
+              setUnitLabel(value);
+              lookupUnit(value);
+            }}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

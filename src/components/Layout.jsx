@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog, Clock, ShoppingBag } from 'lucide-react';
+import { Wrench, Users, LayoutTemplate, Package, ClipboardList, Bell, BarChart3, UserCog, Clock, ShoppingBag, Boxes } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
@@ -55,6 +55,15 @@ export default function Layout() {
               }>
               
                 <BarChart3 className="w-4 h-4" /> Reports
+              </NavLink>
+              <NavLink
+              to="/units"
+              className={({ isActive }) =>
+              `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+              isActive ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20'}`
+
+              }>
+                <Boxes className="w-4 h-4" /> Units
               </NavLink>
             </>
           }

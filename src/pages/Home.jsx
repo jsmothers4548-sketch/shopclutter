@@ -4,7 +4,8 @@ import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusButtons from '@/components/JobStatusButtons';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Bell, Calendar, MapPin } from 'lucide-react';
+import { Plus, Bell, Calendar, MapPin, ScanLine } from 'lucide-react';
+import QrScanner from '@/components/QrScanner';
 
 export default function Home() {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +15,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [reminders, setReminders] = useState([]);
   const navigate = useNavigate();
 
@@ -75,6 +77,26 @@ export default function Home() {
 
   const safeJobs = Array.isArray(jobs) ? jobs : [];
 
+  const handleScanResult = async (text) => {
+    setShowScanner(false);
+    const raw = text.trim();
+    const candidates = [raw];
+    const digits = (raw.match(/\d+/) || [])[0];
+    if (digits) candidates.push(digits);
+    for (const c of candidates) {
+      const res = await base44.entities.Equipment.filter({
+        label_number: c,
+      });
+      if (Array.isArray(res) && res.length) {
+        navigate(`/units/${res[0].id}`);
+        return;
+      }
+    }
+    window.alert(
+      `No unit found for "${raw}". Enter that label number at job intake first, or find it on the Units page.`
+    );
+  };
+
   const filteredJobs =
   filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter);
 
@@ -117,6 +139,12 @@ export default function Home() {
                 {dueToday.length}
               </span>
             }
+          </button>
+          <button
+            onClick={() => setShowScanner(true)}
+            className="flex items-center gap-1 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700">
+            
+            <ScanLine className="w-4 h-4" /> Scan
           </button>
           <button
             onClick={() => setShowQuickAdd(true)}
@@ -178,6 +206,11 @@ export default function Home() {
           navigate(`/jobs/${job.id}`);
         }} />
 
+      }
+      {showScanner &&
+      <QrScanner
+        onClose={() => setShowScanner(false)}
+        onResult={handleScanResult} />
       }
     </div>);
 

@@ -8,6 +8,9 @@
     "customer_name": {
       "type": "string"
     },
+    "unit_id": {
+      "type": "string"
+    },
     "job_location": {
       "type": "string",
       "enum": [
