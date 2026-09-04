@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,22 @@ export default function LaborForm({ jobId, jobStatus, defaultRate, labor, onClos
     technician: labor?.technician || '',
   });
   const [saving, setSaving] = useState(false);
+  const [staff, setStaff] = useState([]);
+
+  useEffect(() => {
+    base44.entities.Staff.filter({ status: 'active' }).then((data) =>
+      setStaff(Array.isArray(data) ? data : [])
+    );
+  }, []);
+
+  const handleTechnicianChange = (name) => {
+    const selected = staff.find((s) => s.name === name);
+    setForm({
+      ...form,
+      technician: name,
+      pay_rate: selected ? selected.pay_rate || 0 : form.pay_rate,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,13 +104,24 @@ export default function LaborForm({ jobId, jobStatus, defaultRate, labor, onClos
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Technician</Label>
-              <Input
+              <select
                 value={form.technician}
-                onChange={(e) =>
-                  setForm({ ...form, technician: e.target.value })
-                }
-                placeholder="Employee name"
-              />
+                onChange={(e) => handleTechnicianChange(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Unassigned</option>
+                {staff.map((s) => (
+                  <option key={s.id} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+                {form.technician &&
+                  !staff.some((s) => s.name === form.technician) && (
+                    <option value={form.technician}>
+                      {form.technician}
+                    </option>
+                  )}
+              </select>
             </div>
             <div>
               <Label>Pay Rate ($/hr)</Label>
