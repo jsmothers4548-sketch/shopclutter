@@ -173,7 +173,7 @@ export default function Reports() {
 
   const staffByName = useMemo(() => {
     const m = {};
-    for (const s of staff) m[s.name] = s.id;
+    for (const s of staff) m[(s.name || '').trim().toLowerCase()] = s.id;
     return m;
   }, [staff]);
 
@@ -349,7 +349,7 @@ export default function Reports() {
             </thead>
             <tbody>
               {employeeStats.map((emp) => {
-                const sid = staffByName[emp.name];
+                const sid = staffByName[(emp.name || '').trim().toLowerCase()];
                 return (
                 <tr
                   key={emp.name}
@@ -358,6 +358,11 @@ export default function Reports() {
                 >
                   <td className="py-2 font-medium text-slate-900">
                     {emp.name}
+                    {!sid && (
+                      <span className="block text-xs font-normal text-slate-300">
+                        no staff record
+                      </span>
+                    )}
                   </td>
                   <td className="py-2 text-center">{emp.jobCount}</td>
                   <td className="py-2 text-center">{emp.hours.toFixed(1)}</td>

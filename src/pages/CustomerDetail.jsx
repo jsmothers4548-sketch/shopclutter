@@ -5,7 +5,17 @@ import ContactButtons from '@/components/ContactButtons';
 import CustomerForm from '@/components/CustomerForm';
 import StatusBadge from '@/components/StatusBadge';
 import JobForm from '@/components/JobForm';
-import { ArrowLeft, Edit, Plus, MapPin, StickyNote } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, MapPin, StickyNote, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -15,6 +25,14 @@ export default function CustomerDetail() {
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showJobForm, setShowJobForm] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await base44.entities.Customer.delete(id);
+    navigate('/customers');
+  };
 
   const loadData = async () => {
     try {
@@ -55,6 +73,9 @@ export default function CustomerDetail() {
         <h1 className="text-xl font-bold flex-1 truncate">{customer.name}</h1>
         <button onClick={() => setShowEdit(true)} className="p-2 text-slate-500">
           <Edit className="w-5 h-5" />
+        </button>
+        <button onClick={() => setShowDelete(true)} className="p-2 text-red-500">
+          <Trash2 className="w-5 h-5" />
         </button>
       </div>
 
@@ -119,6 +140,28 @@ export default function CustomerDetail() {
           }}
         />
       )}
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {customer.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the customer.
+              {jobs.length > 0 &&
+                ` Their ${jobs.length} job${jobs.length === 1 ? '' : 's'} will stay in your records.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {deleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {showJobForm && (
         <JobForm
           customer={customer}
