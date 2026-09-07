@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import QrScanner from '@/components/QrScanner';
+import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
 
 const EQUIPMENT_TYPES = [
@@ -93,6 +94,29 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     }
   };
 
+  const handleVoiceExtracted = (d) => {
+    setForm((prev) => ({
+      ...prev,
+      equipment_type: d.equipment_type || prev.equipment_type,
+      make: d.make || prev.make,
+      model: d.model || prev.model,
+      serial_number: d.serial_number || prev.serial_number,
+      problem_description: d.problem_description || prev.problem_description,
+    }));
+    if (d.unit_label) {
+      setUnitLabel(String(d.unit_label));
+      lookupUnit(String(d.unit_label));
+    }
+    if (d.customer_name) {
+      const match = customers.find(
+        (c) =>
+          c.name?.toLowerCase().trim() ===
+          String(d.customer_name).toLowerCase().trim()
+      );
+      if (match) handleCustomerChange(match.id);
+    }
+  };
+
   const handleCustomerChange = (customerId) => {
     const c = customers.find((x) => x.id === customerId);
     setForm((prev) => ({
@@ -169,6 +193,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
             {job ? 'Edit Job' : `New Job — ${customer?.name}${template ? ` (Template: ${template.name})` : ''}`}
           </DialogTitle>
         </DialogHeader>
+        <VoiceIntake onExtracted={handleVoiceExtracted} />
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label>Customer *</Label>
