@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
-import JobStatusButtons from '@/components/JobStatusButtons';
+import JobStatusDropdown from '@/components/JobStatusDropdown';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Bell, Calendar, MapPin, ScanLine } from 'lucide-react';
 import QrScanner from '@/components/QrScanner';
@@ -125,7 +125,14 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4 space-y-4 opacity-100">
+    <div className="relative isolate p-4 space-y-4 min-h-screen">
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
+        <img
+          src="https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/8fb582550_image_cf77d64e.jpg"
+          alt=""
+          className="w-full h-full object-cover opacity-[0.18] blur-[2px] scale-110"
+        />
+      </div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
         <div className="flex items-center gap-2">
@@ -186,7 +193,7 @@ export default function Home() {
           </div>
         </div>
       }
-      <JobStatusButtons jobs={safeJobs} filter={filter} setFilter={setFilter} />
+      <JobStatusDropdown jobs={safeJobs} filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ?
       <div className="text-center py-20 text-slate-400">
           <p className="text-sm">No jobs in this view</p>
