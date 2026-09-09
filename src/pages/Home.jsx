@@ -125,7 +125,7 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4 space-y-4 min-h-screen bg-slate-300">
+    <div className="p-4 space-y-4 min-h-screen">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
         <div className="flex items-center gap-2">

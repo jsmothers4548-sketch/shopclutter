@@ -17,7 +17,7 @@ export default function Layout() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-300 flex flex-col">
       <header className="text-white px-4 py-3 flex items-center gap-2 sticky top-0 z-30 print:hidden bg-[hsl(var(--chart-3))]">
         <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
           <Wrench className="w-5 h-5 text-slate-900" />
