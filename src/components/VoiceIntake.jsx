@@ -14,6 +14,98 @@ const EQUIPMENT_TYPES = [
   'Other',
 ];
 
+const EXTRACTION_SPECS = {
+  job: {
+    intro:
+      'A small engine repair shop technician described a new job intake verbally. Extract the details from the transcript and return them as form fields.',
+    rules: `- equipment_type must be one of: ${EQUIPMENT_TYPES.join(', ')} (best guess, use "Other" if unclear).
+- problem_description: a concise summary of the reported issue in the technician's terms.
+- unit_label: the unit label number if one is spoken (digits only, e.g. "1001"). Empty string if not mentioned.
+- customer_name: the customer's name if spoken. Empty string if not mentioned.`,
+    schema: {
+      customer_name: { type: 'string' },
+      unit_label: { type: 'string' },
+      equipment_type: { type: 'string', enum: EQUIPMENT_TYPES },
+      make: { type: 'string' },
+      model: { type: 'string' },
+      serial_number: { type: 'string' },
+      problem_description: { type: 'string' },
+    },
+  },
+  customer: {
+    intro:
+      'A small engine repair shop employee described a new customer verbally. Extract the details from the transcript and return them as form fields.',
+    rules: `- name: the customer's full name.
+- phone and email: formatted as spoken.
+- Leave any field as an empty string if it is not mentioned.`,
+    schema: {
+      name: { type: 'string' },
+      phone: { type: 'string' },
+      email: { type: 'string' },
+      address: { type: 'string' },
+      notes: { type: 'string' },
+    },
+  },
+  sale: {
+    intro:
+      'A small engine repair shop employee described a storefront sale verbally. Extract the details from the transcript and return them as form fields.',
+    rules: `- total_price: the total sale price as a number.
+- amount_paid: the amount the customer paid as a number (0 if not mentioned).
+- sale_date: in YYYY-MM-DD format. Empty string if not mentioned.
+- part_number: empty string if not mentioned.
+- notes: empty string if not mentioned.`,
+    schema: {
+      customer_name: { type: 'string' },
+      item_description: { type: 'string' },
+      part_number: { type: 'string' },
+      total_price: { type: 'number' },
+      amount_paid: { type: 'number' },
+      sale_date: { type: 'string' },
+      notes: { type: 'string' },
+    },
+  },
+  reminder: {
+    intro:
+      'A small engine repair shop employee described a reminder or appointment verbally. Extract the details from the transcript and return them as form fields.',
+    rules: `- title: a short title for the reminder.
+- due_date: in YYYY-MM-DD format (resolve relative phrases like "tomorrow" to a date). Empty string if not mentioned.
+- appointment_type must be one of: General, On-site, Off-site.
+- priority must be one of: high, medium, low.
+- customer_name: the customer's name if spoken. Empty string if not mentioned.`,
+    schema: {
+      title: { type: 'string' },
+      description: { type: 'string' },
+      due_date: { type: 'string' },
+      appointment_type: {
+        type: 'string',
+        enum: ['General', 'On-site', 'Off-site'],
+      },
+      priority: { type: 'string', enum: ['high', 'medium', 'low'] },
+      customer_name: { type: 'string' },
+    },
+  },
+  task: {
+    intro:
+      'A small engine repair shop employee described a shop task or to-do item verbally. Extract the details from the transcript and return them as form fields.',
+    rules: `- title: a short title for the task.
+- category must be one of: Cleaning, Maintenance, Organization, Inventory, Other.
+- priority must be one of: low, medium, high.
+- due_date: in YYYY-MM-DD format (resolve relative phrases like "Friday" to a date). Empty string if not mentioned.
+- assigned_to: empty string if not mentioned.`,
+    schema: {
+      title: { type: 'string' },
+      description: { type: 'string' },
+      category: {
+        type: 'string',
+        enum: ['Cleaning', 'Maintenance', 'Organization', 'Inventory', 'Other'],
+      },
+      priority: { type: 'string', enum: ['low', 'medium', 'high'] },
+      assigned_to: { type: 'string' },
+      due_date: { type: 'string' },
+    },
+  },
+};
+
 const blobToBase64 = (blob) =>
   new Promise((resolve) => {
     const reader = new FileReader();
@@ -23,7 +115,8 @@ const blobToBase64 = (blob) =>
 
 const base64ToBlob = async (dataUrl) => (await fetch(dataUrl)).blob();
 
-export async function processVoiceIntake(blob) {
+export async function processVoiceIntake(blob, formType = 'job') {
+  const spec = EXTRACTION_SPECS[formType] || EXTRACTION_SPECS.job;
   const file = new File([blob], 'intake.webm', {
     type: blob.type || 'audio/webm',
   });
@@ -32,33 +125,21 @@ export async function processVoiceIntake(blob) {
     audio_url: file_url,
   });
   const res = await base44.integrations.Core.InvokeLLM({
-    prompt: `A small engine repair shop technician described a new job intake verbally. Extract the details from the transcript and return them as form fields.
+    prompt: `${spec.intro}
 
 Transcript: "${transcript}"
 
 Rules:
-- equipment_type must be one of: ${EQUIPMENT_TYPES.join(', ')} (best guess, use "Other" if unclear).
-- problem_description: a concise summary of the reported issue in the technician's terms.
-- unit_label: the unit label number if one is spoken (digits only, e.g. "1001"). Empty string if not mentioned.
-- customer_name: the customer's name if spoken. Empty string if not mentioned.
-- Leave any field as an empty string if it is not mentioned.`,
+${spec.rules}`,
     response_json_schema: {
       type: 'object',
-      properties: {
-        customer_name: { type: 'string' },
-        unit_label: { type: 'string' },
-        equipment_type: { type: 'string', enum: EQUIPMENT_TYPES },
-        make: { type: 'string' },
-        model: { type: 'string' },
-        serial_number: { type: 'string' },
-        problem_description: { type: 'string' },
-      },
+      properties: spec.schema,
     },
   });
   return res;
 }
 
-export default function VoiceIntake({ onExtracted }) {
+export default function VoiceIntake({ formType = 'job', onExtracted }) {
   const [recording, setRecording] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [status, setStatus] = useState(null);
@@ -71,7 +152,7 @@ export default function VoiceIntake({ onExtracted }) {
       const dataUrl = await blobToBase64(blob);
       localStorage.setItem(
         PENDING_KEY,
-        JSON.stringify({ dataUrl, ts: Date.now() })
+        JSON.stringify({ dataUrl, formType, ts: Date.now() })
       );
       setStatus(
         'No connection — recording saved on this phone. It will fill the form automatically once you are back online.'
@@ -87,7 +168,7 @@ export default function VoiceIntake({ onExtracted }) {
     setProcessing(true);
     setStatus('Transcribing and filling in the form…');
     try {
-      const data = await processVoiceIntake(blob);
+      const data = await processVoiceIntake(blob, formType);
       onExtracted(data);
       setStatus(null);
     } catch {
@@ -102,7 +183,8 @@ export default function VoiceIntake({ onExtracted }) {
       const raw = localStorage.getItem(PENDING_KEY);
       if (!raw || !navigator.onLine) return;
       try {
-        const { dataUrl } = JSON.parse(raw);
+        const { dataUrl, formType: savedType } = JSON.parse(raw);
+        if (savedType !== formType) return;
         localStorage.removeItem(PENDING_KEY);
         await run(await base64ToBlob(dataUrl));
       } catch {}

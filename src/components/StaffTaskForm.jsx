@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
+import VoiceIntake from '@/components/VoiceIntake';
 
 const CATEGORIES = ['Cleaning', 'Maintenance', 'Organization', 'Inventory', 'Other'];
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -50,6 +51,20 @@ export default function StaffTaskForm({ task, onClose, onSaved }) {
         <DialogHeader>
           <DialogTitle>{task ? 'Edit Task' : 'Add Task'}</DialogTitle>
         </DialogHeader>
+        <VoiceIntake
+          formType="task"
+          onExtracted={(d) =>
+            setForm((prev) => ({
+              ...prev,
+              title: d.title || prev.title,
+              description: d.description || prev.description,
+              category: d.category || prev.category,
+              priority: d.priority || prev.priority,
+              assigned_to: d.assigned_to || prev.assigned_to,
+              due_date: d.due_date || prev.due_date,
+            }))
+          }
+        />
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label>Task Title *</Label>

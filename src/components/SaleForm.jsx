@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import VoiceIntake from '@/components/VoiceIntake';
 import {
   Dialog,
   DialogContent,
@@ -92,6 +93,25 @@ export default function SaleForm({ sale, onClose, onSaved }) {
         <DialogHeader>
           <DialogTitle>{sale ? 'Edit Sale' : 'New Sale'}</DialogTitle>
         </DialogHeader>
+        <VoiceIntake
+          formType="sale"
+          onExtracted={(d) => {
+            if (d.customer_name) {
+              const match = customers.find(
+                (c) =>
+                  c.name?.toLowerCase().trim() ===
+                  String(d.customer_name).toLowerCase().trim()
+              );
+              if (match) setCustomerId(match.id);
+            }
+            if (d.item_description) setItemDescription(d.item_description);
+            if (d.part_number) setPartNumber(d.part_number);
+            if (d.total_price) setTotalPrice(d.total_price);
+            if (d.amount_paid) setAmountPaid(d.amount_paid);
+            if (d.sale_date) setSaleDate(d.sale_date);
+            if (d.notes) setNotes(d.notes);
+          }}
+        />
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label htmlFor="cust">Customer (optional)</Label>

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
+import VoiceIntake from '@/components/VoiceIntake';
 import { MapPin } from 'lucide-react';
 
 const APPOINTMENT_TYPES = ['General', 'On-site', 'Off-site'];
@@ -70,6 +71,34 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
         <DialogHeader>
           <DialogTitle>{reminder ? 'Edit Reminder' : 'New Reminder'}</DialogTitle>
         </DialogHeader>
+        <VoiceIntake
+          formType="reminder"
+          onExtracted={(d) => {
+            setForm((prev) => ({
+              ...prev,
+              title: d.title || prev.title,
+              description: d.description || prev.description,
+              due_date: d.due_date || prev.due_date,
+              appointment_type: d.appointment_type || prev.appointment_type,
+              priority: d.priority || prev.priority,
+            }));
+            if (d.customer_name) {
+              const match = customers.find(
+                (c) =>
+                  c.name?.toLowerCase().trim() ===
+                  String(d.customer_name).toLowerCase().trim()
+              );
+              if (match) {
+                setForm((prev) => ({
+                  ...prev,
+                  customer_id: match.id,
+                  customer_name: match.name,
+                  customer_address: match.address || '',
+                }));
+              }
+            }
+          }}
+        />
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label>Title *</Label>

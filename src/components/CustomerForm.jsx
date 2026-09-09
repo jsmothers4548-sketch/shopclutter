@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import VoiceIntake from '@/components/VoiceIntake';
 
 export default function CustomerForm({ customer, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -43,6 +44,19 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
         <DialogHeader>
           <DialogTitle>{customer ? 'Edit Customer' : 'New Customer'}</DialogTitle>
         </DialogHeader>
+        <VoiceIntake
+          formType="customer"
+          onExtracted={(d) =>
+            setForm((prev) => ({
+              ...prev,
+              name: d.name || prev.name,
+              phone: d.phone || prev.phone,
+              email: d.email || prev.email,
+              address: d.address || prev.address,
+              notes: d.notes || prev.notes,
+            }))
+          }
+        />
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label>Name *</Label>
