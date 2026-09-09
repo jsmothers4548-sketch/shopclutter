@@ -18,6 +18,14 @@
       "type": "number",
       "default": 0
     },
+    "subtotal": {
+      "type": "number",
+      "default": 0
+    },
+    "tax_rate": {
+      "type": "number",
+      "default": 0
+    },
     "total_price": {
       "type": "number",
       "default": 0

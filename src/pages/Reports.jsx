@@ -12,7 +12,7 @@ export default function Reports() {
   const [parts, setParts] = useState([]);
   const [labor, setLabor] = useState([]);
   const [sales, setSales] = useState([]);
-  const [shopItems, setShopItems] = useState([]);
+  const [saleItems, setSaleItems] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
@@ -30,19 +30,19 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData, salesData, shopItemsData, staffData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, saleItemsData, staffData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
           base44.entities.Sale.list('-sale_date', 500),
-          base44.entities.ShopItem.list(),
+          base44.entities.SaleItem.list('-created_date', 2000),
           base44.entities.Staff.list('-created_date'),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
         setLabor(Array.isArray(laborData) ? laborData : []);
         setSales(Array.isArray(salesData) ? salesData : []);
-        setShopItems(Array.isArray(shopItemsData) ? shopItemsData : []);
+        setSaleItems(Array.isArray(saleItemsData) ? saleItemsData : []);
         setStaff(Array.isArray(staffData) ? staffData : []);
       } finally {
         setLoading(false);
@@ -108,15 +108,24 @@ export default function Reports() {
     );
   }, [sales, year]);
 
+  const itemsBySale = useMemo(() => {
+    const m = {};
+    for (const it of saleItems) {
+      (m[it.sale_id] = m[it.sale_id] || []).push(it);
+    }
+    return m;
+  }, [saleItems]);
+
   const salesRows = useMemo(() => {
     return filteredSales.map((s) => {
-      const pn = (s.part_number || '').trim().toLowerCase();
-      const desc = (s.item_description || '').trim().toLowerCase();
-      const matched =
-        shopItems.find((si) => si.part_number && si.part_number.toLowerCase() === pn) ||
-        shopItems.find((si) => si.name && si.name.toLowerCase() === desc);
-      const cost = matched ? Number(matched.unit_cost) || 0 : Number(s.unit_cost) || 0;
-      const revenue = Number(s.total_price) || 0;
+      const lines = itemsBySale[s.id] || [];
+      const qty = (l) => Number(l.quantity) || 1;
+      const revenue = lines.length
+        ? lines.reduce((a, l) => a + qty(l) * (Number(l.unit_price) || 0), 0)
+        : Number(s.subtotal) || Number(s.total_price) || 0;
+      const cost = lines.length
+        ? lines.reduce((a, l) => a + qty(l) * (Number(l.unit_cost) || 0), 0)
+        : Number(s.unit_cost) || 0;
       return {
         id: s.id,
         customer_name: s.customer_name || 'Walk-in',
@@ -124,19 +133,22 @@ export default function Reports() {
         sale_date: s.sale_date,
         revenue,
         cost,
+        tax: revenue * ((Number(s.tax_rate) || 0) / 100),
         profit: revenue - cost,
       };
     });
-  }, [filteredSales, shopItems]);
+  }, [filteredSales, itemsBySale]);
 
   const salesTotals = useMemo(() => {
     let revenue = 0,
-      cost = 0;
+      cost = 0,
+      tax = 0;
     for (const r of salesRows) {
       revenue += r.revenue;
       cost += r.cost;
+      tax += r.tax;
     }
-    return { revenue, cost, profit: revenue - cost };
+    return { revenue, cost, tax, profit: revenue - cost };
   }, [salesRows]);
 
   const combined = useMemo(
@@ -471,6 +483,10 @@ export default function Reports() {
               ${salesTotals.profit.toFixed(2)}
             </p>
           </div>
+        </div>
+        <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
+          <span className="text-slate-500">Sales Tax Collected</span>
+          <span className="font-medium">${salesTotals.tax.toFixed(2)}</span>
         </div>
       </div>
 

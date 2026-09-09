@@ -1,0 +1,93 @@
+{
+  "name": "SaleItem",
+  "type": "object",
+  "properties": {
+    "sale_id": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "part_number": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "unit_price": {
+      "type": "number",
+      "default": 0
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "shop_item_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sale_id",
+    "description",
+    "unit_price"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
