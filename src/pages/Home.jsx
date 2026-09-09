@@ -130,8 +130,9 @@ export default function Home() {
         <img
           src="https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/8fb582550_image_cf77d64e.jpg"
           alt=""
-          className="w-full h-full object-cover opacity-[0.18] blur-[2px] scale-110"
+          className="w-full h-full object-cover blur-[2px] scale-110"
         />
+        <div className="absolute inset-0 bg-white/70" />
       </div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
