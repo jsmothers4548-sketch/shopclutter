@@ -51,7 +51,8 @@ export default function SaleDetail() {
             unit_price: sale.total_price,
             unit_cost: sale.unit_cost,
           },
-        ];
+        ]
+      : [];
 
   const qty = (l) => Number(l.quantity) || 1;
   const subtotal = lines.reduce(
