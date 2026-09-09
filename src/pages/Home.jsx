@@ -125,15 +125,7 @@ export default function Home() {
   }
 
   return (
-    <div className="relative isolate p-4 space-y-4 min-h-screen">
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
-        <img
-          src="https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/8fb582550_image_cf77d64e.jpg"
-          alt=""
-          className="w-full h-full object-cover blur-[2px] scale-110"
-        />
-        <div className="absolute inset-0 bg-white/70" />
-      </div>
+    <div className="p-4 space-y-4 min-h-screen bg-slate-400">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
         <div className="flex items-center gap-2">
@@ -196,7 +188,7 @@ export default function Home() {
       }
       <JobStatusDropdown jobs={safeJobs} filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ?
-      <div className="text-center py-20 text-slate-400">
+      <div className="text-center py-20 text-white">
           <p className="text-sm">No jobs in this view</p>
         </div> :
 
