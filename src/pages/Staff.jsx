@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
+import ShopSettingsForm from '@/components/ShopSettingsForm';
 import { Plus, Edit, Trash2, Clock } from 'lucide-react';
 
 export default function Staff() {
@@ -94,6 +95,8 @@ export default function Staff() {
           <Plus className="w-4 h-4" /> Add
         </button>
       </div>
+
+      <ShopSettingsForm />
 
       {staff.length === 0 ? (
         <div className="text-center py-20 text-slate-400">

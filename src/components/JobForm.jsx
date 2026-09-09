@@ -13,6 +13,7 @@ import { base44 } from '@/api/base44Client';
 import QrScanner from '@/components/QrScanner';
 import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
+import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
@@ -30,15 +31,15 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     customer_name: customer?.name || unit?.customer_name || job?.customer_name || '',
     job_location: jobLocation || job?.job_location || 'On-site',
     offsite_address: job?.offsite_address || '',
-    service_call_fee: job?.service_call_fee ?? (jobLocation === 'Off-site' ? 80 : 0),
+    service_call_fee: job?.service_call_fee ?? (jobLocation === 'Off-site' ? DEFAULT_SETTINGS.service_call_fee : 0),
     equipment_type: unit?.equipment_type || job?.equipment_type || template?.equipment_type || 'Lawn Mower',
     make: unit?.make || job?.make || '',
     model: unit?.model || job?.model || '',
     serial_number: unit?.serial_number || job?.serial_number || '',
     problem_description: job?.problem_description || template?.problem_description || '',
     status: job?.status || 'Intake',
-    tax_rate: job?.tax_rate ?? template?.tax_rate ?? 7,
-    default_labor_rate: job?.default_labor_rate ?? (jobLocation === 'Off-site' ? 40 : template?.default_labor_rate ?? 75),
+    tax_rate: job?.tax_rate ?? template?.tax_rate ?? DEFAULT_SETTINGS.job_tax_rate,
+    default_labor_rate: job?.default_labor_rate ?? (jobLocation === 'Off-site' ? DEFAULT_SETTINGS.off_site_rate : template?.default_labor_rate ?? DEFAULT_SETTINGS.on_site_rate),
     parts_discount_type: job?.parts_discount_type || 'fixed',
     parts_discount_value: job?.parts_discount_value ?? 0,
     labor_discount_type: job?.labor_discount_type || 'fixed',
@@ -50,8 +51,10 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   const [unitLabel, setUnitLabel] = useState(unit?.label_number || '');
   const [unitNote, setUnitNote] = useState(unit ? `Unit #${unit.label_number} linked` : '');
   const [showScanner, setShowScanner] = useState(false);
+  const [settings, setSettings] = useState(null);
 
   useEffect(() => {
+    getShopSettings().then(setSettings).catch(() => {});
     base44.entities.Customer.list('-created_date', 500).then((list) =>
       setCustomers(Array.isArray(list) ? list : [])
     );
@@ -64,6 +67,23 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
         .catch(() => {});
     }
   }, [job]);
+
+  useEffect(() => {
+    if (!settings || job) return;
+    setForm((prev) => ({
+      ...prev,
+      tax_rate: template?.tax_rate ?? settings.job_tax_rate,
+      default_labor_rate:
+        template?.default_labor_rate ??
+        (prev.job_location === 'Off-site'
+          ? settings.off_site_rate
+          : settings.on_site_rate),
+      service_call_fee:
+        prev.job_location === 'Off-site'
+          ? settings.service_call_fee
+          : prev.service_call_fee,
+    }));
+  }, [settings]);
 
   const lookupUnit = async (raw) => {
     const value = (raw || '').trim();
@@ -129,12 +149,17 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   const handleLocationChange = (loc) => {
     setForm((prev) => {
       const updates = { job_location: loc };
+      const onSite = settings?.on_site_rate ?? DEFAULT_SETTINGS.on_site_rate;
+      const offSite = settings?.off_site_rate ?? DEFAULT_SETTINGS.off_site_rate;
       if (loc === 'Off-site') {
-        if (!prev.service_call_fee) updates.service_call_fee = 80;
-        if (!prev.default_labor_rate || prev.default_labor_rate === 75) updates.default_labor_rate = 40;
+        if (!prev.service_call_fee)
+          updates.service_call_fee = settings?.service_call_fee ?? DEFAULT_SETTINGS.service_call_fee;
+        if (!prev.default_labor_rate || prev.default_labor_rate === onSite)
+          updates.default_labor_rate = offSite;
       } else {
         updates.service_call_fee = 0;
-        if (prev.default_labor_rate === 40) updates.default_labor_rate = 75;
+        if (prev.default_labor_rate === offSite)
+          updates.default_labor_rate = onSite;
       }
       return { ...prev, ...updates };
     });

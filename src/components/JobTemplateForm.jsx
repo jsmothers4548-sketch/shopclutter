@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { getShopSettings } from '@/lib/shopSettings';
 import { Plus, Trash2 } from 'lucide-react';
 
 const EQUIPMENT_TYPES = [
@@ -30,10 +31,19 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
   const [problemDescription, setProblemDescription] = useState(
     template?.problem_description || ''
   );
-  const [taxRate, setTaxRate] = useState(template?.tax_rate ?? 7);
-  const [laborRate, setLaborRate] = useState(
-    template?.default_labor_rate ?? 75
-  );
+  const [taxRate, setTaxRate] = useState(template?.tax_rate ?? null);
+  const [laborRate, setLaborRate] = useState(template?.default_labor_rate ?? null);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    getShopSettings().then(setSettings).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!settings || template) return;
+    setTaxRate((r) => (r === null ? settings.job_tax_rate : r));
+    setLaborRate((r) => (r === null ? settings.on_site_rate : r));
+  }, [settings]);
   const [parts, setParts] = useState(() => {
     try {
       return template?.parts_data ? JSON.parse(template.parts_data) : [];
@@ -154,7 +164,7 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
               <Input
                 type="number"
                 step="0.1"
-                value={taxRate}
+                value={taxRate ?? ''}
                 onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
               />
             </div>
@@ -162,7 +172,7 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
               <Label>Default Labor $/hr</Label>
               <Input
                 type="number"
-                value={laborRate}
+                value={laborRate ?? ''}
                 onChange={(e) => setLaborRate(parseFloat(e.target.value) || 0)}
               />
             </div>

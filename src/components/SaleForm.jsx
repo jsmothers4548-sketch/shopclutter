@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
+import { getShopSettings } from '@/lib/shopSettings';
 import SaleLineEditor from '@/components/SaleLineEditor';
 import {
   Dialog,
@@ -22,7 +23,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
   ]);
   const [existingLines, setExistingLines] = useState([]);
   const [taxRate, setTaxRate] = useState(
-    sale?.tax_rate !== undefined && sale?.tax_rate !== null ? sale.tax_rate : 7
+    sale?.tax_rate !== undefined && sale?.tax_rate !== null ? sale.tax_rate : null
   );
   const [amountPaid, setAmountPaid] = useState(
     sale?.amount_paid !== undefined ? sale.amount_paid : 0
@@ -37,6 +38,11 @@ export default function SaleForm({ sale, onClose, onSaved }) {
   useEffect(() => {
     base44.entities.Customer.list('-created_date', 200).then(setCustomers).catch(() => {});
     base44.entities.ShopItem.list('-created_date', 500).then(setShopItems).catch(() => {});
+    getShopSettings()
+      .then((s) => {
+        if (!sale) setTaxRate((r) => (r === null ? s.sales_tax_rate : r));
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -225,7 +231,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
                 type="number"
                 step="0.01"
                 min="0"
-                value={taxRate}
+                value={taxRate ?? ''}
                 onChange={(e) => setTaxRate(e.target.value)}
               />
             </div>

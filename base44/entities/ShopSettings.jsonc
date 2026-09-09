@@ -1,0 +1,57 @@
+{
+  "name": "ShopSettings",
+  "type": "object",
+  "properties": {
+    "on_site_rate": {
+      "type": "number",
+      "default": 40
+    },
+    "off_site_rate": {
+      "type": "number",
+      "default": 40
+    },
+    "service_call_fee": {
+      "type": "number",
+      "default": 80
+    },
+    "job_tax_rate": {
+      "type": "number",
+      "default": 9
+    },
+    "sales_tax_rate": {
+      "type": "number",
+      "default": 9
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
