@@ -5,7 +5,7 @@ import ContactButtons from '@/components/ContactButtons';
 import CustomerForm from '@/components/CustomerForm';
 import StatusBadge from '@/components/StatusBadge';
 import JobForm from '@/components/JobForm';
-import { ArrowLeft, Edit, Plus, MapPin, StickyNote, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, MapPin, AlertTriangle, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -87,10 +87,17 @@ export default function CustomerDetail() {
           </p>
         )}
         {customer.notes && (
-          <p className="text-sm text-slate-600 flex items-start gap-1.5 bg-amber-50 p-2 rounded-lg">
-            <StickyNote className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />{' '}
-            {customer.notes}
-          </p>
+          <div className="flex items-start gap-2 bg-red-50 border-2 border-red-500 p-3 rounded-lg">
+            <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-red-600">
+                Customer Instructions
+              </p>
+              <p className="text-sm font-semibold text-red-700 whitespace-pre-wrap">
+                {customer.notes}
+              </p>
+            </div>
+          </div>
         )}
       </div>
 
