@@ -8,6 +8,7 @@ import PartForm from '@/components/PartForm';
 import LaborForm from '@/components/LaborForm';
 import TimelineForm from '@/components/TimelineForm';
 import PaymentForm from '@/components/PaymentForm';
+import PickupTextDialog from '@/components/PickupTextDialog';
 import {
   ArrowLeft,
   Edit,
@@ -18,6 +19,7 @@ import {
   Clock,
   Printer,
   AlertTriangle,
+  MessageSquare,
 } from 'lucide-react';
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { useAuth } from '@/lib/AuthContext';
@@ -51,6 +53,7 @@ export default function JobDetail() {
   const [payments, setPayments] = useState([]);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [activePayment, setActivePayment] = useState(null);
+  const [showPickupText, setShowPickupText] = useState(false);
 
   const loadData = async () => {
     try {
@@ -223,6 +226,15 @@ export default function JobDetail() {
           </select>
         </div>
       </div>
+
+      {job.status === 'Ready for Pickup' && (
+        <button
+          onClick={() => setShowPickupText(true)}
+          className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2.5 rounded-lg text-sm font-semibold active:bg-green-700"
+        >
+          <MessageSquare className="w-4 h-4" /> Text Customer
+        </button>
+      )}
 
       {/* Customer + Equipment info */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
@@ -679,6 +691,13 @@ export default function JobDetail() {
             setShowTimelineForm(false);
             loadData();
           }}
+        />
+      )}
+
+      {showPickupText && (
+        <PickupTextDialog
+          job={job}
+          onClose={() => setShowPickupText(false)}
         />
       )}
 
