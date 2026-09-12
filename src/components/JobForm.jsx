@@ -14,6 +14,7 @@ import QrScanner from '@/components/QrScanner';
 import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
+import { createJobWithTicket } from '@/lib/ticketNumbers';
 
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
@@ -188,7 +189,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
       if (job) {
         saved = await base44.entities.Job.update(job.id, payload);
       } else {
-        saved = await base44.entities.Job.create(payload);
+        saved = await createJobWithTicket(payload);
         if (template) {
           const parts = template.parts_data ? JSON.parse(template.parts_data) : [];
           const labor = template.labor_data ? JSON.parse(template.labor_data) : [];

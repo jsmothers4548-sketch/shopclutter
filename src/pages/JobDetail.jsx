@@ -183,6 +183,11 @@ export default function JobDetail() {
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold leading-tight truncate">Job Details</h1>
+          {job.ticket_number && (
+            <p className="text-xs font-bold text-amber-600">
+              Ticket #{job.ticket_number}
+            </p>
+          )}
           {job.customer_name && (
             <p className="text-sm font-semibold text-amber-600 truncate">
               {job.customer_name}

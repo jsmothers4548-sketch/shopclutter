@@ -4,8 +4,9 @@ import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Bell, Calendar, MapPin, ScanLine } from 'lucide-react';
+import { Plus, Bell, Calendar, MapPin, ScanLine, Search } from 'lucide-react';
 import QrScanner from '@/components/QrScanner';
+import { normalizeTicketInput } from '@/lib/ticketNumbers';
 
 export default function Home() {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +15,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
+  const [search, setSearch] = useState('');
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [reminders, setReminders] = useState([]);
@@ -92,13 +94,46 @@ export default function Home() {
         return;
       }
     }
+    const ticket = normalizeTicketInput(raw);
+    if (ticket) {
+      const jobs = await base44.entities.Job.filter({ ticket_number: ticket });
+      if (Array.isArray(jobs) && jobs.length) {
+        navigate(`/jobs/${jobs[0].id}`);
+        return;
+      }
+    }
     window.alert(
-      `No unit found for "${raw}". Enter that label number at job intake first, or find it on the Units page.`
+      `No unit or ticket found for "${raw}". Enter the unit label at job intake first, or find it on the Units page.`
     );
   };
 
-  const filteredJobs =
-  filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter);
+  const searchLower = search.trim().toLowerCase();
+  const matchesSearch = (j) => {
+    if (!searchLower) return true;
+    return [
+      j.ticket_number,
+      j.customer_name,
+      j.equipment_type,
+      j.make,
+      j.model,
+      j.serial_number,
+      j.problem_description,
+    ].some((v) => (v || '').toLowerCase().includes(searchLower));
+  };
+
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    const ticket = normalizeTicketInput(search);
+    if (!ticket) return;
+    const jobs = await base44.entities.Job.filter({ ticket_number: ticket });
+    if (Array.isArray(jobs) && jobs.length) {
+      setSearch('');
+      navigate(`/jobs/${jobs[0].id}`);
+    }
+  };
+
+  const filteredJobs = (filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter))
+    .filter(matchesSearch);
 
   if (loading) {
     return (
@@ -186,11 +221,20 @@ export default function Home() {
           </div>
         </div>
       }
+      <form onSubmit={handleSearchSubmit} className="relative">
+        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search ticket #, customer, or unit..."
+          className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm"
+        />
+      </form>
       <JobStatusDropdown jobs={safeJobs} filter={filter} setFilter={setFilter} />
       {filteredJobs.length === 0 ?
       <div className="text-center py-20 text-white">
-          <p className="text-sm">No jobs in this view</p>
-        </div> :
+           <p className="text-sm">{search ? 'No jobs match your search' : 'No jobs in this view'}</p>
+         </div> :
 
       <div className="space-y-2">
           {filteredJobs.map((job) =>

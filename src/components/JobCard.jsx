@@ -31,7 +31,14 @@ export default function JobCard({ job, totalCost }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="font-bold text-slate-900 truncate">{job.customer_name}</p>
+          <div className="flex items-center gap-2 min-w-0">
+            <p className="font-bold text-slate-900 truncate">{job.customer_name}</p>
+            {job.ticket_number && (
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded shrink-0">
+                {job.ticket_number}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500 flex items-center gap-1 mt-0.5">
             <span>{icon}</span>
             <span className="truncate">

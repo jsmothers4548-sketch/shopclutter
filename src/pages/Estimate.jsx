@@ -76,6 +76,11 @@ export default function Estimate() {
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold text-amber-600">ESTIMATE</h2>
+            {job.ticket_number && (
+              <p className="text-xs font-semibold text-slate-600">
+                Ticket #{job.ticket_number}
+              </p>
+            )}
             <p className="text-xs text-slate-400">
               {new Date().toLocaleDateString()}
             </p>

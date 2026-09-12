@@ -11,6 +11,9 @@
     "unit_id": {
       "type": "string"
     },
+    "ticket_number": {
+      "type": "string"
+    },
     "job_location": {
       "type": "string",
       "enum": [
