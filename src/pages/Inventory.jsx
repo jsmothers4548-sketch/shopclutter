@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import ShopItemForm from '@/components/ShopItemForm';
 import RestockDialog from '@/components/RestockDialog';
+import SupplierOrderDialog from '@/components/SupplierOrderDialog';
 import CategoryForm from '@/components/CategoryForm';
 import { useAuth } from '@/lib/AuthContext';
-import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search } from 'lucide-react';
+import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search, Truck } from 'lucide-react';
 
 const CATEGORY_COLORS = {
   'Spark Plugs': 'bg-orange-100 text-orange-700',
@@ -25,6 +26,7 @@ export default function Inventory() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [restockItem, setRestockItem] = useState(null);
+  const [showSupplierOrder, setShowSupplierOrder] = useState(false);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [savedCategories, setSavedCategories] = useState([]);
@@ -85,7 +87,9 @@ export default function Inventory() {
       const matchesSearch =
         !q ||
         i.name?.toLowerCase().includes(q) ||
-        i.part_number?.toLowerCase().includes(q);
+        i.part_number?.toLowerCase().includes(q) ||
+        i.category?.toLowerCase().includes(q) ||
+        i.supplier?.toLowerCase().includes(q);
       const matchesCategory =
         activeCategory === 'All' || i.category === activeCategory;
       return matchesSearch && matchesCategory;
@@ -130,12 +134,22 @@ export default function Inventory() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Shop Inventory</h1>
-        <button
-          onClick={() => { setEditItem(null); setShowForm(true); }}
-          className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
-        >
-          <Plus className="w-4 h-4" /> Add
-        </button>
+        <div className="flex items-center gap-2">
+          {lowStockCount > 0 && (
+            <button
+              onClick={() => setShowSupplierOrder(true)}
+              className="flex items-center gap-1 bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-50"
+            >
+              <Truck className="w-4 h-4" /> Order ({lowStockCount})
+            </button>
+          )}
+          <button
+            onClick={() => { setEditItem(null); setShowForm(true); }}
+            className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
+          >
+            <Plus className="w-4 h-4" /> Add
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -201,7 +215,10 @@ export default function Inventory() {
             return (
               <div key={item.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
+                  <div
+                    className="min-w-0 flex-1 cursor-pointer"
+                    onClick={() => { setEditItem(item); setShowForm(true); }}
+                  >
                     <p className="font-bold text-slate-900">{item.name}</p>
                     {item.part_number && <p className="text-xs text-slate-400">#{item.part_number}</p>}
                     <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Other']}`}>
@@ -277,6 +294,12 @@ export default function Inventory() {
           item={restockItem}
           onClose={() => setRestockItem(null)}
           onSaved={() => { setRestockItem(null); loadItems(); }}
+        />
+      )}
+      {showSupplierOrder && (
+        <SupplierOrderDialog
+          items={items}
+          onClose={() => setShowSupplierOrder(false)}
         />
       )}
     </div>

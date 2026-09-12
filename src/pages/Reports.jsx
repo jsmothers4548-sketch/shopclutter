@@ -8,6 +8,7 @@ import SummaryCards from '@/components/reports/SummaryCards';
 import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
 import EmployeeEarningsTable from '@/components/reports/EmployeeEarningsTable';
 import BreakdownList from '@/components/reports/BreakdownList';
+import PartsSpendingReport from '@/components/reports/PartsSpendingReport';
 
 export default function Reports() {
   const { user } = useAuth();
@@ -290,6 +291,16 @@ export default function Reports() {
         onShowAll={() => setVisibleSales(saleRows.length)}
         onSelect={(id) => navigate(`/sales/${id}`)}
         emptyLabel="No sales in this period"
+      />
+
+      <PartsSpendingReport
+        year={year}
+        parts={parts}
+        saleItems={saleItems}
+        jobs={jobs}
+        sales={sales}
+        onOpenJob={(id) => navigate(`/jobs/${id}`)}
+        onOpenSale={(id) => navigate(`/sales/${id}`)}
       />
     </div>
   );
