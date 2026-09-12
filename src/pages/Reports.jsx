@@ -3,7 +3,11 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { computeJobProfit } from '@/lib/billing';
-import { Printer } from 'lucide-react';
+import ReportsHeader from '@/components/reports/ReportsHeader';
+import SummaryCards from '@/components/reports/SummaryCards';
+import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
+import EmployeeEarningsTable from '@/components/reports/EmployeeEarningsTable';
+import BreakdownList from '@/components/reports/BreakdownList';
 
 export default function Reports() {
   const { user } = useAuth();
@@ -189,6 +193,41 @@ export default function Reports() {
     return m;
   }, [staff]);
 
+  const jobRows = useMemo(
+    () =>
+      jobProfits.map((jp) => ({
+        id: jp.job.id,
+        title: jp.job.customer_name || '—',
+        subtitle: `${jp.job.equipment_type} · ${new Date(
+          jp.job.created_date
+        ).toLocaleDateString()}`,
+        revenue: jp.revenue,
+        profit: jp.profit,
+      })),
+    [jobProfits]
+  );
+
+  const saleRows = useMemo(
+    () =>
+      salesRows.map((r) => ({
+        id: r.id,
+        title: r.item_description || '—',
+        subtitle: `${r.customer_name}${
+          r.sale_date ? ` · ${new Date(r.sale_date).toLocaleDateString()}` : ''
+        }`,
+        revenue: r.revenue,
+        profit: r.profit,
+      })),
+    [salesRows]
+  );
+
+  // Print the complete pack: expand lists first, then open the print dialog
+  const handlePrint = () => {
+    setVisibleJobs(jobRows.length);
+    setVisibleSales(saleRows.length);
+    setTimeout(() => window.print(), 100);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -203,353 +242,55 @@ export default function Reports() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Controls */}
-      <div className="flex items-center gap-2 print:hidden">
-        <h1 className="text-2xl font-bold text-slate-900 flex-1">
-          Financial Reports
-        </h1>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg text-sm font-semibold active:bg-slate-800"
-        >
-          <Printer className="w-4 h-4" /> Print
-        </button>
-      </div>
+      <ReportsHeader
+        year={year}
+        years={years}
+        statusFilter={statusFilter}
+        onYearChange={setYear}
+        onStatusChange={setStatusFilter}
+        onPrint={handlePrint}
+      />
 
-      {/* Filters */}
-      <div className="flex gap-2 print:hidden">
-        <select
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white"
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white"
-        >
-          <option value="all">All Jobs</option>
-          <option value="closed">Closed Only</option>
-        </select>
-      </div>
+      <SummaryCards
+        revenue={combined.revenue}
+        cost={combined.cost}
+        profit={combined.profit}
+        tax={totals.taxCollected + salesTotals.tax}
+      />
 
-      {/* Print header */}
-      <div className="hidden print:block mb-4">
-        <h1 className="text-2xl font-bold">Shop Flow — Financial Report {year}</h1>
-        <p className="text-sm text-slate-500">
-          Generated {new Date().toLocaleDateString()}
-        </p>
-      </div>
+      <ProfitLossStatement
+        year={year}
+        totals={totals}
+        salesTotals={salesTotals}
+        combined={combined}
+      />
 
-      {/* Combined Summary */}
-      <div className="bg-slate-900 text-white rounded-xl p-4 space-y-3">
-        <h2 className="font-bold">Combined — Shop + Sales — {year}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <p className="text-xs text-slate-400">Total Revenue</p>
-            <p className="text-lg font-bold">${combined.revenue.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-400">Total Cost</p>
-            <p className="text-lg font-bold">${combined.cost.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-400">Net Profit</p>
-            <p
-              className={`text-lg font-bold ${combined.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
-            >
-              ${combined.profit.toFixed(2)}
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700 text-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-400">Shop (Jobs)</span>
-            <span className="font-semibold">${totals.profit.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">Sales</span>
-            <span className="font-semibold">${salesTotals.profit.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
+      <EmployeeEarningsTable
+        year={year}
+        employeeStats={employeeStats}
+        staffByName={staffByName}
+        onSelect={(sid) => navigate(`/staff/${sid}`)}
+      />
 
-      {/* P&L Summary */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-        <h2 className="font-bold text-slate-900">Profit &amp; Loss — {year}</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-green-50 rounded-lg p-3">
-            <p className="text-xs text-green-600 font-medium">Gross Revenue</p>
-            <p className="text-xl font-bold text-green-700">
-              ${totals.revenue.toFixed(2)}
-            </p>
-          </div>
-          <div
-            className={`rounded-lg p-3 ${
-              totals.profit >= 0 ? 'bg-blue-50' : 'bg-red-50'
-            }`}
-          >
-            <p
-              className={`text-xs font-medium ${
-                totals.profit >= 0 ? 'text-blue-600' : 'text-red-600'
-              }`}
-            >
-              Net Profit
-            </p>
-            <p
-              className={`text-xl font-bold ${
-                totals.profit >= 0 ? 'text-blue-700' : 'text-red-700'
-              }`}
-            >
-              ${totals.profit.toFixed(2)}
-            </p>
-          </div>
-        </div>
-        <div className="space-y-1.5 pt-2 border-t border-slate-100">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Parts Cost</span>
-            <span className="font-medium">
-              −${totals.partsCost.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Labor Cost (wages)</span>
-            <span className="font-medium">
-              −${totals.laborCost.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Tax Collected</span>
-            <span className="font-medium">
-              ${totals.taxCollected.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Total Billed to Customers</span>
-            <span className="font-medium">
-              ${(totals.revenue + totals.taxCollected).toFixed(2)}
-            </span>
-          </div>
-        </div>
-      </div>
+      <BreakdownList
+        title={`Job Breakdown — ${year}`}
+        rows={jobRows}
+        visible={visibleJobs}
+        onShowMore={() => setVisibleJobs((v) => v + 10)}
+        onShowAll={() => setVisibleJobs(jobRows.length)}
+        onSelect={(id) => navigate(`/jobs/${id}`)}
+        emptyLabel="No jobs in this period"
+      />
 
-      {/* Employee Earnings */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h2 className="font-bold text-slate-900 mb-3">
-          Employee Earnings — {year}
-        </h2>
-        {employeeStats.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-4">
-            No labor data for this period
-          </p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-slate-400 border-b border-slate-200">
-                <th className="pb-2">Technician</th>
-                <th className="pb-2 text-center">Jobs</th>
-                <th className="pb-2 text-center">Hours</th>
-                <th className="pb-2 text-right">Charged</th>
-                <th className="pb-2 text-right">Earned</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employeeStats.map((emp) => {
-                const sid = staffByName[(emp.name || '').trim().toLowerCase()];
-                return (
-                <tr
-                  key={emp.name}
-                  className={`border-b border-slate-50 ${sid ? 'cursor-pointer hover:bg-slate-50' : ''}`}
-                  onClick={sid ? () => navigate(`/staff/${sid}`) : undefined}
-                >
-                  <td className="py-2 font-medium text-slate-900">
-                    {emp.name}
-                    {!sid && (
-                      <span className="block text-xs font-normal text-slate-300">
-                        no staff record
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 text-center">{emp.jobCount}</td>
-                  <td className="py-2 text-center">{emp.hours.toFixed(1)}</td>
-                  <td className="py-2 text-right">
-                    ${emp.charged.toFixed(2)}
-                  </td>
-                  <td className="py-2 text-right font-semibold">
-                    ${emp.earned.toFixed(2)}
-                  </td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Job Breakdown */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h2 className="font-bold text-slate-900 mb-3">
-          Job Breakdown — {year}
-        </h2>
-        {jobProfits.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-4">
-            No jobs in this period
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {jobProfits.slice(0, visibleJobs).map((jp) => (
-              <div
-                key={jp.job.id}
-                onClick={() => navigate(`/jobs/${jp.job.id}`)}
-                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900 truncate">
-                    {jp.job.customer_name || '—'}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {jp.job.equipment_type} ·{' '}
-                    {new Date(jp.job.created_date).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold">
-                    ${jp.revenue.toFixed(2)}
-                  </p>
-                  <p
-                    className={`text-xs font-medium ${
-                      jp.profit >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {jp.profit >= 0 ? '+' : ''}
-                    ${jp.profit.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {jobProfits.length > visibleJobs && (
-          <div className="flex justify-center gap-3 pt-3 print:hidden">
-            <button
-              onClick={() => setVisibleJobs((v) => v + 10)}
-              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
-            >
-              Show 10 more
-            </button>
-            <button
-              onClick={() => setVisibleJobs(jobProfits.length)}
-              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
-            >
-              Show all ({jobProfits.length})
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Sales P&L */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-        <h2 className="font-bold text-slate-900">Sales — {year}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-green-50 rounded-lg p-3">
-            <p className="text-xs text-green-600 font-medium">Sales Revenue</p>
-            <p className="text-lg font-bold text-green-700">
-              ${salesTotals.revenue.toFixed(2)}
-            </p>
-          </div>
-          <div className="bg-red-50 rounded-lg p-3">
-            <p className="text-xs text-red-600 font-medium">Item Cost</p>
-            <p className="text-lg font-bold text-red-700">
-              −${salesTotals.cost.toFixed(2)}
-            </p>
-          </div>
-          <div
-            className={`rounded-lg p-3 ${salesTotals.profit >= 0 ? 'bg-blue-50' : 'bg-red-50'}`}
-          >
-            <p
-              className={`text-xs font-medium ${salesTotals.profit >= 0 ? 'text-blue-600' : 'text-red-600'}`}
-            >
-              Sales Profit
-            </p>
-            <p
-              className={`text-lg font-bold ${salesTotals.profit >= 0 ? 'text-blue-700' : 'text-red-700'}`}
-            >
-              ${salesTotals.profit.toFixed(2)}
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-          <span className="text-slate-500">Sales Tax Collected</span>
-          <span className="font-medium">${salesTotals.tax.toFixed(2)}</span>
-        </div>
-      </div>
-
-      {/* Sales Breakdown */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h2 className="font-bold text-slate-900 mb-3">
-          Sales Breakdown — {year}
-        </h2>
-        {salesRows.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-4">
-            No sales in this period
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {salesRows.slice(0, visibleSales).map((r) => (
-              <div
-                key={r.id}
-                onClick={() => navigate(`/sales/${r.id}`)}
-                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900 truncate">
-                    {r.item_description || '—'}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {r.customer_name}
-                    {r.sale_date
-                      ? ` · ${new Date(r.sale_date).toLocaleDateString()}`
-                      : ''}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold">
-                    ${r.revenue.toFixed(2)}
-                  </p>
-                  <p
-                    className={`text-xs font-medium ${r.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}
-                  >
-                    {r.profit >= 0 ? '+' : ''}
-                    ${r.profit.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {salesRows.length > visibleSales && (
-          <div className="flex justify-center gap-3 pt-3 print:hidden">
-            <button
-              onClick={() => setVisibleSales((v) => v + 10)}
-              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
-            >
-              Show 10 more
-            </button>
-            <button
-              onClick={() => setVisibleSales(salesRows.length)}
-              className="text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"
-            >
-              Show all ({salesRows.length})
-            </button>
-          </div>
-        )}
-      </div>
+      <BreakdownList
+        title={`Sales Breakdown — ${year}`}
+        rows={saleRows}
+        visible={visibleSales}
+        onShowMore={() => setVisibleSales((v) => v + 10)}
+        onShowAll={() => setVisibleSales(saleRows.length)}
+        onSelect={(id) => navigate(`/sales/${id}`)}
+        emptyLabel="No sales in this period"
+      />
     </div>
   );
 }
