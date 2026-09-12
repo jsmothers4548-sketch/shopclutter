@@ -19,6 +19,7 @@ import StaffTasks from '@/pages/StaffTasks';
 import Reminders from '@/pages/Reminders';
 import Sales from '@/pages/Sales';
 import Reports from '@/pages/Reports';
+import EmployeeEarningsDetail from '@/pages/EmployeeEarningsDetail';
 import Staff from '@/pages/Staff';
 import StaffDetail from '@/pages/StaffDetail';
 import SaleDetail from '@/pages/SaleDetail';
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
           <Route path="/reminders" element={<Reminders />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/reports/employee-earnings" element={<EmployeeEarningsDetail />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetail />} />
           <Route path="/sales/:id" element={<SaleDetail />} />

@@ -1,12 +1,7 @@
 import React from 'react';
 import { formatCurrency } from '@/lib/format';
 
-export default function EmployeeEarningsTable({
-  year,
-  employeeStats,
-  staffByName,
-  onSelect,
-}) {
+export default function EmployeeEarningsTable({ year, employeeStats, onSelect }) {
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
       <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-3">
@@ -28,40 +23,27 @@ export default function EmployeeEarningsTable({
             </tr>
           </thead>
           <tbody>
-            {employeeStats.map((emp) => {
-              const sid =
-                staffByName[(emp.name || '').trim().toLowerCase()];
-              return (
-                <tr
-                  key={emp.name}
-                  className={`border-b border-slate-50 ${
-                    sid ? 'cursor-pointer hover:bg-slate-50' : ''
-                  }`}
-                  onClick={sid ? () => onSelect(sid) : undefined}
-                >
-                  <td className="py-2 font-medium text-slate-900">
-                    {emp.name}
-                    {!sid && (
-                      <span className="block text-xs font-normal text-slate-300">
-                        no staff record
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 text-center tabular-nums">
-                    {emp.jobCount}
-                  </td>
-                  <td className="py-2 text-center tabular-nums">
-                    {emp.hours.toFixed(1)}
-                  </td>
-                  <td className="py-2 text-right tabular-nums">
-                    {formatCurrency(emp.charged)}
-                  </td>
-                  <td className="py-2 text-right font-semibold tabular-nums">
-                    {formatCurrency(emp.earned)}
-                  </td>
-                </tr>
-              );
-            })}
+            {employeeStats.map((emp) => (
+              <tr
+                key={emp.name}
+                className="border-b border-slate-50 cursor-pointer hover:bg-slate-50"
+                onClick={() => onSelect(emp)}
+              >
+                <td className="py-2 font-medium text-slate-900">{emp.name}</td>
+                <td className="py-2 text-center tabular-nums">
+                  {emp.jobCount}
+                </td>
+                <td className="py-2 text-center tabular-nums">
+                  {emp.hours.toFixed(1)}
+                </td>
+                <td className="py-2 text-right tabular-nums">
+                  {formatCurrency(emp.charged)}
+                </td>
+                <td className="py-2 text-right font-semibold tabular-nums">
+                  {formatCurrency(emp.earned)}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}

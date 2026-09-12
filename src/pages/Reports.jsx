@@ -18,7 +18,6 @@ export default function Reports() {
   const [labor, setLabor] = useState([]);
   const [sales, setSales] = useState([]);
   const [saleItems, setSaleItems] = useState([]);
-  const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -35,20 +34,18 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData, salesData, saleItemsData, staffData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, saleItemsData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
           base44.entities.Sale.list('-sale_date', 500),
           base44.entities.SaleItem.list('-created_date', 2000),
-          base44.entities.Staff.list('-created_date'),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
         setLabor(Array.isArray(laborData) ? laborData : []);
         setSales(Array.isArray(salesData) ? salesData : []);
         setSaleItems(Array.isArray(saleItemsData) ? saleItemsData : []);
-        setStaff(Array.isArray(staffData) ? staffData : []);
       } finally {
         setLoading(false);
       }
@@ -188,12 +185,6 @@ export default function Reports() {
       .sort((a, b) => b.earned - a.earned);
   }, [labor, filteredJobIds]);
 
-  const staffByName = useMemo(() => {
-    const m = {};
-    for (const s of staff) m[(s.name || '').trim().toLowerCase()] = s.id;
-    return m;
-  }, [staff]);
-
   const jobRows = useMemo(
     () =>
       jobProfits.map((jp) => ({
@@ -269,8 +260,11 @@ export default function Reports() {
       <EmployeeEarningsTable
         year={year}
         employeeStats={employeeStats}
-        staffByName={staffByName}
-        onSelect={(sid) => navigate(`/staff/${sid}`)}
+        onSelect={(emp) =>
+          navigate(
+            `/reports/employee-earnings?name=${encodeURIComponent(emp.name)}&year=${year}`
+          )
+        }
       />
 
       <BreakdownList
