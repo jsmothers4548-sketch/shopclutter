@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
-import { Plus, Edit, Trash2, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, BarChart3 } from 'lucide-react';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -85,15 +85,23 @@ export default function Staff() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Staff Directory</h1>
-        <button
-          onClick={() => {
-            setEditingStaff(null);
-            setShowForm(true);
-          }}
-          className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
-        >
-          <Plus className="w-4 h-4" /> Add
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/reports')}
+            className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700"
+          >
+            <BarChart3 className="w-4 h-4" /> Reports
+          </button>
+          <button
+            onClick={() => {
+              setEditingStaff(null);
+              setShowForm(true);
+            }}
+            className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
+          >
+            <Plus className="w-4 h-4" /> Add
+          </button>
+        </div>
       </div>
 
       <ShopSettingsForm />
