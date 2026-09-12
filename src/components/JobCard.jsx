@@ -51,10 +51,15 @@ export default function JobCard({ job, totalCost }) {
         <StatusBadge status={job.status} />
       </div>
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-        <span className="text-xs text-slate-400 flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {daysInShop === 0 ? 'Today' : `${daysInShop}d in shop`}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500">
+            In: {new Date(job.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+          <span className="text-xs font-bold text-red-500 flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {daysInShop === 0 ? 'Today' : `${daysInShop}d in shop`}
+          </span>
+        </div>
         {totalCost > 0 && (
           <span className="text-sm font-bold text-slate-900">
             ${totalCost.toFixed(2)}
