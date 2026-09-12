@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, MessageSquare } from 'lucide-react';
-import { computeBilling } from '@/lib/billing';
+import { computeBilling, sumPayments } from '@/lib/billing';
 
 export default function Invoice() {
   const { id } = useParams();
@@ -12,12 +12,13 @@ export default function Invoice() {
   useEffect(() => {
     (async () => {
       const job = await base44.entities.Job.get(id);
-      const [customer, parts, labor] = await Promise.all([
+      const [customer, parts, labor, payments] = await Promise.all([
       base44.entities.Customer.get(job.customer_id),
       base44.entities.Part.filter({ job_id: id }),
-      base44.entities.LaborEntry.filter({ job_id: id })]
+      base44.entities.LaborEntry.filter({ job_id: id }),
+      base44.entities.Payment.filter({ job_id: id })]
       );
-      setData({ job, customer, parts, labor });
+      setData({ job, customer, parts, labor, payments: Array.isArray(payments) ? payments : [] });
     })();
   }, [id]);
 
@@ -29,7 +30,7 @@ export default function Invoice() {
 
   }
 
-  const { job, customer, parts, labor } = data;
+  const { job, customer, parts, labor, payments } = data;
   const {
     partsTotal,
     laborTotal,
@@ -40,10 +41,12 @@ export default function Invoice() {
     taxAmount,
     grandTotal
   } = computeBilling({ parts, labor, job });
+  const paymentsTotal = sumPayments(payments);
+  const balanceDue = grandTotal - paymentsTotal;
 
   const handleText = () => {
     const discountTotal = partsDiscount + laborDiscount;
-    const msg = `Invoice for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}${discountTotal > 0 ? `, Discount -$${discountTotal.toFixed(2)}` : ''}, Tax $${taxAmount.toFixed(2)}, Amount Due $${grandTotal.toFixed(2)}. Thank you for your business!`;
+    const msg = `Invoice for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}${discountTotal > 0 ? `, Discount -$${discountTotal.toFixed(2)}` : ''}, Tax $${taxAmount.toFixed(2)}${paymentsTotal > 0 ? `, Paid $${paymentsTotal.toFixed(2)}` : ''}, ${paymentsTotal > 0 ? 'Balance Due' : 'Amount Due'} $${balanceDue.toFixed(2)}. Thank you for your business!`;
     window.location.href = `sms:${customer.phone?.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(msg)}`;
   };
 
@@ -196,6 +199,40 @@ export default function Invoice() {
           </div>
         }
 
+        {payments.length > 0 &&
+        <div className="py-4 border-b border-slate-200">
+            <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
+              Payments
+            </p>
+            <table className="w-full table-fixed text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-400 border-b border-slate-200">
+                  <th className="pb-2 px-2">Date</th>
+                  <th className="pb-2 px-2">Type</th>
+                  <th className="pb-2 px-2">Method</th>
+                  <th className="pb-2 px-2 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p) =>
+              <tr key={p.id} className="border-b border-slate-50">
+                    <td className="py-3 px-2">
+                      {p.payment_date
+                        ? new Date(p.payment_date).toLocaleDateString()
+                        : '—'}
+                    </td>
+                    <td className="py-3 px-2">{p.payment_type}</td>
+                    <td className="py-3 px-2">{p.method}</td>
+                    <td className="py-3 px-2 text-right font-medium">
+                      ${(p.amount || 0).toFixed(2)}
+                    </td>
+                  </tr>
+              )}
+              </tbody>
+            </table>
+          </div>
+        }
+
         <div className="py-4 space-y-1 ml-auto max-w-[220px]">
           <div className="flex justify-between text-sm text-slate-500">
             <span>Parts</span>
@@ -231,10 +268,27 @@ export default function Invoice() {
             <span>Tax ({job.tax_rate || 0}%)</span>
             <span>${taxAmount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-lg font-bold text-slate-900 pt-1 border-t border-slate-300">
-            <span>Amount Due</span>
-            <span>${grandTotal.toFixed(2)}</span>
-          </div>
+          {paymentsTotal > 0 ? (
+            <>
+              <div className="flex justify-between text-sm text-slate-500">
+                <span>Total</span>
+                <span>${grandTotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-slate-500">
+                <span>Payments Received</span>
+                <span>−${paymentsTotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold text-slate-900 pt-1 border-t border-slate-300">
+                <span>Balance Due</span>
+                <span>${balanceDue.toFixed(2)}</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-between text-lg font-bold text-slate-900 pt-1 border-t border-slate-300">
+              <span>Amount Due</span>
+              <span>${grandTotal.toFixed(2)}</span>
+            </div>
+          )}
         </div>
 
         <p className="text-slate-400 mt-4 pt-4 border-t border-slate-100 text-sm">
