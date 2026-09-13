@@ -1,11 +1,11 @@
 import React from 'react';
 import { formatCurrency } from '@/lib/format';
 
-export default function EmployeeEarningsTable({ year, employeeStats, onSelect }) {
+export default function EmployeeEarningsTable({ periodLabel, employeeStats, onSelect }) {
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
       <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-3">
-        Employee Earnings — {year}
+        Employee Earnings — {periodLabel}
       </h2>
       {employeeStats.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-4">

@@ -3,12 +3,14 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { computeJobProfit } from '@/lib/billing';
+import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
 import ReportsHeader from '@/components/reports/ReportsHeader';
 import SummaryCards from '@/components/reports/SummaryCards';
 import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
 import EmployeeEarningsTable from '@/components/reports/EmployeeEarningsTable';
 import BreakdownList from '@/components/reports/BreakdownList';
 import PartsSpendingReport from '@/components/reports/PartsSpendingReport';
+import AllPartsReport from '@/components/reports/AllPartsReport';
 
 export default function Reports() {
   const { user } = useAuth();
@@ -19,12 +21,17 @@ export default function Reports() {
   const [sales, setSales] = useState([]);
   const [saleItems, setSaleItems] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
+  const [periodKey, setPeriodKey] = useState('full');
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [visibleJobs, setVisibleJobs] = useState(10);
   const [visibleSales, setVisibleSales] = useState(10);
+  const [visibleAllParts, setVisibleAllParts] = useState(10);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -35,13 +42,14 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData, salesData, saleItemsData, expensesData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, saleItemsData, expensesData, paymentsData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
           base44.entities.Sale.list('-sale_date', 500),
           base44.entities.SaleItem.list('-created_date', 2000),
           base44.entities.JobExpense.list(),
+          base44.entities.Payment.list('-payment_date', 2000),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
@@ -49,6 +57,7 @@ export default function Reports() {
         setSales(Array.isArray(salesData) ? salesData : []);
         setSaleItems(Array.isArray(saleItemsData) ? saleItemsData : []);
         setExpenses(Array.isArray(expensesData) ? expensesData : []);
+        setPayments(Array.isArray(paymentsData) ? paymentsData : []);
       } finally {
         setLoading(false);
       }
@@ -63,13 +72,18 @@ export default function Reports() {
     return [...set].sort((a, b) => b - a);
   }, [jobs, currentYear]);
 
+  const period = useMemo(
+    () => buildPeriod({ year, periodKey, customStart, customEnd }),
+    [year, periodKey, customStart, customEnd]
+  );
+
   const filteredJobs = useMemo(() => {
     return jobs.filter((j) => {
-      if (new Date(j.created_date).getFullYear() !== year) return false;
+      if (!inPeriod(j.created_date, period)) return false;
       if (statusFilter === 'closed' && j.status !== 'Closed') return false;
       return true;
     });
-  }, [jobs, year, statusFilter]);
+  }, [jobs, period, statusFilter]);
 
   const filteredJobIds = useMemo(
     () => new Set(filteredJobs.map((j) => j.id)),
@@ -117,10 +131,10 @@ export default function Reports() {
   }, [jobProfits]);
 
   const filteredSales = useMemo(() => {
-    return sales.filter(
-      (s) => new Date(s.sale_date || s.created_date).getFullYear() === year
+    return sales.filter((s) =>
+      inPeriod(s.sale_date || s.created_date, period)
     );
-  }, [sales, year]);
+  }, [sales, period]);
 
   const itemsBySale = useMemo(() => {
     const m = {};
@@ -178,6 +192,62 @@ export default function Reports() {
     [totals, salesTotals]
   );
 
+  const paymentsReceived = useMemo(() => {
+    const jobPayments = payments
+      .filter((p) => inPeriod(p.payment_date || p.created_date, period))
+      .reduce((a, p) => a + (Number(p.amount) || 0), 0);
+    const salesCash = filteredSales.reduce(
+      (a, s) => a + (Number(s.amount_paid) || 0),
+      0
+    );
+    return {
+      jobs: jobPayments,
+      sales: salesCash,
+      total: jobPayments + salesCash,
+    };
+  }, [payments, filteredSales, period]);
+
+  const allPartsRows = useMemo(() => {
+    const map = {};
+    const add = (name, partNumber, qty, cost) => {
+      const key = `${(name || '').trim().toLowerCase()}|${(
+        partNumber || ''
+      ).trim().toLowerCase()}`;
+      if (!map[key]) {
+        map[key] = {
+          key,
+          name: name || 'Unnamed part',
+          partNumber: partNumber || '',
+          qty: 0,
+          totalCost: 0,
+          lines: 0,
+        };
+      }
+      map[key].qty += qty;
+      map[key].totalCost += cost;
+      map[key].lines += 1;
+    };
+    for (const p of parts) {
+      if (!inPeriod(p.created_date, period)) continue;
+      add(
+        p.name,
+        p.part_number,
+        Number(p.quantity) || 0,
+        (Number(p.quantity) || 0) * (Number(p.unit_cost) || 0)
+      );
+    }
+    for (const it of saleItems) {
+      if (!inPeriod(it.created_date, period)) continue;
+      add(
+        it.description,
+        it.part_number,
+        Number(it.quantity) || 0,
+        (Number(it.quantity) || 0) * (Number(it.unit_cost) || 0)
+      );
+    }
+    return Object.values(map).sort((a, b) => b.totalCost - a.totalCost);
+  }, [parts, saleItems, period]);
+
   const employeeStats = useMemo(() => {
     const map = {};
     for (const l of labor) {
@@ -229,10 +299,11 @@ export default function Reports() {
     [salesRows]
   );
 
-  // Print the complete pack: expand lists first, then open the print dialog
+  // Print the complete pack: expand all lists first, then open the print dialog
   const handlePrint = () => {
     setVisibleJobs(jobRows.length);
     setVisibleSales(saleRows.length);
+    setVisibleAllParts(allPartsRows.length);
     setTimeout(() => window.print(), 100);
   };
 
@@ -253,8 +324,15 @@ export default function Reports() {
       <ReportsHeader
         year={year}
         years={years}
+        periodKey={periodKey}
+        periodLabel={period.label}
+        customStart={customStart}
+        customEnd={customEnd}
         statusFilter={statusFilter}
         onYearChange={setYear}
+        onPeriodChange={setPeriodKey}
+        onCustomStart={setCustomStart}
+        onCustomEnd={setCustomEnd}
         onStatusChange={setStatusFilter}
         onPrint={handlePrint}
       />
@@ -267,14 +345,15 @@ export default function Reports() {
       />
 
       <ProfitLossStatement
-        year={year}
+        periodLabel={period.label}
         totals={totals}
         salesTotals={salesTotals}
         combined={combined}
+        payments={paymentsReceived}
       />
 
       <EmployeeEarningsTable
-        year={year}
+        periodLabel={period.label}
         employeeStats={employeeStats}
         onSelect={(emp) =>
           navigate(
@@ -284,7 +363,7 @@ export default function Reports() {
       />
 
       <BreakdownList
-        title={`Job Breakdown — ${year}`}
+        title={`Job Breakdown — ${period.label}`}
         rows={jobRows}
         visible={visibleJobs}
         onShowMore={() => setVisibleJobs((v) => v + 10)}
@@ -294,7 +373,7 @@ export default function Reports() {
       />
 
       <BreakdownList
-        title={`Sales Breakdown — ${year}`}
+        title={`Sales Breakdown — ${period.label}`}
         rows={saleRows}
         visible={visibleSales}
         onShowMore={() => setVisibleSales((v) => v + 10)}
@@ -303,8 +382,16 @@ export default function Reports() {
         emptyLabel="No sales in this period"
       />
 
+      <AllPartsReport
+        periodLabel={period.label}
+        rows={allPartsRows}
+        visible={visibleAllParts}
+        onShowMore={() => setVisibleAllParts((v) => v + 10)}
+        onShowAll={() => setVisibleAllParts(allPartsRows.length)}
+      />
+
       <PartsSpendingReport
-        year={year}
+        period={period}
         parts={parts}
         saleItems={saleItems}
         jobs={jobs}

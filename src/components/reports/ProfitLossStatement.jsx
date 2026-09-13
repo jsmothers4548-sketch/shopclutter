@@ -8,7 +8,13 @@ const Row = ({ label, value, className = '', labelClass = '' }) => (
   </div>
 );
 
-export default function ProfitLossStatement({ year, totals, salesTotals, combined }) {
+export default function ProfitLossStatement({
+  periodLabel,
+  totals,
+  salesTotals,
+  combined,
+  payments = { jobs: 0, sales: 0, total: 0 },
+}) {
   const totalExpenses =
     totals.partsCost +
     totals.laborCost +
@@ -18,7 +24,7 @@ export default function ProfitLossStatement({ year, totals, salesTotals, combine
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 space-y-4">
       <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm">
-        Statement of Profit &amp; Loss — {year}
+        Statement of Profit &amp; Loss — {periodLabel}
       </h2>
 
       <div className="space-y-1.5">
@@ -84,6 +90,20 @@ export default function ProfitLossStatement({ year, totals, salesTotals, combine
         </p>
         <Row label="Job Tax Collected" value={formatCurrency(totals.taxCollected)} />
         <Row label="Sales Tax Collected" value={formatCurrency(salesTotals.tax)} />
+        <Row
+          label="Payments Received (Jobs)"
+          value={formatCurrency(payments.jobs)}
+        />
+        <Row
+          label="Payments Received (Sales)"
+          value={formatCurrency(payments.sales)}
+        />
+        <Row
+          label="Total Cash Collected"
+          value={formatCurrency(payments.total)}
+          className="font-semibold"
+          labelClass="text-slate-900 font-semibold"
+        />
         <Row
           label="Total Billed to Customers"
           value={formatCurrency(

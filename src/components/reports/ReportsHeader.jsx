@@ -1,11 +1,27 @@
 import React from 'react';
 import { Printer } from 'lucide-react';
 
+const PERIOD_OPTIONS = [
+  ['full', 'Year'],
+  ['q1', 'Q1'],
+  ['q2', 'Q2'],
+  ['q3', 'Q3'],
+  ['q4', 'Q4'],
+  ['custom', 'Custom'],
+];
+
 export default function ReportsHeader({
   year,
   years,
+  periodKey,
+  periodLabel,
+  customStart,
+  customEnd,
   statusFilter,
   onYearChange,
+  onPeriodChange,
+  onCustomStart,
+  onCustomEnd,
   onStatusChange,
   onPrint,
 }) {
@@ -29,6 +45,38 @@ export default function ReportsHeader({
             </option>
           ))}
         </select>
+        <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white">
+          {PERIOD_OPTIONS.map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => onPeriodChange(key)}
+              className={`px-2.5 py-2 text-xs font-semibold border-r border-slate-100 last:border-r-0 ${
+                periodKey === key
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {periodKey === 'custom' && (
+          <div className="flex items-center gap-1.5">
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => onCustomStart(e.target.value)}
+              className="rounded-lg border border-slate-200 px-2.5 py-2 text-sm bg-white"
+            />
+            <span className="text-slate-400 text-sm">to</span>
+            <input
+              type="date"
+              value={customEnd}
+              onChange={(e) => onCustomEnd(e.target.value)}
+              className="rounded-lg border border-slate-200 px-2.5 py-2 text-sm bg-white"
+            />
+          </div>
+        )}
         <select
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
@@ -50,10 +98,8 @@ export default function ReportsHeader({
         <p className="text-xs uppercase tracking-widest text-slate-600">
           ShopFlow Small Engine Repair
         </p>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Annual Financial Report
-        </h1>
-        <p className="text-sm text-slate-600">Fiscal Year {year}</p>
+        <h1 className="text-2xl font-bold text-slate-900">Financial Report</h1>
+        <p className="text-sm text-slate-600">{periodLabel}</p>
         <p className="text-xs text-slate-400 mt-1">
           Prepared {today} · Confidential — For Owner Use Only
         </p>
