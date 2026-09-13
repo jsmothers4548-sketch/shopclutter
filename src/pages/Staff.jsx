@@ -4,7 +4,8 @@ import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
-import { Plus, Edit, Trash2, Clock, BarChart3 } from 'lucide-react';
+import ReimbursementsDialog from '@/components/ReimbursementsDialog';
+import { Plus, Edit, Trash2, Clock, BarChart3, Wallet } from 'lucide-react';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ export default function Staff() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
+  const [showReimbursements, setShowReimbursements] = useState(false);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -91,6 +93,12 @@ export default function Staff() {
             className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700"
           >
             <BarChart3 className="w-4 h-4" /> Reports
+          </button>
+          <button
+            onClick={() => setShowReimbursements(true)}
+            className="flex items-center gap-1.5 bg-white border border-amber-300 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-50"
+          >
+            <Wallet className="w-4 h-4" /> Reimbursements
           </button>
           <button
             onClick={() => {
@@ -257,6 +265,11 @@ export default function Staff() {
           }}
         />
       )}
+
+      <ReimbursementsDialog
+        open={showReimbursements}
+        onOpenChange={setShowReimbursements}
+      />
     </div>
   );
 }
