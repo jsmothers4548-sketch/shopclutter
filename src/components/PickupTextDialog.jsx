@@ -23,10 +23,11 @@ export default function PickupTextDialog({ job, onClose }) {
     let cancelled = false;
     const load = async () => {
       try {
-        const [partsData, laborData, paymentsData] = await Promise.all([
+        const [partsData, laborData, paymentsData, expensesData] = await Promise.all([
           base44.entities.Part.filter({ job_id: job.id }),
           base44.entities.LaborEntry.filter({ job_id: job.id }),
           base44.entities.Payment.filter({ job_id: job.id }),
+          base44.entities.JobExpense.filter({ job_id: job.id }),
         ]);
         let customerData = null;
         if (job.customer_id) {
@@ -43,6 +44,7 @@ export default function PickupTextDialog({ job, onClose }) {
             parts: partsData,
             labor: laborData,
             payments: paymentsData,
+            expenses: expensesData,
           })
         );
       } finally {

@@ -8,6 +8,7 @@ import PartForm from '@/components/PartForm';
 import LaborForm from '@/components/LaborForm';
 import TimelineForm from '@/components/TimelineForm';
 import PaymentForm from '@/components/PaymentForm';
+import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
 import {
   ArrowLeft,
@@ -53,22 +54,27 @@ export default function JobDetail() {
   const [payments, setPayments] = useState([]);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [activePayment, setActivePayment] = useState(null);
+  const [expenses, setExpenses] = useState([]);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [activeExpense, setActiveExpense] = useState(null);
   const [showPickupText, setShowPickupText] = useState(false);
 
   const loadData = async () => {
     try {
-      const [jobData, partsData, laborData, timelineData, paymentsData] = await Promise.all([
+      const [jobData, partsData, laborData, timelineData, paymentsData, expensesData] = await Promise.all([
         base44.entities.Job.get(id),
         base44.entities.Part.filter({ job_id: id }),
         base44.entities.LaborEntry.filter({ job_id: id }),
         base44.entities.JobTimeline.filter({ job_id: id }, '-created_date'),
         base44.entities.Payment.filter({ job_id: id }, '-payment_date'),
+        base44.entities.JobExpense.filter({ job_id: id }, '-expense_date'),
       ]);
       setJob(jobData);
       setParts(partsData);
       setLabor(laborData);
       setTimeline(timelineData);
       setPayments(paymentsData);
+      setExpenses(expensesData);
       if (jobData.customer_id) {
         try {
           setCustomer(
@@ -85,7 +91,7 @@ export default function JobDetail() {
     loadData();
   }, [id]);
 
-  const billing = computeBilling({ parts, labor, job });
+  const billing = computeBilling({ parts, labor, job, expenses });
   const {
     partsTotal,
     laborTotal,
@@ -95,12 +101,13 @@ export default function JobDetail() {
     subtotal,
     taxAmount,
     grandTotal,
+    expensesTotal,
   } = billing;
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const isClosed = job?.status === 'Closed';
   const canEdit = isAdmin || !isClosed;
-  const profitData = computeJobProfit({ parts, labor, job });
+  const profitData = computeJobProfit({ parts, labor, job, expenses });
   const paidAmount = sumPayments(payments);
   const balanceDue = Math.max(grandTotal - paidAmount, 0);
 
@@ -116,6 +123,10 @@ export default function JobDetail() {
         { $set: { job_status: newStatus } }
       ),
       base44.entities.Payment.updateMany(
+        { job_id: id },
+        { $set: { job_status: newStatus } }
+      ),
+      base44.entities.JobExpense.updateMany(
         { job_id: id },
         { $set: { job_status: newStatus } }
       ),
@@ -144,6 +155,11 @@ export default function JobDetail() {
     setPayments(payments.filter((p) => p.id !== paymentId));
   };
 
+  const deleteExpense = async (expenseId) => {
+    await base44.entities.JobExpense.delete(expenseId);
+    setExpenses(expenses.filter((e) => e.id !== expenseId));
+  };
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -154,6 +170,7 @@ export default function JobDetail() {
         base44.entities.Part.deleteMany({ job_id: id }),
         base44.entities.LaborEntry.deleteMany({ job_id: id }),
         base44.entities.Payment.deleteMany({ job_id: id }),
+        base44.entities.JobExpense.deleteMany({ job_id: id }),
         base44.entities.JobTimeline.deleteMany({ job_id: id }),
       ]);
       await base44.entities.Job.delete(id);
@@ -540,6 +557,81 @@ export default function JobDetail() {
         </div>
       </div>
 
+      {/* Expenses */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-bold text-slate-900">Out-of-Pocket Expenses</h2>
+          {canEdit && (
+            <button
+              onClick={() => {
+                setActiveExpense(null);
+                setShowExpenseForm(true);
+              }}
+              className="flex items-center gap-1 text-amber-600 text-sm font-semibold"
+            >
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          )}
+        </div>
+        <div className="space-y-2">
+          {expenses.map((e) => (
+            <div
+              key={e.id}
+              className="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0"
+            >
+              <div
+                className={`min-w-0 flex-1 ${canEdit ? 'cursor-pointer' : ''}`}
+                onClick={canEdit ? () => {
+                  setActiveExpense(e);
+                  setShowExpenseForm(true);
+                } : undefined}
+              >
+                <p className="text-sm font-medium text-slate-900 truncate">
+                  {e.description}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {e.expense_date
+                    ? new Date(e.expense_date).toLocaleDateString()
+                    : ''}
+                  {e.paid_by ? ` · ${e.paid_by}` : ''}
+                  {e.billable
+                    ? ` · Bill customer${e.markup_percent ? ` (+${e.markup_percent}%)` : ''}`
+                    : ' · Shop'}
+                  {e.reimbursed ? ' · Reimbursed' : ' · Owed'}
+                </p>
+              </div>
+              <span className="text-sm font-semibold">
+                ${(e.amount || 0).toFixed(2)}
+              </span>
+              {canEdit && (
+                <button
+                  onClick={() => {
+                    setActiveExpense(e);
+                    setShowExpenseForm(true);
+                  }}
+                  className="text-slate-400 hover:text-amber-600"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+              {canEdit && (
+                <button
+                  onClick={() => deleteExpense(e.id)}
+                  className="text-slate-300 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          {expenses.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-4">
+              No expenses logged
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Cost Summary */}
       <div className="bg-slate-900 text-white rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm text-slate-300">
@@ -566,6 +658,12 @@ export default function JobDetail() {
           <div className="flex justify-between text-sm text-slate-300">
             <span>Service Call Fee</span>
             <span>${serviceCallFee.toFixed(2)}</span>
+          </div>
+        )}
+        {expensesTotal > 0 && (
+          <div className="flex justify-between text-sm text-slate-300">
+            <span>Expenses</span>
+            <span>${expensesTotal.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm text-slate-300">
@@ -614,6 +712,14 @@ export default function JobDetail() {
               −${profitData.laborCost.toFixed(2)}
             </span>
           </div>
+          {profitData.expensesCost > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">Out-of-Pocket Expenses</span>
+              <span className="font-medium text-red-600">
+                −${profitData.expensesCost.toFixed(2)}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between font-bold pt-2 border-t border-slate-200">
             <span>Net Profit</span>
             <span
@@ -683,6 +789,22 @@ export default function JobDetail() {
           onSaved={() => {
             setShowPaymentForm(false);
             setActivePayment(null);
+            loadData();
+          }}
+        />
+      )}
+      {showExpenseForm && (
+        <ExpenseForm
+          jobId={id}
+          jobStatus={job.status}
+          expense={activeExpense}
+          onClose={() => {
+            setShowExpenseForm(false);
+            setActiveExpense(null);
+          }}
+          onSaved={() => {
+            setShowExpenseForm(false);
+            setActiveExpense(null);
             loadData();
           }}
         />

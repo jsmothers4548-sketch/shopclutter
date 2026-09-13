@@ -18,6 +18,7 @@ export default function Reports() {
   const [labor, setLabor] = useState([]);
   const [sales, setSales] = useState([]);
   const [saleItems, setSaleItems] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -34,18 +35,20 @@ export default function Reports() {
   useEffect(() => {
     (async () => {
       try {
-        const [jobsData, partsData, laborData, salesData, saleItemsData] = await Promise.all([
+        const [jobsData, partsData, laborData, salesData, saleItemsData, expensesData] = await Promise.all([
           base44.entities.Job.list('-created_date', 500),
           base44.entities.Part.list(),
           base44.entities.LaborEntry.list(),
           base44.entities.Sale.list('-sale_date', 500),
           base44.entities.SaleItem.list('-created_date', 2000),
+          base44.entities.JobExpense.list(),
         ]);
         setJobs(Array.isArray(jobsData) ? jobsData : []);
         setParts(Array.isArray(partsData) ? partsData : []);
         setLabor(Array.isArray(laborData) ? laborData : []);
         setSales(Array.isArray(salesData) ? salesData : []);
         setSaleItems(Array.isArray(saleItemsData) ? saleItemsData : []);
+        setExpenses(Array.isArray(expensesData) ? expensesData : []);
       } finally {
         setLoading(false);
       }
@@ -77,30 +80,39 @@ export default function Reports() {
     return filteredJobs.map((job) => {
       const jobParts = parts.filter((p) => p.job_id === job.id);
       const jobLabor = labor.filter((l) => l.job_id === job.id);
+      const jobExpenses = expenses.filter((e) => e.job_id === job.id);
       return {
         job,
-        ...computeJobProfit({ parts: jobParts, labor: jobLabor, job }),
+        ...computeJobProfit({
+          parts: jobParts,
+          labor: jobLabor,
+          job,
+          expenses: jobExpenses,
+        }),
       };
     });
-  }, [filteredJobs, parts, labor]);
+  }, [filteredJobs, parts, labor, expenses]);
 
   const totals = useMemo(() => {
     let revenue = 0,
       partsCost = 0,
       laborCost = 0,
+      expenseCost = 0,
       taxCollected = 0;
     for (const jp of jobProfits) {
       revenue += jp.revenue;
       partsCost += jp.partsCost;
       laborCost += jp.laborCost;
+      expenseCost += jp.expensesCost || 0;
       taxCollected += jp.taxAmount;
     }
     return {
       revenue,
       partsCost,
       laborCost,
+      expenseCost,
       taxCollected,
-      profit: revenue - partsCost - laborCost,
+      profit: revenue - partsCost - laborCost - expenseCost,
     };
   }, [jobProfits]);
 
@@ -156,7 +168,11 @@ export default function Reports() {
   const combined = useMemo(
     () => ({
       revenue: totals.revenue + salesTotals.revenue,
-      cost: totals.partsCost + totals.laborCost + salesTotals.cost,
+      cost:
+        totals.partsCost +
+        totals.laborCost +
+        (totals.expenseCost || 0) +
+        salesTotals.cost,
       profit: totals.profit + salesTotals.profit,
     }),
     [totals, salesTotals]

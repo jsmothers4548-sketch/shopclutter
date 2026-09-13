@@ -1,4 +1,4 @@
-export function computeBilling({ parts, labor, job }) {
+export function computeBilling({ parts, labor, job, expenses = [] }) {
   const partsTotal = parts.reduce(
     (s, p) => s + (p.quantity || 0) * (p.unit_cost || 0),
     0
@@ -25,9 +25,21 @@ export function computeBilling({ parts, labor, job }) {
 
   const serviceCallFee = job?.service_call_fee || 0;
 
+  const expensesCost = (expenses || []).reduce(
+    (s, e) => s + (e.amount || 0),
+    0
+  );
+  const expensesTotal = (expenses || [])
+    .filter((e) => e.billable)
+    .reduce(
+      (s, e) => s + (e.amount || 0) * (1 + (e.markup_percent || 0) / 100),
+      0
+    );
+
   const discountedParts = Math.max(partsTotal - partsDiscount, 0);
   const discountedLabor = Math.max(laborTotal - laborDiscount, 0);
-  const subtotal = discountedParts + discountedLabor + serviceCallFee;
+  const subtotal =
+    discountedParts + discountedLabor + serviceCallFee + expensesTotal;
   const taxAmount = (subtotal * (job?.tax_rate || 0)) / 100;
   const grandTotal = subtotal + taxAmount;
 
@@ -42,6 +54,8 @@ export function computeBilling({ parts, labor, job }) {
     subtotal,
     taxAmount,
     grandTotal,
+    expensesTotal,
+    expensesCost,
   };
 }
 
@@ -49,8 +63,8 @@ export function sumPayments(payments = []) {
   return payments.reduce((s, p) => s + (p.amount || 0), 0);
 }
 
-export function computeJobProfit({ parts, labor, job }) {
-  const billing = computeBilling({ parts, labor, job });
+export function computeJobProfit({ parts, labor, job, expenses = [] }) {
+  const billing = computeBilling({ parts, labor, job, expenses });
   const partsCost = parts.reduce(
     (s, p) => s + (p.quantity || 0) * (p.unit_cost || 0),
     0
@@ -60,7 +74,8 @@ export function computeJobProfit({ parts, labor, job }) {
     0
   );
   const revenue = billing.subtotal;
-  const profit = revenue - partsCost - laborCost;
+  const expensesCost = billing.expensesCost;
+  const profit = revenue - partsCost - laborCost - expensesCost;
   return {
     ...billing,
     partsCost,

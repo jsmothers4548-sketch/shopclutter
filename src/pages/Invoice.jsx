@@ -12,13 +12,14 @@ export default function Invoice() {
   useEffect(() => {
     (async () => {
       const job = await base44.entities.Job.get(id);
-      const [customer, parts, labor, payments] = await Promise.all([
+      const [customer, parts, labor, payments, expenses] = await Promise.all([
       base44.entities.Customer.get(job.customer_id),
       base44.entities.Part.filter({ job_id: id }),
       base44.entities.LaborEntry.filter({ job_id: id }),
-      base44.entities.Payment.filter({ job_id: id })]
+      base44.entities.Payment.filter({ job_id: id }),
+      base44.entities.JobExpense.filter({ job_id: id })]
       );
-      setData({ job, customer, parts, labor, payments: Array.isArray(payments) ? payments : [] });
+      setData({ job, customer, parts, labor, payments: Array.isArray(payments) ? payments : [], expenses: Array.isArray(expenses) ? expenses : [] });
     })();
   }, [id]);
 
@@ -30,7 +31,7 @@ export default function Invoice() {
 
   }
 
-  const { job, customer, parts, labor, payments } = data;
+  const { job, customer, parts, labor, payments, expenses } = data;
   const {
     partsTotal,
     laborTotal,
@@ -39,8 +40,10 @@ export default function Invoice() {
     serviceCallFee,
     subtotal,
     taxAmount,
-    grandTotal
-  } = computeBilling({ parts, labor, job });
+    grandTotal,
+    expensesTotal
+  } = computeBilling({ parts, labor, job, expenses });
+  const billableExpenses = (expenses || []).filter((e) => e.billable);
   const paymentsTotal = sumPayments(payments);
   const balanceDue = grandTotal - paymentsTotal;
 
@@ -199,6 +202,36 @@ export default function Invoice() {
           </div>
         }
 
+        {billableExpenses.length > 0 &&
+        <div className="py-4 border-b border-slate-200">
+            <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
+              Expenses
+            </p>
+            <table className="w-full table-fixed text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-400 border-b border-slate-200">
+                  <th className="pb-2 px-2">Description</th>
+                  <th className="pb-2 px-2 w-20 text-right">Markup</th>
+                  <th className="pb-2 px-2 w-32 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {billableExpenses.map((e) =>
+              <tr key={e.id} className="border-b border-slate-50">
+                    <td className="py-3 px-2">{e.description}</td>
+                    <td className="py-3 px-2 text-right text-slate-400">
+                      {e.markup_percent ? `+${e.markup_percent}%` : '—'}
+                    </td>
+                    <td className="py-3 px-2 text-right font-medium">
+                      ${((e.amount || 0) * (1 + (e.markup_percent || 0) / 100)).toFixed(2)}
+                    </td>
+                  </tr>
+              )}
+              </tbody>
+            </table>
+          </div>
+        }
+
         {payments.length > 0 &&
         <div className="py-4 border-b border-slate-200">
             <p className="text-xs font-semibold text-slate-400 uppercase mb-2">
@@ -256,9 +289,15 @@ export default function Invoice() {
           }
           {serviceCallFee > 0 &&
           <div className="flex justify-between text-sm text-slate-500">
-              <span>Service Call Fee</span>
-              <span>${serviceCallFee.toFixed(2)}</span>
-            </div>
+            <span>Service Call Fee</span>
+            <span>${serviceCallFee.toFixed(2)}</span>
+          </div>
+          }
+          {expensesTotal > 0 &&
+          <div className="flex justify-between text-sm text-slate-500">
+            <span>Expenses</span>
+            <span>${expensesTotal.toFixed(2)}</span>
+          </div>
           }
           <div className="flex justify-between text-sm text-slate-500">
             <span>Subtotal</span>

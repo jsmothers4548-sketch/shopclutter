@@ -6,8 +6,9 @@ export function buildPickupMessage({
   parts = [],
   labor = [],
   payments = [],
+  expenses = [],
 }) {
-  const { grandTotal } = computeBilling({ parts, labor, job });
+  const { grandTotal } = computeBilling({ parts, labor, job, expenses });
   const balanceDue = Math.max(grandTotal - sumPayments(payments), 0);
 
   const firstName =

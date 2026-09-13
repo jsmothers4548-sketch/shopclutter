@@ -9,7 +9,11 @@ const Row = ({ label, value, className = '', labelClass = '' }) => (
 );
 
 export default function ProfitLossStatement({ year, totals, salesTotals, combined }) {
-  const totalExpenses = totals.partsCost + totals.laborCost + salesTotals.cost;
+  const totalExpenses =
+    totals.partsCost +
+    totals.laborCost +
+    (totals.expenseCost || 0) +
+    salesTotals.cost;
 
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 space-y-4">
@@ -47,6 +51,12 @@ export default function ProfitLossStatement({ year, totals, salesTotals, combine
           label="Employee Wages"
           value={`(${formatCurrency(totals.laborCost)})`}
         />
+        {(totals.expenseCost || 0) > 0 && (
+          <Row
+            label="Out-of-Pocket Expenses"
+            value={`(${formatCurrency(totals.expenseCost)})`}
+          />
+        )}
         <Row
           label="Total Expenses"
           value={`(${formatCurrency(totalExpenses)})`}
