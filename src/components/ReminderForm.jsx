@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
+import CustomerPicker from '@/components/CustomerPicker';
 import { MapPin } from 'lucide-react';
 
 const APPOINTMENT_TYPES = ['General', 'On-site', 'Off-site'];
@@ -36,8 +37,8 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
     base44.entities.Customer.list('name', 200).then(setCustomers).catch(() => {});
   }, []);
 
-  const handleCustomerChange = (e) => {
-    const customer = customers.find((c) => c.id === e.target.value);
+  const handleCustomerChange = (c) => {
+    const customer = c || null;
     if (customer) {
       setForm({
         ...form,
@@ -105,6 +106,7 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
             <Input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
+              autoCapitalize="sentences"
               required
               placeholder="Order oil filters"
             />
@@ -114,6 +116,7 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
+              autoCapitalize="sentences"
               rows={2}
               placeholder="Details about this reminder..."
             />
@@ -155,16 +158,13 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
           </div>
           <div>
             <Label>Link to Customer (optional)</Label>
-            <select
+            <CustomerPicker
+              customers={customers}
               value={form.customer_id}
               onChange={handleCustomerChange}
-              className={selectClass}
-            >
-              <option value="">— General Shop Reminder —</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name} — {c.phone}</option>
-              ))}
-            </select>
+              emptyLabel="— General Shop Reminder —"
+              placeholder="Search by name or phone…"
+            />
           </div>
           {form.customer_id && form.customer_address && (
             <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-lg p-2">

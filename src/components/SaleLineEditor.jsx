@@ -105,6 +105,7 @@ export default function SaleLineEditor({ lines, shopItems, onChange }) {
                 <Input
                   value={line.description}
                   onChange={(e) => setLine(i, { description: e.target.value })}
+                  autoCapitalize="sentences"
                   placeholder={i === 0 ? 'e.g. Used chainsaw, new unit, part…' : 'Description'}
                   required
                 />

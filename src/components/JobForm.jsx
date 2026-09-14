@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import QrScanner from '@/components/QrScanner';
+import CustomerPicker from '@/components/CustomerPicker';
 import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
@@ -47,6 +48,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     labor_discount_value: job?.labor_discount_value ?? 0,
   });
   const [saving, setSaving] = useState(false);
+  const [customerError, setCustomerError] = useState('');
   const [customers, setCustomers] = useState([]);
   const [unitId, setUnitId] = useState(unit?.id || job?.unit_id || null);
   const [unitLabel, setUnitLabel] = useState(unit?.label_number || '');
@@ -139,6 +141,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   };
 
   const handleCustomerChange = (customerId) => {
+    setCustomerError('');
     const c = customers.find((x) => x.id === customerId);
     setForm((prev) => ({
       ...prev,
@@ -168,6 +171,10 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.customer_id) {
+      setCustomerError('Select a customer to continue');
+      return;
+    }
     setSaving(true);
     try {
       let finalUnitId = unitId;
@@ -223,21 +230,15 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label>Customer *</Label>
-            <select
+            <CustomerPicker
+              customers={customers}
               value={form.customer_id || ''}
-              onChange={(e) => handleCustomerChange(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              required
-            >
-              <option value="" disabled>
-                Select a customer…
-              </option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              onChange={(c) => handleCustomerChange(c?.id || '')}
+              placeholder="Search by name or phone…"
+            />
+            {customerError && (
+              <p className="text-xs text-red-600 mt-1">{customerError}</p>
+            )}
           </div>
           <div>
             <Label>Unit Label #</Label>
@@ -295,6 +296,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
                 <Label>Off-site Address *</Label>
                 <textarea
                   value={form.offsite_address}
+                  autoCapitalize="words"
                   onChange={(e) =>
                     setForm({ ...form, offsite_address: e.target.value })
                   }
@@ -335,6 +337,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
               <Input
                 value={form.make}
                 onChange={(e) => setForm({ ...form, make: e.target.value })}
+                autoCapitalize="words"
                 placeholder="Honda"
               />
             </div>
@@ -343,6 +346,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
               <Input
                 value={form.model}
                 onChange={(e) => setForm({ ...form, model: e.target.value })}
+                autoCapitalize="words"
                 placeholder="HRX217"
               />
             </div>
@@ -361,6 +365,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
             <Label>Problem / Work Description *</Label>
             <textarea
               value={form.problem_description}
+              autoCapitalize="sentences"
               onChange={(e) =>
                 setForm({ ...form, problem_description: e.target.value })
               }

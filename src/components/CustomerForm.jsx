@@ -27,12 +27,14 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
     if (!form.name || !form.phone) return;
     setSaving(true);
     try {
+      let saved;
       if (customer) {
         await base44.entities.Customer.update(customer.id, form);
+        saved = { ...customer, ...form };
       } else {
-        await base44.entities.Customer.create(form);
+        saved = await base44.entities.Customer.create(form);
       }
-      onSaved();
+      onSaved(saved);
     } finally {
       setSaving(false);
     }
@@ -63,6 +65,7 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
             <Input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
+              autoCapitalize="words"
               required
               placeholder="John Smith"
             />
@@ -91,6 +94,7 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
             <Input
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
+              autoCapitalize="words"
               placeholder="123 Main St, Town, ST"
             />
           </div>
@@ -99,6 +103,7 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              autoCapitalize="sentences"
               className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
               placeholder="Preferred contact times, directions, etc."
             />

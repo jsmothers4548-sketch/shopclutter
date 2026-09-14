@@ -58,9 +58,13 @@ export default function JobQuickAdd({ onClose, onSaved }) {
     return (
       <CustomerForm
         onClose={() => setShowCustomerForm(false)}
-        onSaved={async () => {
+        onSaved={async (savedCustomer) => {
           setShowCustomerForm(false);
           await loadCustomers();
+          if (savedCustomer?.id) {
+            setSelected(savedCustomer);
+            setShowJobForm(true);
+          }
         }}
       />
     );

@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
 import { getShopSettings } from '@/lib/shopSettings';
 import SaleLineEditor from '@/components/SaleLineEditor';
+import CustomerPicker from '@/components/CustomerPicker';
 import {
   Dialog,
   DialogContent,
@@ -206,19 +207,13 @@ export default function SaleForm({ sale, onClose, onSaved }) {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label htmlFor="cust">Customer (optional)</Label>
-            <select
-              id="cust"
+            <CustomerPicker
+              customers={customers}
               value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-            >
-              <option value="">Walk-in / No customer</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} — {c.phone}
-                </option>
-              ))}
-            </select>
+              onChange={(c) => setCustomerId(c?.id || '')}
+              emptyLabel="Walk-in / No customer"
+              placeholder="Search by name or phone…"
+            />
           </div>
 
           <SaleLineEditor lines={lines} shopItems={shopItems} onChange={setLines} />
@@ -311,6 +306,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              autoCapitalize="sentences"
               placeholder="Optional"
             />
           </div>
