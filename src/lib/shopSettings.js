@@ -7,6 +7,8 @@ export const DEFAULT_SETTINGS = {
   job_tax_rate: 9,
   sales_tax_rate: 9,
   overtime_rule: 'federal',
+  brand_name: 'Shop Clutter',
+  brand_logo_url: '',
 };
 
 export async function getShopSettings() {

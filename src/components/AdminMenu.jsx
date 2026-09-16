@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import ReimbursementsDialog from '@/components/ReimbursementsDialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent } from 'lucide-react';
+import BrandingForm from '@/components/BrandingForm';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -23,6 +24,7 @@ export default function AdminMenu() {
   const { pathname } = useLocation();
   const [showReimbursements, setShowReimbursements] = useState(false);
   const [showRates, setShowRates] = useState(false);
+  const [showBranding, setShowBranding] = useState(false);
 
   const isActive = pathname.startsWith('/staff') || pathname.startsWith('/reports');
 
@@ -65,6 +67,12 @@ export default function AdminMenu() {
           >
             <Percent className="w-4 h-4" /> Default Rates
           </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => setShowBranding(true)}
+          >
+            <Palette className="w-4 h-4" /> Branding
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -77,6 +85,13 @@ export default function AdminMenu() {
         <DialogContent className="p-0 border-0 max-w-md overflow-hidden rounded-xl">
           <DialogTitle className="sr-only">Default Rates</DialogTitle>
           <ShopSettingsForm />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showBranding} onOpenChange={setShowBranding}>
+        <DialogContent className="p-0 border-0 max-w-md overflow-hidden rounded-xl">
+          <DialogTitle className="sr-only">Branding</DialogTitle>
+          <BrandingForm />
         </DialogContent>
       </Dialog>
     </>

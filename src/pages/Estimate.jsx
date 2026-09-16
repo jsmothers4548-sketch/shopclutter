@@ -3,11 +3,24 @@ import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, MessageSquare } from 'lucide-react';
 import { computeBilling } from '@/lib/billing';
+import { getShopSettings } from '@/lib/shopSettings';
 
 export default function Estimate() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+
+  useEffect(() => {
+    getShopSettings()
+      .then((s) =>
+        setBrand({
+          name: s.brand_name || 'Shop Clutter',
+          logo: s.brand_logo_url || '',
+        })
+      )
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -70,9 +83,14 @@ export default function Estimate() {
 
       <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-2xl mx-auto print:border-0 print:shadow-none">
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">ShopTrack</h1>
-            <p className="text-xs text-slate-400">Small Engine Repair</p>
+          <div className="flex items-center gap-2">
+            {brand.logo && (
+              <img src={brand.logo} alt="Logo" className="h-12 w-12 object-contain" />
+            )}
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">{brand.name}</h1>
+              <p className="text-xs text-slate-400">Small Engine Repair</p>
+            </div>
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold text-amber-600">ESTIMATE</h2>

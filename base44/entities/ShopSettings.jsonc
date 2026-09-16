@@ -29,6 +29,14 @@
         "daily"
       ],
       "default": "federal"
+    },
+    "brand_name": {
+      "type": "string",
+      "default": "Shop Clutter"
+    },
+    "brand_logo_url": {
+      "type": "string",
+      "default": ""
     }
   },
   "required": [],

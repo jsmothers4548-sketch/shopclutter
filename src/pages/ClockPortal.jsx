@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { getShopSettings } from '@/lib/shopSettings';
 import { Clock, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
 export default function ClockPortal() {
@@ -8,6 +9,18 @@ export default function ClockPortal() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+
+  useEffect(() => {
+    getShopSettings()
+      .then((s) =>
+        setBrand({
+          name: s.brand_name || 'Shop Clutter',
+          logo: s.brand_logo_url || '',
+        })
+      )
+      .catch(() => {});
+  }, []);
 
   const handleClock = async (e) => {
     e.preventDefault();
@@ -54,10 +67,18 @@ export default function ClockPortal() {
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 space-y-6">
         <div className="text-center">
-          <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Clock className="w-8 h-8 text-slate-900" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900">Shop Flow</h1>
+          {brand.logo ? (
+            <img
+              src={brand.logo}
+              alt="Logo"
+              className="h-16 w-16 object-contain mx-auto mb-3"
+            />
+          ) : (
+            <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Clock className="w-8 h-8 text-slate-900" />
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-slate-900">{brand.name}</h1>
           <p className="text-sm text-slate-500">Employee Time Clock</p>
         </div>
 
