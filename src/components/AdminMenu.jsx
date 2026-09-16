@@ -1,0 +1,84 @@
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import ReimbursementsDialog from '@/components/ReimbursementsDialog';
+import ShopSettingsForm from '@/components/ShopSettingsForm';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent } from 'lucide-react';
+
+const itemClass =
+  'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
+
+export default function AdminMenu() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [showReimbursements, setShowReimbursements] = useState(false);
+  const [showRates, setShowRates] = useState(false);
+
+  const isActive = pathname.startsWith('/staff') || pathname.startsWith('/reports');
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              isActive
+                ? 'bg-amber-500 text-slate-900'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" /> Admin
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate('/staff')}
+          >
+            <UserCog className="w-4 h-4" /> Staff Directory
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate('/reports')}
+          >
+            <BarChart3 className="w-4 h-4" /> Reports
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => setShowReimbursements(true)}
+          >
+            <Wallet className="w-4 h-4" /> Reimbursements
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => setShowRates(true)}
+          >
+            <Percent className="w-4 h-4" /> Default Rates
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ReimbursementsDialog
+        open={showReimbursements}
+        onOpenChange={setShowReimbursements}
+      />
+
+      <Dialog open={showRates} onOpenChange={setShowRates}>
+        <DialogContent className="p-0 border-0 max-w-md overflow-hidden rounded-xl">
+          <DialogTitle className="sr-only">Default Rates</DialogTitle>
+          <ShopSettingsForm />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

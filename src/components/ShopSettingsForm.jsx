@@ -65,7 +65,7 @@ export default function ShopSettingsForm() {
     >
       <div className="flex items-center gap-2">
         <Settings className="w-4 h-4 text-amber-600" />
-        <h2 className="font-bold text-slate-900">Shop Settings</h2>
+        <h2 className="font-bold text-slate-900">Default Rates</h2>
         <span className="text-xs text-slate-400">
           Defaults for new records only
         </span>

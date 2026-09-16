@@ -1,8 +1,9 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, UserCog, Clock, Boxes } from 'lucide-react';
+import { Wrench, Clock, Boxes } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import BottomNav from '@/components/BottomNav';
+import AdminMenu from '@/components/AdminMenu';
 
 const headerBtnClass = ({ isActive }) =>
   `flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
@@ -27,12 +28,10 @@ export default function Layout() {
           </NavLink>
           {isAdmin && (
             <>
-              <NavLink to="/staff" className={headerBtnClass}>
-                <UserCog className="w-4 h-4" /> Staff
-              </NavLink>
               <NavLink to="/units" className={headerBtnClass}>
                 <Boxes className="w-4 h-4" /> Units
               </NavLink>
+              <AdminMenu />
             </>
           )}
         </div>

@@ -3,9 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
-import ShopSettingsForm from '@/components/ShopSettingsForm';
-import ReimbursementsDialog from '@/components/ReimbursementsDialog';
-import { Plus, Edit, Trash2, Clock, BarChart3, Wallet } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock } from 'lucide-react';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -16,7 +14,6 @@ export default function Staff() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
-  const [showReimbursements, setShowReimbursements] = useState(false);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -89,30 +86,16 @@ export default function Staff() {
         <h1 className="text-2xl font-bold text-slate-900">Staff Directory</h1>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/reports')}
-            className="flex items-center gap-1.5 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700"
-          >
-            <BarChart3 className="w-4 h-4" /> Reports
-          </button>
-          <button
-            onClick={() => setShowReimbursements(true)}
-            className="flex items-center gap-1.5 bg-white border border-amber-300 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-50"
-          >
-            <Wallet className="w-4 h-4" /> Reimbursements
-          </button>
-          <button
             onClick={() => {
               setEditingStaff(null);
               setShowForm(true);
             }}
             className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
           >
-            <Plus className="w-4 h-4" /> Add
+            <Plus className="w-4 h-4" /> Add Employee
           </button>
         </div>
       </div>
-
-      <ShopSettingsForm />
 
       {staff.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
@@ -266,10 +249,6 @@ export default function Staff() {
         />
       )}
 
-      <ReimbursementsDialog
-        open={showReimbursements}
-        onOpenChange={setShowReimbursements}
-      />
     </div>
   );
 }
