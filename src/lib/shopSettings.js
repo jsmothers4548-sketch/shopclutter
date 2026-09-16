@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS = {
   service_call_fee: 80,
   job_tax_rate: 9,
   sales_tax_rate: 9,
+  overtime_rule: 'federal',
 };
 
 export async function getShopSettings() {

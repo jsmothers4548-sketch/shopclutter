@@ -21,8 +21,17 @@
     "sales_tax_rate": {
       "type": "number",
       "default": 9
+    },
+    "overtime_rule": {
+      "type": "string",
+      "enum": [
+        "federal",
+        "daily"
+      ],
+      "default": "federal"
     }
   },
+  "required": [],
   "rls": {
     "read": {
       "$or": [

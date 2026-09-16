@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
 import { Plus, Edit, Trash2, Clock } from 'lucide-react';
+import TimeClockWeeks from '@/components/TimeClockWeeks';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export default function Staff() {
       const [staffData, laborData, clockData] = await Promise.all([
         base44.entities.Staff.list('-created_date'),
         base44.entities.LaborEntry.list(),
-        base44.entities.TimeClock.list('-timestamp', 50),
+        base44.entities.TimeClock.list('-timestamp', 500),
       ]);
       setStaff(Array.isArray(staffData) ? staffData : []);
       setLabor(Array.isArray(laborData) ? laborData : []);
@@ -196,47 +197,7 @@ export default function Staff() {
         </div>
       )}
 
-      {/* Time Clock Logs */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h2 className="font-bold text-slate-900 mb-3">Time Clock Logs</h2>
-        {timeClocks.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-4">
-            No clock entries yet
-          </p>
-        ) : (
-          <div className="space-y-1">
-            {timeClocks.slice(0, 20).map((tc) => {
-              const staffMatch = staff.find(
-                (s) => s.employee_id === tc.employee_id
-              );
-              return (
-                <div
-                  key={tc.id}
-                  className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">
-                      {staffMatch?.name || `ID: ${tc.employee_id}`}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(tc.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded ${
-                      tc.action === 'clock_in'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}
-                  >
-                    {tc.action === 'clock_in' ? 'In' : 'Out'}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <TimeClockWeeks staff={staff} timeClocks={timeClocks} />
 
       {showForm && (
         <StaffForm

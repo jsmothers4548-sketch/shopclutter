@@ -3,6 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Settings, Check } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 
@@ -30,6 +37,7 @@ export default function ShopSettingsForm() {
           service_call_fee: s.service_call_fee,
           job_tax_rate: s.job_tax_rate,
           sales_tax_rate: s.sales_tax_rate,
+          overtime_rule: s.overtime_rule || 'federal',
         });
       })
       .catch(() => setForm({ ...DEFAULT_SETTINGS }));
@@ -47,6 +55,7 @@ export default function ShopSettingsForm() {
       service_call_fee: Number(form.service_call_fee) || 0,
       job_tax_rate: Number(form.job_tax_rate) || 0,
       sales_tax_rate: Number(form.sales_tax_rate) || 0,
+      overtime_rule: form.overtime_rule || 'federal',
     };
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
@@ -86,6 +95,28 @@ export default function ShopSettingsForm() {
             />
           </div>
         ))}
+      </div>
+      <div>
+        <Label htmlFor="overtime_rule">Overtime Rule</Label>
+        <Select
+          value={form.overtime_rule}
+          onValueChange={(v) => setForm({ ...form, overtime_rule: v })}
+        >
+          <SelectTrigger id="overtime_rule" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="federal">
+              Federal — over 40 hrs/week
+            </SelectItem>
+            <SelectItem value="daily">
+              Daily — over 8 hrs/day + over 40/week
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-slate-400 mt-1">
+          Applied automatically to all time clock overtime
+        </p>
       </div>
       <div className="flex items-center gap-2">
         <Button type="submit" disabled={saving}>
