@@ -11,6 +11,8 @@ const PERIOD_OPTIONS = [
 ];
 
 export default function ReportsHeader({
+  title = 'Financial Reports',
+  printTitle = 'Financial Report',
   year,
   years,
   periodKey,
@@ -32,7 +34,7 @@ export default function ReportsHeader({
       {/* Screen controls */}
       <div className="flex items-center gap-2 flex-wrap print:hidden">
         <h1 className="text-2xl font-bold text-slate-900 flex-1">
-          Financial Reports
+          {title}
         </h1>
         <select
           value={year}
@@ -98,7 +100,7 @@ export default function ReportsHeader({
         <p className="text-xs uppercase tracking-widest text-slate-600">
           ShopFlow Small Engine Repair
         </p>
-        <h1 className="text-2xl font-bold text-slate-900">Financial Report</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{printTitle}</h1>
         <p className="text-sm text-slate-600">{periodLabel}</p>
         <p className="text-xs text-slate-400 mt-1">
           Prepared {today} · Confidential — For Owner Use Only

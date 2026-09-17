@@ -7,15 +7,20 @@ export default function AllPartsReport({
   visible,
   onShowMore,
   onShowAll,
+  onSelect,
+  actions,
 }) {
   const totalCost = rows.reduce((a, r) => a + r.totalCost, 0);
   const totalQty = rows.reduce((a, r) => a + r.qty, 0);
 
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
-      <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-3">
-        All Parts — {periodLabel}
-      </h2>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm">
+          All Parts — {periodLabel}
+        </h2>
+        {actions}
+      </div>
       {rows.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-4">
           No parts used in this period
@@ -52,7 +57,10 @@ export default function AllPartsReport({
             {rows.slice(0, visible).map((r) => (
               <div
                 key={r.key}
-                className="flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0"
+                onClick={onSelect ? () => onSelect(r) : undefined}
+                className={`flex items-center justify-between gap-2 py-2 border-b border-slate-50 last:border-0 ${
+                  onSelect ? 'cursor-pointer hover:bg-slate-50' : ''
+                }`}
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-900 truncate">

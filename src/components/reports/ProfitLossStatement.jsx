@@ -14,6 +14,7 @@ export default function ProfitLossStatement({
   salesTotals,
   combined,
   payments = { jobs: 0, sales: 0, total: 0 },
+  actions,
 }) {
   const totalExpenses =
     totals.partsCost +
@@ -23,9 +24,12 @@ export default function ProfitLossStatement({
 
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 space-y-4">
-      <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm">
-        Statement of Profit &amp; Loss — {periodLabel}
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm">
+          Statement of Profit &amp; Loss — {periodLabel}
+        </h2>
+        {actions}
+      </div>
 
       <div className="space-y-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">

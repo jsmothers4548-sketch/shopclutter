@@ -9,12 +9,16 @@ export default function BreakdownList({
   onShowAll,
   onSelect,
   emptyLabel,
+  actions,
 }) {
   return (
     <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
-      <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-3">
-        {title}
-      </h2>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm">
+          {title}
+        </h2>
+        {actions}
+      </div>
       {rows.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-4">
           {emptyLabel}
