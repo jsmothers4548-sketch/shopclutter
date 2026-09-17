@@ -4,6 +4,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Printer, User } from 'lucide-react';
 import { formatCurrency } from '@/lib/format';
+import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
+import EarningsPeriodControls from '@/components/reports/EarningsPeriodControls';
 
 export default function EmployeeEarningsDetail() {
   const [params] = useSearchParams();
@@ -14,6 +16,15 @@ export default function EmployeeEarningsDetail() {
 
   const [data, setData] = useState(null);
   const [staffId, setStaffId] = useState(null);
+  const [periodKey, setPeriodKey] = useState('full');
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
+  const [query, setQuery] = useState('');
+
+  const period = useMemo(
+    () => buildPeriod({ year, periodKey, customStart, customEnd }),
+    [year, periodKey, customStart, customEnd]
+  );
 
   useEffect(() => {
     if (user && user.role !== 'admin') navigate('/');
@@ -48,11 +59,11 @@ export default function EmployeeEarningsDetail() {
 
   const rows = useMemo(() => {
     if (!data) return [];
+    const q = query.trim().toLowerCase();
     return data.labor
       .map((l) => {
         const job = jobById[l.job_id];
-        if (!job || new Date(job.created_date).getFullYear() !== year)
-          return null;
+        if (!job || !inPeriod(job.created_date, period)) return null;
         const hours = Number(l.hours) || 0;
         return {
           id: l.id,
@@ -64,10 +75,20 @@ export default function EmployeeEarningsDetail() {
         };
       })
       .filter(Boolean)
+      .filter(
+        (r) =>
+          !q ||
+          [
+            r.description,
+            r.job.customer_name,
+            r.job.ticket_number,
+            r.job.equipment_type,
+          ].some((v) => (v || '').toLowerCase().includes(q))
+      )
       .sort(
         (a, b) => new Date(b.job.created_date) - new Date(a.job.created_date)
       );
-  }, [data, jobById, year]);
+  }, [data, jobById, period, query]);
 
   const totals = useMemo(
     () => ({
@@ -119,7 +140,7 @@ export default function EmployeeEarningsDetail() {
           <h1 className="text-2xl font-bold text-slate-900 truncate">
             {name}
           </h1>
-          <p className="text-xs text-slate-400">Earnings — {year}</p>
+          <p className="text-xs text-slate-400">Earnings — {period.label}</p>
         </div>
         {staffId && (
           <button
@@ -137,6 +158,18 @@ export default function EmployeeEarningsDetail() {
         </button>
       </div>
 
+      <EarningsPeriodControls
+        periodKey={periodKey}
+        onPeriodChange={setPeriodKey}
+        customStart={customStart}
+        customEnd={customEnd}
+        onCustomChange={(field, val) =>
+          field === 'start' ? setCustomStart(val) : setCustomEnd(val)
+        }
+        query={query}
+        onQueryChange={setQuery}
+      />
+
       {/* Print cover header */}
       <div className="hidden print:block text-center border-b-2 border-slate-900 pb-3">
         <p className="text-xs uppercase tracking-widest text-slate-600">
@@ -145,7 +178,13 @@ export default function EmployeeEarningsDetail() {
         <h1 className="text-2xl font-bold text-slate-900">
           Employee Earnings — {name}
         </h1>
-        <p className="text-sm text-slate-600">Fiscal Year {year}</p>
+        <p className="text-sm text-slate-600">{period.label}</p>
+        {query.trim() && (
+          <p className="text-xs text-slate-500">
+            Search: “{query.trim()}” · {rows.length} matching{' '}
+            {rows.length === 1 ? 'entry' : 'entries'}
+          </p>
+        )}
         <p className="text-xs text-slate-400 mt-1">
           Prepared {new Date().toLocaleDateString()} · Confidential — For
           Owner Use Only
@@ -174,11 +213,12 @@ export default function EmployeeEarningsDetail() {
       {/* Labor entries */}
       <section className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
         <h2 className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-3">
-          Labor Entries — {year}
+          Labor Entries — {period.label}
+          {query.trim() && ` · matching “${query.trim()}”`}
         </h2>
         {rows.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-4">
-            No labor entries for {name} in {year}
+            No matching labor entries for {name} in {period.label}
           </p>
         ) : (
           <div className="space-y-1">
