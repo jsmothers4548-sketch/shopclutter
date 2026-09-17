@@ -13,6 +13,10 @@ const PERIOD_OPTIONS = [
 export default function ReportsHeader({
   title = 'Financial Reports',
   printTitle = 'Financial Report',
+  view,
+  viewOptions,
+  onViewChange,
+  onPrintPack,
   year,
   years,
   periodKey,
@@ -36,6 +40,19 @@ export default function ReportsHeader({
         <h1 className="text-2xl font-bold text-slate-900 flex-1">
           {title}
         </h1>
+        {viewOptions && (
+          <select
+            value={view}
+            onChange={(e) => onViewChange(e.target.value)}
+            className="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white font-semibold"
+          >
+            {viewOptions.map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        )}
         <select
           value={year}
           onChange={(e) => onYearChange(Number(e.target.value))}
@@ -93,6 +110,14 @@ export default function ReportsHeader({
         >
           <Printer className="w-4 h-4" /> Print
         </button>
+        {onPrintPack && (
+          <button
+            onClick={onPrintPack}
+            className="flex items-center gap-1.5 border border-slate-300 text-slate-700 bg-white px-3 py-2 rounded-lg text-sm font-semibold active:bg-slate-50"
+          >
+            <Printer className="w-4 h-4" /> Print Full Pack
+          </button>
+        )}
       </div>
 
       {/* Print cover header */}

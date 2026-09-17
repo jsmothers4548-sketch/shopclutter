@@ -12,6 +12,16 @@ import AllPartsReport from '@/components/reports/AllPartsReport';
 import ExpenditureReport from '@/components/reports/ExpenditureReport';
 import SectionActions from '@/components/reports/SectionActions';
 
+const VIEW_OPTIONS = [
+  ['overview', 'Overview'],
+  ['pl', 'Profit & Loss'],
+  ['jobs', 'Job Breakdown'],
+  ['sales', 'Sales Breakdown'],
+  ['parts', 'Parts & Spending'],
+  ['expenditures', 'Expenditures'],
+  ['earnings', 'Employee Earnings'],
+];
+
 export default function Reports() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +37,8 @@ export default function Reports() {
   const [visibleExpenditures, setVisibleExpenditures] = useState(10);
   // null = print the full pack; otherwise print only the matching section
   const [printSection, setPrintSection] = useState(null);
+  // which statement is shown; 'all' is only used while printing the pack
+  const [view, setView] = useState('overview');
 
   const report = useReportsData({
     year,
@@ -42,13 +54,28 @@ export default function Reports() {
     }
   }, [user, navigate]);
 
-  // Print the complete pack: expand all lists first, then open the print dialog
-  const handlePrint = () => {
+  const expandAll = () => {
     setVisibleJobs(report.jobRows.length);
     setVisibleSales(report.saleRows.length);
     setVisibleAllParts(report.allPartsRows.length);
     setVisibleExpenditures(report.expenditureRows.length);
+  };
+
+  // Print what's currently on screen
+  const handlePrint = () => {
+    expandAll();
     setTimeout(() => window.print(), 100);
+  };
+
+  // Temporarily show every statement so the full pack prints in one go
+  const handlePrintPack = () => {
+    const prev = view;
+    setView('all');
+    expandAll();
+    setTimeout(() => {
+      window.print();
+      setView(prev);
+    }, 100);
   };
 
   // Print only one section: expand its list, hide everything else in print
@@ -66,6 +93,8 @@ export default function Reports() {
 
   const hideInPrint = (key) =>
     printSection && printSection !== key ? 'print:hidden' : '';
+
+  const showView = (key) => view === 'all' || view === key;
 
   const openPartHistory = (r) =>
     navigate(
@@ -90,6 +119,10 @@ export default function Reports() {
         <ReportsHeader
           year={year}
           years={report.years}
+          view={view}
+          viewOptions={VIEW_OPTIONS}
+          onViewChange={setView}
+          onPrintPack={handlePrintPack}
           periodKey={periodKey}
           periodLabel={report.period.label}
           customStart={customStart}
@@ -104,7 +137,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('summary')}>
+      <div
+        className={`${hideInPrint('summary')} ${
+          showView('overview') ? '' : 'hidden'
+        }`}
+      >
         <SummaryCards
           revenue={report.combined.revenue}
           cost={report.combined.cost}
@@ -113,7 +150,9 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('pl')}>
+      <div
+        className={`${hideInPrint('pl')} ${showView('pl') ? '' : 'hidden'}`}
+      >
         <ProfitLossStatement
           periodLabel={report.period.label}
           totals={report.totals}
@@ -129,7 +168,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('earnings')}>
+      <div
+        className={`${hideInPrint('earnings')} ${
+          showView('earnings') ? '' : 'hidden'
+        }`}
+      >
         <EmployeeEarningsTable
           periodLabel={report.period.label}
           employeeStats={report.employeeStats}
@@ -141,7 +184,9 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('jobs')}>
+      <div
+        className={`${hideInPrint('jobs')} ${showView('jobs') ? '' : 'hidden'}`}
+      >
         <BreakdownList
           title={`Job Breakdown — ${report.period.label}`}
           rows={report.jobRows}
@@ -153,7 +198,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('sales')}>
+      <div
+        className={`${hideInPrint('sales')} ${
+          showView('sales') ? '' : 'hidden'
+        }`}
+      >
         <BreakdownList
           title={`Sales Breakdown — ${report.period.label}`}
           rows={report.saleRows}
@@ -171,7 +220,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('parts')}>
+      <div
+        className={`${hideInPrint('parts')} ${
+          showView('parts') ? '' : 'hidden'
+        }`}
+      >
         <AllPartsReport
           periodLabel={report.period.label}
           rows={report.allPartsRows}
@@ -188,7 +241,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('expenditures')}>
+      <div
+        className={`${hideInPrint('expenditures')} ${
+          showView('expenditures') ? '' : 'hidden'
+        }`}
+      >
         <ExpenditureReport
           periodLabel={report.period.label}
           rows={report.expenditureRows}
@@ -206,7 +263,11 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('spending')}>
+      <div
+        className={`${hideInPrint('spending')} ${
+          showView('parts') ? '' : 'hidden'
+        }`}
+      >
         <PartsSpendingReport
           period={report.period}
           parts={report.parts}
