@@ -135,7 +135,9 @@ export default function Invoice() {
               Bill To
             </p>
             <p className="font-bold text-slate-900">{customer?.name}</p>
-            <p className="text-sm text-slate-500">{customer?.phone}</p>
+            {customer?.phone &&
+            <p className="text-sm text-slate-500">PH: {customer.phone}</p>
+            }
             {customer?.address &&
             <p className="text-sm text-slate-500">{customer.address}</p>
             }
@@ -154,6 +156,17 @@ export default function Invoice() {
             }
           </div>
         </div>
+
+        {job.problem_description &&
+        <div className="py-4 border-b border-slate-200">
+            <p className="text-xs font-semibold text-slate-400 uppercase mb-1">
+              Work Description
+            </p>
+            <p className="text-sm text-slate-700 whitespace-pre-line">
+              {job.problem_description}
+            </p>
+          </div>
+        }
 
         {parts.length > 0 &&
         <div className="py-4 border-b border-slate-200">
