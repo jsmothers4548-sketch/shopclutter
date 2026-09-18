@@ -37,6 +37,18 @@
     "brand_logo_url": {
       "type": "string",
       "default": ""
+    },
+    "brand_address": {
+      "type": "string",
+      "default": ""
+    },
+    "brand_phone": {
+      "type": "string",
+      "default": ""
+    },
+    "brand_email": {
+      "type": "string",
+      "default": ""
     }
   },
   "required": [],

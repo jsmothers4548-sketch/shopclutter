@@ -23,6 +23,9 @@ export default function BrandingForm() {
         setForm({
           brand_name: s.brand_name || 'Shop Clutter',
           brand_logo_url: s.brand_logo_url || '',
+          brand_address: s.brand_address || '',
+          brand_phone: s.brand_phone || '',
+          brand_email: s.brand_email || '',
         });
       })
       .catch(() => setForm({ ...FALLBACK }));
@@ -52,6 +55,9 @@ export default function BrandingForm() {
     const payload = {
       brand_name: form.brand_name?.trim() || 'Shop Clutter',
       brand_logo_url: form.brand_logo_url || '',
+      brand_address: form.brand_address || '',
+      brand_phone: form.brand_phone || '',
+      brand_email: form.brand_email || '',
     };
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
@@ -129,6 +135,39 @@ export default function BrandingForm() {
             </Button>
           )}
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="brand_address">Business Address</Label>
+        <Input
+          id="brand_address"
+          type="text"
+          value={form.brand_address}
+          onChange={(e) => setForm({ ...form, brand_address: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="brand_phone">Business Phone</Label>
+        <Input
+          id="brand_phone"
+          type="text"
+          value={form.brand_phone}
+          onChange={(e) => setForm({ ...form, brand_phone: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="brand_email">Business Email</Label>
+        <Input
+          id="brand_email"
+          type="email"
+          value={form.brand_email}
+          onChange={(e) => setForm({ ...form, brand_email: e.target.value })}
+        />
+        <p className="text-xs text-slate-400 mt-1">
+          Address, phone, and email appear on printed invoices
+        </p>
       </div>
 
       <div className="flex items-center gap-2">

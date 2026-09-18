@@ -9,7 +9,13 @@ export default function Invoice() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+  const [brand, setBrand] = useState({
+    name: 'Shop Clutter',
+    logo: '',
+    address: '',
+    phone: '',
+    email: '',
+  });
 
   useEffect(() => {
     getShopSettings()
@@ -17,6 +23,9 @@ export default function Invoice() {
         setBrand({
           name: s.brand_name || 'Shop Clutter',
           logo: s.brand_logo_url || '',
+          address: s.brand_address || '',
+          phone: s.brand_phone || '',
+          email: s.brand_email || '',
         })
       )
       .catch(() => {});
@@ -95,7 +104,16 @@ export default function Invoice() {
             )}
             <div>
               <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">{brand.name}</h1>
-              <p className="text-xs text-[hsl(var(--ring))]">Small Engine Repair</p>
+              {brand.address &&
+              <p className="text-xs text-slate-500">{brand.address}</p>
+              }
+              {(brand.phone || brand.email) &&
+              <p className="text-xs text-slate-500">
+                {brand.phone && `${brand.phone}`}
+                {brand.phone && brand.email && ' · '}
+                {brand.email && brand.email}
+              </p>
+              }
             </div>
           </div>
           <div className="text-right">
