@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import useReportsData from '@/hooks/useReportsData';
+import { periodSearchParams } from '@/lib/reportPeriod';
 import ReportsHeader from '@/components/reports/ReportsHeader';
 import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
 import BreakdownList from '@/components/reports/BreakdownList';
@@ -23,6 +24,7 @@ export default function ReportStatement() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [periodKey, setPeriodKey] = useState('full');
+  const [month, setMonth] = useState(new Date().getMonth());
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -30,6 +32,7 @@ export default function ReportStatement() {
   const report = useReportsData({
     year,
     periodKey,
+    month,
     customStart,
     customEnd,
     statusFilter,
@@ -72,6 +75,8 @@ export default function ReportStatement() {
         years={report.years}
         periodKey={periodKey}
         periodLabel={report.period.label}
+        month={month}
+        onMonthChange={setMonth}
         customStart={customStart}
         customEnd={customEnd}
         statusFilter={statusFilter}
@@ -110,7 +115,7 @@ export default function ReportStatement() {
           visible={report.allPartsRows.length}
           onSelect={(r) =>
             navigate(
-              `/reports/part-history?name=${encodeURIComponent(r.name)}&number=${encodeURIComponent(r.partNumber || '')}`
+              `/reports/part-history?name=${encodeURIComponent(r.name)}&number=${encodeURIComponent(r.partNumber || '')}&${periodSearchParams({ year, periodKey, month, customStart, customEnd })}`
             )
           }
         />

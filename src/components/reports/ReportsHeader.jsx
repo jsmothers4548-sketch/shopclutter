@@ -1,8 +1,10 @@
 import React from 'react';
 import { Printer } from 'lucide-react';
+import { MONTHS } from '@/lib/reportPeriod';
 
 const PERIOD_OPTIONS = [
   ['full', 'Year'],
+  ['month', 'Month'],
   ['q1', 'Q1'],
   ['q2', 'Q2'],
   ['q3', 'Q3'],
@@ -17,6 +19,8 @@ export default function ReportsHeader({
   years,
   periodKey,
   periodLabel,
+  month,
+  onMonthChange,
   customStart,
   customEnd,
   statusFilter,
@@ -62,6 +66,19 @@ export default function ReportsHeader({
             </button>
           ))}
         </div>
+        {periodKey === 'month' && (
+          <select
+            value={month ?? new Date().getMonth()}
+            onChange={(e) => onMonthChange(Number(e.target.value))}
+            className="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white font-medium"
+          >
+            {MONTHS.map((m, i) => (
+              <option key={m} value={i}>
+                {m}
+              </option>
+            ))}
+          </select>
+        )}
         {periodKey === 'custom' && (
           <div className="flex items-center gap-1.5">
             <input

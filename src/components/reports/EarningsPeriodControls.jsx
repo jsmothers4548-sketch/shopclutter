@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { MONTHS } from '@/lib/reportPeriod';
 
 const PERIODS = [
   ['full', 'Full Year'],
@@ -15,12 +16,15 @@ const PERIODS = [
   ['q2', 'Q2 (Apr–Jun)'],
   ['q3', 'Q3 (Jul–Sep)'],
   ['q4', 'Q4 (Oct–Dec)'],
+  ['month', 'Single Month'],
   ['custom', 'Custom Range'],
 ];
 
 export default function EarningsPeriodControls({
   periodKey,
   onPeriodChange,
+  month,
+  onMonthChange,
   customStart,
   customEnd,
   onCustomChange,
@@ -41,6 +45,23 @@ export default function EarningsPeriodControls({
           ))}
         </SelectContent>
       </Select>
+      {periodKey === 'month' && (
+        <Select
+          value={String(month ?? new Date().getMonth())}
+          onValueChange={(v) => onMonthChange(Number(v))}
+        >
+          <SelectTrigger className="w-[150px] bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {MONTHS.map((m, i) => (
+              <SelectItem key={m} value={String(i)}>
+                {m}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       {periodKey === 'custom' && (
         <>
           <Input

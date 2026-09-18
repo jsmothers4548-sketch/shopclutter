@@ -17,13 +17,14 @@ export default function EmployeeEarningsDetail() {
   const [data, setData] = useState(null);
   const [staffId, setStaffId] = useState(null);
   const [periodKey, setPeriodKey] = useState('full');
+  const [month, setMonth] = useState(new Date().getMonth());
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [query, setQuery] = useState('');
 
   const period = useMemo(
-    () => buildPeriod({ year, periodKey, customStart, customEnd }),
-    [year, periodKey, customStart, customEnd]
+    () => buildPeriod({ year, periodKey, month, customStart, customEnd }),
+    [year, periodKey, month, customStart, customEnd]
   );
 
   useEffect(() => {
@@ -161,6 +162,8 @@ export default function EmployeeEarningsDetail() {
       <EarningsPeriodControls
         periodKey={periodKey}
         onPeriodChange={setPeriodKey}
+        month={month}
+        onMonthChange={setMonth}
         customStart={customStart}
         customEnd={customEnd}
         onCustomChange={(field, val) =>

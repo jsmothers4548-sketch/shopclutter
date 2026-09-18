@@ -8,6 +8,7 @@ import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
 export default function useReportsData({
   year,
   periodKey,
+  month,
   customStart,
   customEnd,
   statusFilter,
@@ -59,8 +60,8 @@ export default function useReportsData({
   }, [data, currentYear]);
 
   const period = useMemo(
-    () => buildPeriod({ year, periodKey, customStart, customEnd }),
-    [year, periodKey, customStart, customEnd]
+    () => buildPeriod({ year, periodKey, month, customStart, customEnd }),
+    [year, periodKey, month, customStart, customEnd]
   );
 
   const jobById = useMemo(

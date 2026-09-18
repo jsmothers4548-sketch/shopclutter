@@ -1,4 +1,4 @@
-// Builds the reporting period (full year, quarter, or custom date range)
+// Builds the reporting period (full year, month, quarter, or custom date range)
 // used across the Reports page and its printable sections.
 
 const endOfDay = (d) =>
@@ -11,7 +11,28 @@ const QUARTERS = {
   q4: [9, 11],
 };
 
-export function buildPeriod({ year, periodKey = 'full', customStart = '', customEnd = '' }) {
+export const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+export function buildPeriod({
+  year,
+  periodKey = 'full',
+  month,
+  customStart = '',
+  customEnd = '',
+}) {
   if (periodKey === 'custom') {
     const start = customStart ? new Date(`${customStart}T00:00:00`) : null;
     const end = customEnd ? endOfDay(new Date(`${customEnd}T00:00:00`)) : null;
@@ -21,6 +42,20 @@ export function buildPeriod({ year, periodKey = 'full', customStart = '', custom
         ? `${fmt(customStart)} – ${fmt(customEnd)}`
         : `Custom Range ${year}`;
     return { key: 'custom', start, end, label };
+  }
+  if (periodKey === 'month') {
+    const m =
+      Number.isInteger(Number(month)) &&
+      Number(month) >= 0 &&
+      Number(month) <= 11
+        ? Number(month)
+        : new Date().getMonth();
+    return {
+      key: 'month',
+      start: new Date(year, m, 1),
+      end: endOfDay(new Date(year, m + 1, 0)),
+      label: `${MONTHS[m]} ${year}`,
+    };
   }
   if (QUARTERS[periodKey]) {
     const [m0, m1] = QUARTERS[periodKey];
@@ -46,4 +81,25 @@ export function inPeriod(dateStr, period) {
   if (period.start && d < period.start) return false;
   if (period.end && d > period.end) return false;
   return true;
+}
+
+// Serializes the active period so a linked page (e.g. part history)
+// can open with the same period applied.
+export function periodSearchParams({
+  year,
+  periodKey,
+  month,
+  customStart,
+  customEnd,
+}) {
+  const p = new URLSearchParams();
+  p.set('year', String(year));
+  p.set('periodKey', periodKey);
+  if (periodKey === 'month')
+    p.set('month', String(month ?? new Date().getMonth()));
+  if (periodKey === 'custom') {
+    if (customStart) p.set('start', customStart);
+    if (customEnd) p.set('end', customEnd);
+  }
+  return p.toString();
 }

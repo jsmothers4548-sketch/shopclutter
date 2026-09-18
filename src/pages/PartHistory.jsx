@@ -22,15 +22,22 @@ export default function PartHistory() {
 
   const [data, setData] = useState(null);
   const [settings, setSettings] = useState(null);
-  const [periodKey, setPeriodKey] = useState('full');
-  const [customStart, setCustomStart] = useState('');
-  const [customEnd, setCustomEnd] = useState('');
+  const [periodKey, setPeriodKey] = useState(
+    params.get('periodKey') || 'full'
+  );
+  const [month, setMonth] = useState(
+    params.get('month') !== null
+      ? Number(params.get('month'))
+      : new Date().getMonth()
+  );
+  const [customStart, setCustomStart] = useState(params.get('start') || '');
+  const [customEnd, setCustomEnd] = useState(params.get('end') || '');
   const [query, setQuery] = useState('');
   const [purchaseOpen, setPurchaseOpen] = useState(false);
 
   const period = useMemo(
-    () => buildPeriod({ year, periodKey, customStart, customEnd }),
-    [year, periodKey, customStart, customEnd]
+    () => buildPeriod({ year, periodKey, month, customStart, customEnd }),
+    [year, periodKey, month, customStart, customEnd]
   );
 
   useEffect(() => {
@@ -245,6 +252,8 @@ export default function PartHistory() {
       <EarningsPeriodControls
         periodKey={periodKey}
         onPeriodChange={setPeriodKey}
+        month={month}
+        onMonthChange={setMonth}
         customStart={customStart}
         customEnd={customEnd}
         onCustomChange={(field, val) =>
