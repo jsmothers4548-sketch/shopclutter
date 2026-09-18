@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import useReportsData from '@/hooks/useReportsData';
 import ReportsHeader from '@/components/reports/ReportsHeader';
@@ -11,6 +12,20 @@ import PartsSpendingReport from '@/components/reports/PartsSpendingReport';
 import AllPartsReport from '@/components/reports/AllPartsReport';
 import ExpenditureReport from '@/components/reports/ExpenditureReport';
 import SectionActions from '@/components/reports/SectionActions';
+import SectionChooser from '@/components/reports/SectionChooser';
+
+const SECTION_META = {
+  pl: { title: 'Profit & Loss', fullPageTo: '/reports/statement/pl' },
+  earnings: { title: 'Employee Earnings' },
+  jobs: { title: 'Job Breakdown' },
+  sales: { title: 'Sales Breakdown', fullPageTo: '/reports/statement/sales' },
+  parts: { title: 'Parts Report', fullPageTo: '/reports/statement/parts' },
+  expenditures: {
+    title: 'Expenditures',
+    fullPageTo: '/reports/statement/expenditures',
+  },
+  spending: { title: 'Parts Spending' },
+};
 
 export default function Reports() {
   const { user } = useAuth();
@@ -25,8 +40,8 @@ export default function Reports() {
   const [visibleSales, setVisibleSales] = useState(10);
   const [visibleAllParts, setVisibleAllParts] = useState(10);
   const [visibleExpenditures, setVisibleExpenditures] = useState(10);
-  // null = print the full pack; otherwise print only the matching section
-  const [printSection, setPrintSection] = useState(null);
+  // null = landing summary view; otherwise the open report section
+  const [section, setSection] = useState(null);
 
   const report = useReportsData({
     year,
@@ -51,21 +66,20 @@ export default function Reports() {
     setTimeout(() => window.print(), 100);
   };
 
-  // Print only one section: expand its list, hide everything else in print
+  // Print only the open section — it is the only one on screen
   const printOnly = (key) => {
+    if (key === 'jobs') setVisibleJobs(report.jobRows.length);
     if (key === 'sales') setVisibleSales(report.saleRows.length);
     if (key === 'parts') setVisibleAllParts(report.allPartsRows.length);
     if (key === 'expenditures')
       setVisibleExpenditures(report.expenditureRows.length);
-    setPrintSection(key);
-    setTimeout(() => {
-      window.print();
-      setPrintSection(null);
-    }, 60);
+    setTimeout(() => window.print(), 60);
   };
 
-  const hideInPrint = (key) =>
-    printSection && printSection !== key ? 'print:hidden' : '';
+  // Landing view: sections stay printable (full pack) but hidden on screen;
+  // when one is open, it is the only section on screen and in print
+  const sectionClass = (key) =>
+    section === key ? '' : section ? 'hidden' : 'hidden print:block';
 
   const openPartHistory = (r) =>
     navigate(
@@ -86,7 +100,7 @@ export default function Reports() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className={printSection ? 'print:hidden' : ''}>
+      <div className={section ? 'print:hidden' : ''}>
         <ReportsHeader
           year={year}
           years={report.years}
@@ -104,7 +118,7 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('summary')}>
+      <div className={section ? 'hidden' : ''}>
         <SummaryCards
           revenue={report.combined.revenue}
           cost={report.combined.cost}
@@ -113,23 +127,41 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('pl')}>
+      <div className={section ? 'hidden' : ''}>
+        <SectionChooser onSelect={setSection} />
+      </div>
+
+      {section && (
+        <div className="flex items-center justify-between gap-2 bg-white rounded-xl border border-slate-200 px-3 py-2 print:hidden">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSection(null)}
+              className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to summary
+            </button>
+            <span className="hidden sm:inline text-sm font-bold text-slate-800">
+              {SECTION_META[section].title}
+            </span>
+          </div>
+          <SectionActions
+            onPrint={() => printOnly(section)}
+            fullPageTo={SECTION_META[section].fullPageTo}
+          />
+        </div>
+      )}
+
+      <div className={sectionClass('pl')}>
         <ProfitLossStatement
           periodLabel={report.period.label}
           totals={report.totals}
           salesTotals={report.salesTotals}
           combined={report.combined}
           payments={report.payments}
-          actions={
-            <SectionActions
-              onPrint={() => printOnly('pl')}
-              fullPageTo="/reports/statement/pl"
-            />
-          }
         />
       </div>
 
-      <div className={hideInPrint('earnings')}>
+      <div className={sectionClass('earnings')}>
         <EmployeeEarningsTable
           periodLabel={report.period.label}
           employeeStats={report.employeeStats}
@@ -141,7 +173,7 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('jobs')}>
+      <div className={sectionClass('jobs')}>
         <BreakdownList
           title={`Job Breakdown — ${report.period.label}`}
           rows={report.jobRows}
@@ -153,7 +185,7 @@ export default function Reports() {
         />
       </div>
 
-      <div className={hideInPrint('sales')}>
+      <div className={sectionClass('sales')}>
         <BreakdownList
           title={`Sales Breakdown — ${report.period.label}`}
           rows={report.saleRows}
@@ -162,16 +194,10 @@ export default function Reports() {
           onShowAll={() => setVisibleSales(report.saleRows.length)}
           onSelect={(id) => navigate(`/sales/${id}`)}
           emptyLabel="No sales in this period"
-          actions={
-            <SectionActions
-              onPrint={() => printOnly('sales')}
-              fullPageTo="/reports/statement/sales"
-            />
-          }
         />
       </div>
 
-      <div className={hideInPrint('parts')}>
+      <div className={sectionClass('parts')}>
         <AllPartsReport
           periodLabel={report.period.label}
           rows={report.allPartsRows}
@@ -179,16 +205,10 @@ export default function Reports() {
           onShowMore={() => setVisibleAllParts((v) => v + 10)}
           onShowAll={() => setVisibleAllParts(report.allPartsRows.length)}
           onSelect={openPartHistory}
-          actions={
-            <SectionActions
-              onPrint={() => printOnly('parts')}
-              fullPageTo="/reports/statement/parts"
-            />
-          }
         />
       </div>
 
-      <div className={hideInPrint('expenditures')}>
+      <div className={sectionClass('expenditures')}>
         <ExpenditureReport
           periodLabel={report.period.label}
           rows={report.expenditureRows}
@@ -197,16 +217,10 @@ export default function Reports() {
           onShowMore={() => setVisibleExpenditures((v) => v + 10)}
           onShowAll={() => setVisibleExpenditures(report.expenditureRows.length)}
           onOpen={(r) => navigate(r.link)}
-          actions={
-            <SectionActions
-              onPrint={() => printOnly('expenditures')}
-              fullPageTo="/reports/statement/expenditures"
-            />
-          }
         />
       </div>
 
-      <div className={hideInPrint('spending')}>
+      <div className={sectionClass('spending')}>
         <PartsSpendingReport
           period={report.period}
           parts={report.parts}
