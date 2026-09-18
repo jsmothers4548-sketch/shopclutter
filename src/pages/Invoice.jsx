@@ -69,7 +69,7 @@ export default function Invoice() {
   return (
     <div className="p-4 print:p-0">
       <div className="flex items-center gap-2 mb-4 print:hidden">
-        <button onClick={() => navigate(-1)} className="p-1">
+        <button onClick={() => navigate(`/jobs/${id}`)} className="p-1">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-lg font-bold flex-1">Invoice</h1>
