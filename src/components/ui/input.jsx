@@ -1,8 +1,29 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { applySentenceCase, applyWordCase } from "@/lib/autoCase"
 
-const Input = React.forwardRef(({ className, type, ...props }, ref) => {
+const NON_TEXT_TYPES = ["email", "tel", "number", "password", "url"];
+
+const Input = React.forwardRef(({ className, type, onChange, autoCapitalize, ...props }, ref) => {
+  const handleChange = (e) => {
+    if (onChange && !NON_TEXT_TYPES.includes(type)) {
+      const mode =
+        autoCapitalize === "words"
+          ? "words"
+          : autoCapitalize === "none"
+            ? "none"
+            : "sentences";
+      if (mode !== "none") {
+        const transformed =
+          mode === "words"
+            ? applyWordCase(e.target.value)
+            : applySentenceCase(e.target.value);
+        if (transformed !== e.target.value) e.target.value = transformed;
+      }
+    }
+    onChange?.(e);
+  };
   return (
     (<input
       type={type}
@@ -11,6 +32,7 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
         className
       )}
       ref={ref}
+      onChange={handleChange}
       {...props} />)
   );
 })

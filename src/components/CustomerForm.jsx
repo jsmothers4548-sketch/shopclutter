@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
 
@@ -100,11 +101,11 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
           </div>
           <div>
             <Label>Notes</Label>
-            <textarea
+            <Textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               autoCapitalize="sentences"
-              className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="min-h-[80px]"
               placeholder="Preferred contact times, directions, etc."
             />
           </div>

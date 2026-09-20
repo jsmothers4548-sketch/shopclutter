@@ -1,8 +1,19 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { applySentenceCase, applyWordCase } from "@/lib/autoCase"
 
-const Textarea = React.forwardRef(({ className, ...props }, ref) => {
+const Textarea = React.forwardRef(({ className, onChange, autoCapitalize, ...props }, ref) => {
+  const handleChange = (e) => {
+    if (onChange && autoCapitalize !== "none") {
+      const transformed =
+        autoCapitalize === "words"
+          ? applyWordCase(e.target.value)
+          : applySentenceCase(e.target.value);
+      if (transformed !== e.target.value) e.target.value = transformed;
+    }
+    onChange?.(e);
+  };
   return (
     (<textarea
       className={cn(
@@ -10,6 +21,7 @@ const Textarea = React.forwardRef(({ className, ...props }, ref) => {
         className
       )}
       ref={ref}
+      onChange={handleChange}
       {...props} />)
   );
 })
