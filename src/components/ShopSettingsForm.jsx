@@ -21,11 +21,21 @@ const FIELDS = [
   ['sales_tax_rate', 'Default Sales Tax Rate (%)'],
 ];
 
-const PICKUP_FIELDS = [
-  ['pickup_in_town', 'In-town Pickup ($)'],
-  ['return_in_town', 'In-town Return ($)'],
-  ['pickup_out_of_town', 'Out-of-town Pickup ($)'],
-  ['return_out_of_town', 'Out-of-town Return ($)'],
+const PICKUP_GROUPS = [
+  {
+    zone: 'In-town',
+    fields: [
+      ['pickup_in_town', 'Pickup ($)'],
+      ['return_in_town', 'Delivery ($)'],
+    ],
+  },
+  {
+    zone: 'Out-of-town',
+    fields: [
+      ['pickup_out_of_town', 'Pickup ($)'],
+      ['return_out_of_town', 'Delivery ($)'],
+    ],
+  },
 ];
 
 export default function ShopSettingsForm() {
@@ -111,28 +121,38 @@ export default function ShopSettingsForm() {
           </div>
         ))}
       </div>
-      <div className="pt-1 border-t border-slate-100">
-        <h3 className="font-semibold text-slate-900 text-sm mb-2">
+      <div className="pt-1 border-t border-slate-100 space-y-3">
+        <h3 className="font-semibold text-slate-900 text-sm">
           Pickup &amp; Delivery
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {PICKUP_FIELDS.map(([key, label]) => (
-            <div key={key}>
-              <Label htmlFor={key}>{label}</Label>
-              <Input
-                id={key}
-                type="number"
-                step="0.01"
-                min="0"
-                value={form[key]}
-                onChange={(e) =>
-                  setForm({ ...form, [key]: e.target.value })
-                }
-              />
+        {PICKUP_GROUPS.map((group) => (
+          <div
+            key={group.zone}
+            className="rounded-lg bg-slate-50 border border-slate-100 p-3"
+          >
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+              {group.zone}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {group.fields.map(([key, label]) => (
+                <div key={key}>
+                  <Label htmlFor={key}>{label}</Label>
+                  <Input
+                    id={key}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form[key]}
+                    onChange={(e) =>
+                      setForm({ ...form, [key]: e.target.value })
+                    }
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <p className="text-xs text-slate-400 mt-1">
+          </div>
+        ))}
+        <p className="text-xs text-slate-400">
           Pre-fills new jobs — amounts can be typed over on each job
         </p>
       </div>

@@ -24,11 +24,11 @@
     },
     "pickup_out_of_town": {
       "type": "number",
-      "default": 100
+      "default": 50
     },
     "return_out_of_town": {
       "type": "number",
-      "default": 100
+      "default": 75
     },
     "job_tax_rate": {
       "type": "number",

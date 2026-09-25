@@ -372,7 +372,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
                     />
                   </div>
                   <div>
-                    <Label>Return ($)</Label>
+                    <Label>Delivery ($)</Label>
                     <Input
                       type="number"
                       step="0.01"
