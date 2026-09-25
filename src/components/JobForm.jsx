@@ -273,9 +273,10 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
                 type="button"
                 variant="outline"
                 onClick={() => setShowScanner(true)}
-                className="px-3"
+                className="px-3 shrink-0"
               >
                 <ScanLine className="w-4 h-4" />
+                Scan QR Code
               </Button>
             </div>
             {unitNote && (
