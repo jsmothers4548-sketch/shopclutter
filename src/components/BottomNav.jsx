@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 const mainItems = [
-  { to: '/', label: 'Jobs', icon: Wrench, end: true },
+  { to: '/board', label: 'Jobs', icon: Wrench, end: true },
   { to: '/customers', label: 'Customers', icon: Users },
   { to: '/inventory', label: 'Inventory', icon: Package },
   { to: '/sales', label: 'Sales', icon: ShoppingBag },
