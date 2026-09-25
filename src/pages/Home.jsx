@@ -161,9 +161,9 @@ export default function Home() {
 
   return (
     <div className="p-4 space-y-4 min-h-screen">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold text-slate-900">Job Board</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => navigate('/reminders')}
             className="relative flex items-center gap-1 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-red-600 bg-[#e60505]">
@@ -179,7 +179,7 @@ export default function Home() {
             onClick={() => setShowScanner(true)}
             className="flex items-center gap-1 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700">
             
-            <ScanLine className="w-4 h-4" /> Scan
+            <ScanLine className="w-4 h-4" /> Scan QR Code
           </button>
           <button
             onClick={() => setShowQuickAdd(true)}
