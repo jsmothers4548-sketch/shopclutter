@@ -1,5 +1,6 @@
-import { getShopSettings } from '@/lib/shopSettings';
-
+// Branding shown on public pages (landing, legal, sign-in) is a fixed generic
+// brand. Shop-specific name, logo, contact details and rates stay private to
+// logged-in staff, so nothing here reads the shop settings record.
 export const DEFAULT_BRAND = {
   name: 'Shop Clutter',
   logo_url: '',
@@ -8,17 +9,6 @@ export const DEFAULT_BRAND = {
   email: '',
 };
 
-export async function getBrand() {
-  try {
-    const s = await getShopSettings();
-    return {
-      name: s.brand_name || DEFAULT_BRAND.name,
-      logo_url: s.brand_logo_url || '',
-      address: s.brand_address || '',
-      phone: s.brand_phone || '',
-      email: s.brand_email || '',
-    };
-  } catch (e) {
-    return { ...DEFAULT_BRAND };
-  }
+export function getBrand() {
+  return { ...DEFAULT_BRAND };
 }

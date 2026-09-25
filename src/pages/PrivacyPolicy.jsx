@@ -73,7 +73,7 @@ export default function PrivacyPolicy() {
         `Questions about this policy can be sent to ${brand.name}.`,
         ...(contactLines.length
           ? contactLines
-          : ['Contact details are listed in the app under Admin → Branding.']),
+          : ['Contact details are published by the shop and available on request.']),
       ],
     },
   ];
