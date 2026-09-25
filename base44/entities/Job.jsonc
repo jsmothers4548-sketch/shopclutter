@@ -29,6 +29,23 @@
       "type": "number",
       "default": 0
     },
+    "pickup_delivery_type": {
+      "type": "string",
+      "enum": [
+        "None",
+        "In-town",
+        "Out-of-town"
+      ],
+      "default": "None"
+    },
+    "pickup_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "return_fee": {
+      "type": "number",
+      "default": 0
+    },
     "equipment_type": {
       "type": "string",
       "enum": [

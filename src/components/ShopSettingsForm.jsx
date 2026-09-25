@@ -21,6 +21,13 @@ const FIELDS = [
   ['sales_tax_rate', 'Default Sales Tax Rate (%)'],
 ];
 
+const PICKUP_FIELDS = [
+  ['pickup_in_town', 'In-town Pickup ($)'],
+  ['return_in_town', 'In-town Return ($)'],
+  ['pickup_out_of_town', 'Out-of-town Pickup ($)'],
+  ['return_out_of_town', 'Out-of-town Return ($)'],
+];
+
 export default function ShopSettingsForm() {
   const [record, setRecord] = useState(null);
   const [form, setForm] = useState(null);
@@ -35,6 +42,10 @@ export default function ShopSettingsForm() {
           on_site_rate: s.on_site_rate,
           off_site_rate: s.off_site_rate,
           service_call_fee: s.service_call_fee,
+          pickup_in_town: s.pickup_in_town,
+          return_in_town: s.return_in_town,
+          pickup_out_of_town: s.pickup_out_of_town,
+          return_out_of_town: s.return_out_of_town,
           job_tax_rate: s.job_tax_rate,
           sales_tax_rate: s.sales_tax_rate,
           overtime_rule: s.overtime_rule || 'federal',
@@ -53,6 +64,10 @@ export default function ShopSettingsForm() {
       on_site_rate: Number(form.on_site_rate) || 0,
       off_site_rate: Number(form.off_site_rate) || 0,
       service_call_fee: Number(form.service_call_fee) || 0,
+      pickup_in_town: Number(form.pickup_in_town) || 0,
+      return_in_town: Number(form.return_in_town) || 0,
+      pickup_out_of_town: Number(form.pickup_out_of_town) || 0,
+      return_out_of_town: Number(form.return_out_of_town) || 0,
       job_tax_rate: Number(form.job_tax_rate) || 0,
       sales_tax_rate: Number(form.sales_tax_rate) || 0,
       overtime_rule: form.overtime_rule || 'federal',
@@ -95,6 +110,31 @@ export default function ShopSettingsForm() {
             />
           </div>
         ))}
+      </div>
+      <div className="pt-1 border-t border-slate-100">
+        <h3 className="font-semibold text-slate-900 text-sm mb-2">
+          Pickup &amp; Delivery
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {PICKUP_FIELDS.map(([key, label]) => (
+            <div key={key}>
+              <Label htmlFor={key}>{label}</Label>
+              <Input
+                id={key}
+                type="number"
+                step="0.01"
+                min="0"
+                value={form[key]}
+                onChange={(e) =>
+                  setForm({ ...form, [key]: e.target.value })
+                }
+              />
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-slate-400 mt-1">
+          Pre-fills new jobs — amounts can be typed over on each job
+        </p>
       </div>
       <div>
         <Label htmlFor="overtime_rule">Overtime Rule</Label>

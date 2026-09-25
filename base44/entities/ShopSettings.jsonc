@@ -14,6 +14,22 @@
       "type": "number",
       "default": 80
     },
+    "pickup_in_town": {
+      "type": "number",
+      "default": 40
+    },
+    "return_in_town": {
+      "type": "number",
+      "default": 40
+    },
+    "pickup_out_of_town": {
+      "type": "number",
+      "default": 100
+    },
+    "return_out_of_town": {
+      "type": "number",
+      "default": 100
+    },
     "job_tax_rate": {
       "type": "number",
       "default": 9

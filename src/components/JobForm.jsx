@@ -34,6 +34,9 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     job_location: jobLocation || job?.job_location || 'On-site',
     offsite_address: job?.offsite_address || '',
     service_call_fee: job?.service_call_fee ?? (jobLocation === 'Off-site' ? DEFAULT_SETTINGS.service_call_fee : 0),
+    pickup_delivery_type: job?.pickup_delivery_type || 'None',
+    pickup_fee: job?.pickup_fee ?? 0,
+    return_fee: job?.return_fee ?? 0,
     equipment_type: unit?.equipment_type || job?.equipment_type || template?.equipment_type || 'Lawn Mower',
     make: unit?.make || job?.make || '',
     model: unit?.model || job?.model || '',
@@ -166,6 +169,22 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           updates.default_labor_rate = onSite;
       }
       return { ...prev, ...updates };
+    });
+  };
+
+  const handlePickupTypeChange = (type) => {
+    setForm((prev) => {
+      const s = settings || DEFAULT_SETTINGS;
+      let pickup_fee = 0;
+      let return_fee = 0;
+      if (type === 'In-town') {
+        pickup_fee = s.pickup_in_town ?? 0;
+        return_fee = s.return_in_town ?? 0;
+      } else if (type === 'Out-of-town') {
+        pickup_fee = s.pickup_out_of_town ?? 0;
+        return_fee = s.return_out_of_town ?? 0;
+      }
+      return { ...prev, pickup_delivery_type: type, pickup_fee, return_fee };
     });
   };
 
@@ -317,6 +336,63 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
               </div>
             </div>
           )}
+          <div className="space-y-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+            <Label>Pickup &amp; Delivery</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {['None', 'In-town', 'Out-of-town'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handlePickupTypeChange(t)}
+                  className={`px-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
+                    form.pickup_delivery_type === t
+                      ? 'bg-purple-600 text-white border-purple-700'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+            {form.pickup_delivery_type !== 'None' && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Pickup ($)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={form.pickup_fee}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          pickup_fee: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Return ($)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={form.return_fee}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          return_fee: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Amounts start from your Default Rates — type over them for this
+                  job.
+                </p>
+              </>
+            )}
+          </div>
           <div>
             <Label>Equipment Type *</Label>
             <select

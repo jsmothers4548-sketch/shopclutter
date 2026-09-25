@@ -49,6 +49,8 @@ export default function Estimate() {
     partsDiscount,
     laborDiscount,
     serviceCallFee,
+    pickupFee,
+    returnFee,
     subtotal,
     taxAmount,
     grandTotal,
@@ -230,6 +232,18 @@ export default function Estimate() {
             <div className="flex justify-between text-sm text-slate-500">
               <span>Service Call Fee</span>
               <span>${serviceCallFee.toFixed(2)}</span>
+            </div>
+          )}
+          {pickupFee > 0 && (
+            <div className="flex justify-between text-sm text-slate-500">
+              <span>Pickup</span>
+              <span>${pickupFee.toFixed(2)}</span>
+            </div>
+          )}
+          {returnFee > 0 && (
+            <div className="flex justify-between text-sm text-slate-500">
+              <span>Delivery</span>
+              <span>${returnFee.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm text-slate-500">

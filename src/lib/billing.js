@@ -25,6 +25,10 @@ export function computeBilling({ parts, labor, job, expenses = [] }) {
 
   const serviceCallFee = job?.service_call_fee || 0;
 
+  const pickupDeliveryType = job?.pickup_delivery_type || 'None';
+  const pickupFee = pickupDeliveryType === 'None' ? 0 : job?.pickup_fee || 0;
+  const returnFee = pickupDeliveryType === 'None' ? 0 : job?.return_fee || 0;
+
   const expensesCost = (expenses || []).reduce(
     (s, e) => s + (e.amount || 0),
     0
@@ -39,7 +43,12 @@ export function computeBilling({ parts, labor, job, expenses = [] }) {
   const discountedParts = Math.max(partsTotal - partsDiscount, 0);
   const discountedLabor = Math.max(laborTotal - laborDiscount, 0);
   const subtotal =
-    discountedParts + discountedLabor + serviceCallFee + expensesTotal;
+    discountedParts +
+    discountedLabor +
+    serviceCallFee +
+    pickupFee +
+    returnFee +
+    expensesTotal;
   const taxAmount = (subtotal * (job?.tax_rate || 0)) / 100;
   const grandTotal = subtotal + taxAmount;
 
@@ -51,6 +60,9 @@ export function computeBilling({ parts, labor, job, expenses = [] }) {
     discountedParts,
     discountedLabor,
     serviceCallFee,
+    pickupDeliveryType,
+    pickupFee,
+    returnFee,
     subtotal,
     taxAmount,
     grandTotal,
