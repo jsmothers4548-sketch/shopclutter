@@ -69,20 +69,7 @@
   },
   "required": [],
   "rls": {
-    "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": {},
     "create": {
       "user_condition": {
         "role": "admin"
