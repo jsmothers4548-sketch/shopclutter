@@ -140,7 +140,6 @@ export const PLANS = [
       'Staff tasks',
       'Reimbursements & employee earnings',
       'Supplier orders & restocking',
-      'QuickBooks sync',
     ],
   },
   {
