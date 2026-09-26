@@ -10,11 +10,11 @@ export default function LandingHero({ brand }) {
           Built by a small engine tech
         </p>
         <h1 className="mt-5 text-4xl sm:text-6xl font-bold tracking-tight text-slate-900 leading-[1.05]">
-          Run your repair shop from the palm of your hand.
+          The all-in-one shop manager that grows with your business.
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed">
-          {brand.name} keeps your job board, customers, parts, labor and invoices in one
-          place — so your day goes into fixing engines, not chasing paperwork.
+          Whether you&rsquo;re a one-man shop or managing a large team, {brand.name}{' '}
+          organizes your jobs, customers, parts and invoices without the mess.
         </p>
         <div className="mt-9 flex flex-col sm:flex-row gap-3">
           <Button asChild size="lg" className="h-12 sm:w-auto">
@@ -25,6 +25,10 @@ export default function LandingHero({ brand }) {
           </Button>
         </div>
         <p className="mt-4 text-sm text-slate-500">
+          Phone <span className="mx-1.5 text-slate-300">·</span> Tablet{' '}
+          <span className="mx-1.5 text-slate-300">·</span> Desktop
+        </p>
+        <p className="mt-3 text-sm text-slate-500">
           By creating an account you agree to our{' '}
           <Link to="/terms" className="underline hover:text-slate-700">
             Terms of Service
