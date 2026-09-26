@@ -35,6 +35,7 @@ export const PLANS = [
       'Up to 3 users',
       '1 location',
       'Everything in Solo',
+      'Your logo & business name',
       'Profit reports & staff tasks',
     ],
   },
@@ -50,6 +51,7 @@ export const PLANS = [
       'Up to 10 users',
       '1 location',
       'Everything in Pro',
+      'Your logo & business name',
       'Time clock & reimbursements',
     ],
   },
@@ -65,6 +67,7 @@ export const PLANS = [
       'Unlimited users',
       'Up to 5 locations',
       'Everything in Team',
+      'Your logo & business name',
       'Priority support',
     ],
   },
@@ -76,6 +79,11 @@ export function getPlan(id) {
 
 export function isPaidPlan(plan) {
   return !!plan && plan.monthly > 0;
+}
+
+// White-label branding is a benefit of every paid plan.
+export function canWhiteLabel(plan) {
+  return isPaidPlan(plan);
 }
 
 export function priceLabel(plan, period) {

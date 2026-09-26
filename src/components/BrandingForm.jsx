@@ -3,12 +3,16 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Palette, Check, Upload, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Palette, Check, Upload, Trash2, Lock } from 'lucide-react';
 import { getShopSettings } from '@/lib/shopSettings';
+import useShop from '@/hooks/useShop';
+import { getPlan, canWhiteLabel } from '@/lib/plans';
 
 const FALLBACK = { brand_name: 'Shop Clutter', brand_logo_url: '' };
 
 export default function BrandingForm() {
+  const { shop, loading: shopLoading } = useShop();
   const [record, setRecord] = useState(null);
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -30,6 +34,26 @@ export default function BrandingForm() {
       })
       .catch(() => setForm({ ...FALLBACK }));
   }, []);
+
+  if (shopLoading) return null;
+
+  if (!canWhiteLabel(getPlan(shop?.plan_id))) {
+    return (
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-3 text-center">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+          <Lock className="w-5 h-5 text-amber-600" />
+        </div>
+        <h2 className="font-bold text-slate-900">Branding is a paid feature</h2>
+        <p className="text-sm text-slate-500">
+          Put your own logo and business name on the app, your estimates and your invoices.
+          Available on Pro, Team and Multi-Location.
+        </p>
+        <Button asChild className="w-full">
+          <Link to="/billing">Upgrade your plan</Link>
+        </Button>
+      </div>
+    );
+  }
 
   if (!form) return null;
 
