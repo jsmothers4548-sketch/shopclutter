@@ -37,6 +37,8 @@ import OAuthConsent from '@/pages/OAuthConsent';
 import RootGate from '@/components/RootGate';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Terms from '@/pages/Terms';
+import Pricing from '@/pages/Pricing';
+import Billing from '@/pages/Billing';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
@@ -60,6 +62,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<RootGate />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<Terms />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
           <Route path="/board" element={<Home />} />
@@ -82,6 +85,7 @@ const AuthenticatedApp = () => {
           <Route path="/sales/:id" element={<SaleDetail />} />
           <Route path="/units" element={<Units />} />
           <Route path="/units/:id" element={<UnitDetail />} />
+          <Route path="/billing" element={<Billing />} />
         </Route>
         <Route path="/clock" element={<ClockPortal />} />
       </Route>

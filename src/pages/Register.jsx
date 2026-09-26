@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { safeReturnTo } from "@/lib/authReturnTo";
@@ -10,8 +10,21 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { toast } from "@/components/ui/use-toast";
+import { getPlan, priceLabel, isPaidPlan } from "@/lib/plans";
+import { setPendingPlan } from "@/lib/pendingPlan";
 
 export default function Register() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const planParam = urlParams.get("plan");
+  const selectedPlan = planParam ? getPlan(planParam) : null;
+  const selectedPeriod = urlParams.get("period") === "annual" ? "annual" : "monthly";
+  const needsCheckout = isPaidPlan(selectedPlan);
+  const postAuthDestination = needsCheckout ? "/billing?checkout=1" : safeReturnTo();
+
+  useEffect(() => {
+    if (planParam) setPendingPlan(planParam, selectedPeriod);
+  }, [planParam, selectedPeriod]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -46,7 +59,7 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
-      window.location.href = safeReturnTo();
+      window.location.href = postAuthDestination;
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -68,7 +81,7 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", safeReturnTo());
+    base44.auth.loginWithProvider("google", postAuthDestination);
   };
 
   if (showOtp) {
@@ -139,6 +152,22 @@ export default function Register() {
         </>
       }
     >
+      {selectedPlan && (
+        <div className="mb-6 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+          <p className="font-semibold text-foreground">
+            {selectedPlan.name} plan — {priceLabel(selectedPlan, selectedPeriod)}
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            {needsCheckout
+              ? "You'll go to secure checkout right after you verify your email."
+              : "No card needed to start."}
+          </p>
+          <Link to="/pricing" className="mt-2 inline-block font-medium text-primary hover:underline">
+            Change plan
+          </Link>
+        </div>
+      )}
+
       <Button
         variant="outline"
         className="w-full h-12 text-sm font-medium mb-6"

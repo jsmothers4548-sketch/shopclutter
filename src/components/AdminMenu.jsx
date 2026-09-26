@@ -14,7 +14,7 @@ import {
 import ReimbursementsDialog from '@/components/ReimbursementsDialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette, CreditCard } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -26,7 +26,10 @@ export default function AdminMenu() {
   const [showRates, setShowRates] = useState(false);
   const [showBranding, setShowBranding] = useState(false);
 
-  const isActive = pathname.startsWith('/staff') || pathname.startsWith('/reports');
+  const isActive =
+    pathname.startsWith('/staff') ||
+    pathname.startsWith('/reports') ||
+    pathname.startsWith('/billing');
 
   return (
     <>
@@ -72,6 +75,12 @@ export default function AdminMenu() {
             onClick={() => setShowBranding(true)}
           >
             <Palette className="w-4 h-4" /> Branding
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate('/billing')}
+          >
+            <CreditCard className="w-4 h-4" /> Plan &amp; Billing
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

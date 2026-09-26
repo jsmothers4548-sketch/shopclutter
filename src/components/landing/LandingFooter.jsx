@@ -17,7 +17,7 @@ export default function LandingFooter({ brand }) {
           <Link to="/login" className="font-medium text-slate-700 hover:text-slate-900">
             Sign In
           </Link>
-          <Link to="/register" className="font-medium text-slate-700 hover:text-slate-900">
+          <Link to="/pricing" className="font-medium text-slate-700 hover:text-slate-900">
             Get Started
           </Link>
           <Link to="/privacy" className="text-slate-500 hover:text-slate-800">

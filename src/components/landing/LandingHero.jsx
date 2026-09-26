@@ -18,7 +18,7 @@ export default function LandingHero({ brand }) {
         </p>
         <div className="mt-9 flex flex-col sm:flex-row gap-3">
           <Button asChild size="lg" className="h-12 sm:w-auto">
-            <Link to="/register">Get Started</Link>
+            <Link to="/pricing">Get Started</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12 sm:w-auto">
             <Link to="/login">Sign In</Link>
