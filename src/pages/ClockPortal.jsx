@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { getShopSettings } from '@/lib/shopSettings';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { Clock, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
 export default function ClockPortal() {
+  const { locked, loading: planLoading } = usePlanFeature('time_clock');
   const [employeeId, setEmployeeId] = useState('');
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -62,6 +65,24 @@ export default function ClockPortal() {
       setLoading(false);
     }
   };
+
+  if (planLoading) return null;
+
+  if (locked) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <UpgradePrompt feature="time_clock" />
+          <Link
+            to="/board"
+            className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-white"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to the Job Board
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">

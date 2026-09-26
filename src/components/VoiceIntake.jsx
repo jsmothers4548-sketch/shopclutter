@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Square, Loader2 } from 'lucide-react';
+import { Mic, Square, Loader2, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 const PENDING_KEY = 'pending_voice_intake';
 
@@ -140,6 +142,7 @@ ${spec.rules}`,
 }
 
 export default function VoiceIntake({ formType = 'job', onExtracted }) {
+  const { locked } = usePlanFeature('voice_intake');
   const [recording, setRecording] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [status, setStatus] = useState(null);
@@ -225,6 +228,17 @@ export default function VoiceIntake({ formType = 'job', onExtracted }) {
     if (recorderRef.current) recorderRef.current.stop();
     setRecording(false);
   };
+
+  if (locked) {
+    return (
+      <Link
+        to="/billing"
+        className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-semibold text-sm border bg-slate-50 text-slate-500 border-slate-200"
+      >
+        <Lock className="w-5 h-5" /> Voice intake — upgrade to use
+      </Link>
+    );
+  }
 
   return (
     <div>

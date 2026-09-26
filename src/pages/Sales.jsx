@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Search, Plus, Edit, Trash2, ShoppingBag } from 'lucide-react';
 import SaleForm from '@/components/SaleForm';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function Sales() {
+  const { locked, loading: planLoading } = usePlanFeature('sales');
   const [sales, setSales] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
@@ -47,6 +50,9 @@ export default function Sales() {
     await base44.entities.Sale.delete(id);
     setSales(sales.filter((s) => s.id !== id));
   };
+
+  if (planLoading) return null;
+  if (locked) return <UpgradePrompt feature="sales" />;
 
   if (loading) {
     return (

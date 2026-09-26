@@ -4,6 +4,8 @@ import ShopItemForm from '@/components/ShopItemForm';
 import RestockDialog from '@/components/RestockDialog';
 import SupplierOrderDialog from '@/components/SupplierOrderDialog';
 import CategoryForm from '@/components/CategoryForm';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { useAuth } from '@/lib/AuthContext';
 import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search, Truck } from 'lucide-react';
 
@@ -33,6 +35,7 @@ export default function Inventory() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { locked, loading: planLoading } = usePlanFeature('inventory');
 
   const loadItems = useCallback(async () => {
     setLoading(true);
@@ -105,6 +108,9 @@ export default function Inventory() {
       window.alert('Failed to delete item');
     }
   };
+
+  if (planLoading) return null;
+  if (locked) return <UpgradePrompt feature="inventory" />;
 
   if (loading) {
     return (

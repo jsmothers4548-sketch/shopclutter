@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobTemplateForm from '@/components/JobTemplateForm';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { Plus, Pencil, Trash2, Wrench } from 'lucide-react';
 
 export default function Templates() {
+  const { locked, loading: planLoading } = usePlanFeature('templates');
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -36,6 +39,9 @@ export default function Templates() {
       return 0;
     }
   };
+
+  if (planLoading) return null;
+  if (locked) return <UpgradePrompt feature="templates" />;
 
   if (loading) {
     return (

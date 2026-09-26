@@ -6,8 +6,17 @@ import { ArrowLeft, Printer, User } from 'lucide-react';
 import { formatCurrency } from '@/lib/format';
 import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
 import EarningsPeriodControls from '@/components/reports/EarningsPeriodControls';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function EmployeeEarningsDetail() {
+  const { locked, loading: planLoading } = usePlanFeature('employee_earnings');
+  if (planLoading) return null;
+  if (locked) return <UpgradePrompt feature="employee_earnings" />;
+  return <EarningsDetail />;
+}
+
+function EarningsDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();

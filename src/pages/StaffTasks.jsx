@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import StaffTaskForm from '@/components/StaffTaskForm';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { Plus, Circle, Clock, CheckCircle2, Trash2, Pencil, ClipboardList } from 'lucide-react';
 
 const STATUS_CONFIG = {
@@ -18,6 +20,7 @@ const PRIORITY_STYLES = {
 const NEXT_STATUS = { todo: 'in_progress', in_progress: 'done', done: 'todo' };
 
 export default function StaffTasks() {
+  const { locked, loading: planLoading } = usePlanFeature('staff_tasks');
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,6 +76,9 @@ export default function StaffTasks() {
       : filter === 'done'
       ? safeTasks.filter((t) => t.status === 'done')
       : safeTasks;
+
+  if (planLoading) return null;
+  if (locked) return <UpgradePrompt feature="staff_tasks" />;
 
   if (loading) {
     return (

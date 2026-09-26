@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Clock, Boxes } from 'lucide-react';
+import { Wrench, Clock, Boxes, Lock } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import useShop from '@/hooks/useShop';
+import { getPlan, hasFeature } from '@/lib/plans';
 import BottomNav from '@/components/BottomNav';
 import AdminMenu from '@/components/AdminMenu';
 import { getShopSettings } from '@/lib/shopSettings';
@@ -14,6 +16,8 @@ const headerBtnClass = ({ isActive }) =>
 export default function Layout() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { shop } = useShop();
+  const clockLocked = !hasFeature(getPlan(shop?.plan_id), 'time_clock');
   const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
 
   useEffect(() => {
@@ -46,6 +50,7 @@ export default function Layout() {
         <div className="ml-auto flex items-center gap-1.5">
           <NavLink to="/clock" className={headerBtnClass}>
             <Clock className="w-4 h-4" /> Clock
+            {clockLocked && <Lock className="w-3 h-3 text-slate-300" />}
           </NavLink>
           {isAdmin && (
             <>

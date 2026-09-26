@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X, ScanLine } from 'lucide-react';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function QrScanner({ onClose, onResult }) {
+  const { locked } = usePlanFeature('qr_scan');
   const scannerRef = useRef(null);
   const handledRef = useRef(false);
   const [cameraError, setCameraError] = useState(null);
@@ -39,6 +42,22 @@ export default function QrScanner({ onClose, onResult }) {
     if (scannerRef.current) scannerRef.current.stop().catch(() => {});
     onResult(value);
   };
+
+  if (locked) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-sm">
+          <UpgradePrompt feature="qr_scan" />
+          <button
+            onClick={onClose}
+            className="mt-4 w-full text-sm font-semibold text-slate-400 active:text-white"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col">

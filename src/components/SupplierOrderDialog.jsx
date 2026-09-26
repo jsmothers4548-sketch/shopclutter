@@ -9,8 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Truck, MessageSquare, Mail, ArrowLeft } from 'lucide-react';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function SupplierOrderDialog({ items, onClose }) {
+  const { locked: supplierOrderLocked } = usePlanFeature('supplier_orders');
   const lowStock = useMemo(
     () =>
       items.filter(
@@ -33,6 +36,17 @@ export default function SupplierOrderDialog({ items, onClose }) {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+
+  if (supplierOrderLocked) {
+    return (
+      <Dialog open onOpenChange={onClose}>
+        <DialogContent>
+          <DialogTitle className="sr-only">Supplier orders</DialogTitle>
+          <UpgradePrompt feature="supplier_orders" />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const groupItems = lowStock.filter(
     (i) => (i.supplier || 'No supplier') === supplier

@@ -9,24 +9,31 @@ import {
   Bell,
   LayoutTemplate,
   MoreHorizontal,
+  Lock,
 } from 'lucide-react';
+import useShop from '@/hooks/useShop';
+import { getPlan, hasFeature } from '@/lib/plans';
 
 const mainItems = [
   { to: '/board', label: 'Jobs', icon: Wrench, end: true },
   { to: '/customers', label: 'Customers', icon: Users },
-  { to: '/inventory', label: 'Inventory', icon: Package },
-  { to: '/sales', label: 'Sales', icon: ShoppingBag },
+  { to: '/inventory', label: 'Inventory', icon: Package, feature: 'inventory' },
+  { to: '/sales', label: 'Sales', icon: ShoppingBag, feature: 'sales' },
 ];
 
 const moreItems = [
-  { to: '/staff-tasks', label: 'Tasks', icon: ClipboardList },
+  { to: '/staff-tasks', label: 'Tasks', icon: ClipboardList, feature: 'staff_tasks' },
   { to: '/reminders', label: 'Reminders', icon: Bell },
-  { to: '/templates', label: 'Templates', icon: LayoutTemplate },
+  { to: '/templates', label: 'Templates', icon: LayoutTemplate, feature: 'templates' },
 ];
 
 export default function BottomNav() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { shop } = useShop();
+  const plan = getPlan(shop?.plan_id);
+  const isLocked = (item) => !!item.feature && !hasFeature(plan, item.feature);
+
   const moreActive = moreItems.some((item) =>
     location.pathname.startsWith(item.to)
   );
@@ -62,6 +69,9 @@ export default function BottomNav() {
               >
                 <Icon className="w-4 h-4" />
                 {item.label}
+                {isLocked(item) && (
+                  <Lock className="w-3.5 h-3.5 ml-auto text-slate-500" />
+                )}
               </NavLink>
             );
           })}
@@ -70,19 +80,23 @@ export default function BottomNav() {
       <div className="max-w-6xl mx-auto flex">
         {mainItems.map((item) => {
           const Icon = item.icon;
+          const locked = isLocked(item);
           return (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 transition-colors ${
+                `relative flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 transition-colors ${
                   isActive ? 'text-amber-400' : 'text-slate-400'
                 }`
               }
             >
               <Icon className="w-5 h-5" />
               <span className="text-xs font-medium">{item.label}</span>
+              {locked && (
+                <Lock className="absolute top-1.5 right-1/2 translate-x-5 w-3 h-3 text-slate-500" />
+              )}
             </NavLink>
           );
         })}

@@ -10,10 +10,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function RestockDialog({ item, onClose, onSaved }) {
+  const { locked } = usePlanFeature('supplier_orders');
   const [addQty, setAddQty] = useState('');
   const [saving, setSaving] = useState(false);
+
+  if (locked) {
+    return (
+      <Dialog open onOpenChange={() => onClose()}>
+        <DialogContent>
+          <DialogTitle className="sr-only">Restocking</DialogTitle>
+          <UpgradePrompt feature="supplier_orders" />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const addAmount = parseInt(addQty) || 0;
   const currentStock = Number(item.stock_quantity) || 0;

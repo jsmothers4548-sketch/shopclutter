@@ -14,6 +14,8 @@ import AllPartsReport from '@/components/reports/AllPartsReport';
 import ExpenditureReport from '@/components/reports/ExpenditureReport';
 import SectionActions from '@/components/reports/SectionActions';
 import SectionChooser from '@/components/reports/SectionChooser';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 const SECTION_META = {
   pl: { title: 'Profit & Loss', fullPageTo: '/reports/statement/pl' },
@@ -30,6 +32,8 @@ const SECTION_META = {
 
 export default function Reports() {
   const { user } = useAuth();
+  const { locked: reportsLocked, loading: planLoading } = usePlanFeature('reports');
+  const { locked: earningsLocked } = usePlanFeature('employee_earnings');
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
@@ -88,6 +92,9 @@ export default function Reports() {
     navigate(
       `/reports/part-history?name=${encodeURIComponent(r.name)}&number=${encodeURIComponent(r.partNumber || '')}&${periodSearchParams({ year, periodKey, month, customStart, customEnd })}`
     );
+
+  if (planLoading) return null;
+  if (reportsLocked) return <UpgradePrompt feature="reports" />;
 
   if (report.loading) {
     return (
@@ -167,6 +174,9 @@ export default function Reports() {
       </div>
 
       <div className={sectionClass('earnings')}>
+        {earningsLocked ? (
+          <UpgradePrompt feature="employee_earnings" />
+        ) : (
         <EmployeeEarningsTable
           periodLabel={report.period.label}
           employeeStats={report.employeeStats}
@@ -176,6 +186,7 @@ export default function Reports() {
             )
           }
         />
+        )}
       </div>
 
       <div className={sectionClass('jobs')}>

@@ -15,7 +15,7 @@ import ReimbursementsDialog from '@/components/ReimbursementsDialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
 import useShop from '@/hooks/useShop';
-import { getPlan, canWhiteLabel } from '@/lib/plans';
+import { getPlan, hasFeature } from '@/lib/plans';
 import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette, CreditCard, Lock } from 'lucide-react';
 
 const itemClass =
@@ -28,7 +28,10 @@ export default function AdminMenu() {
   const [showRates, setShowRates] = useState(false);
   const [showBranding, setShowBranding] = useState(false);
   const { shop } = useShop();
-  const brandingLocked = !canWhiteLabel(getPlan(shop?.plan_id));
+  const plan = getPlan(shop?.plan_id);
+  const brandingLocked = !hasFeature(plan, 'branding');
+  const reportsLocked = !hasFeature(plan, 'reports');
+  const reimbursementsLocked = !hasFeature(plan, 'reimbursements');
 
   const isActive =
     pathname.startsWith('/staff') ||
@@ -61,12 +64,18 @@ export default function AdminMenu() {
             onClick={() => navigate('/reports')}
           >
             <BarChart3 className="w-4 h-4" /> Reports
+            {reportsLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
             onClick={() => setShowReimbursements(true)}
           >
             <Wallet className="w-4 h-4" /> Reimbursements
+            {reimbursementsLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
