@@ -2,6 +2,9 @@
   "name": "InventoryCategory",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "name": {
       "type": "string"
     }
@@ -10,21 +13,44 @@
     "name"
   ],
   "rls": {
-    "read": {},
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
     "create": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "update": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }
