@@ -2,6 +2,9 @@
   "name": "SaleItem",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "sale_id": {
       "type": "string"
     },
@@ -33,61 +36,17 @@
     "unit_price"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
     "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "update": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
     }
   }
 }
