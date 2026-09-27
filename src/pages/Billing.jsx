@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import useShop from '@/hooks/useShop';
+import { useAuth } from '@/lib/AuthContext';
 import { PLANS, getPlan, isPaidPlan } from '@/lib/plans';
 import { getPendingPlan, clearPendingPlan } from '@/lib/pendingPlan';
 import BillingToggle from '@/components/pricing/BillingToggle';
@@ -9,6 +10,8 @@ import PlanOption from '@/components/billing/PlanOption';
 
 export default function Billing() {
   const { shop, loading, refresh } = useShop();
+  const { user } = useAuth();
+  const canManagePlan = !!shop && !!user && shop.owner_id === user.id;
   const [period, setPeriod] = useState('monthly');
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState('');
@@ -200,28 +203,35 @@ export default function Billing() {
         plan={plan}
         usage={usage}
         busy={!!busy}
+        canManage={canManagePlan}
         onCompletePayment={() => startCheckout(shop.plan_id, shop.billing_period)}
         onResume={handleResume}
       />
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-slate-900">Change plan</h2>
-          <BillingToggle value={period} onChange={setPeriod} />
+      {canManagePlan ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-bold text-slate-900">Change plan</h2>
+            <BillingToggle value={period} onChange={setPeriod} />
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {PLANS.map((p) => (
+              <PlanOption
+                key={p.id}
+                plan={p}
+                period={period}
+                current={shop.plan_id === p.id && shop.billing_period === period}
+                busy={busy === 'checkout' || busy === 'plan'}
+                onChoose={() => handleChoose(p.id)}
+              />
+            ))}
+          </div>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {PLANS.map((p) => (
-            <PlanOption
-              key={p.id}
-              plan={p}
-              period={period}
-              current={shop.plan_id === p.id && shop.billing_period === period}
-              busy={busy === 'checkout' || busy === 'plan'}
-              onChoose={() => handleChoose(p.id)}
-            />
-          ))}
+      ) : (
+        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
+          Only the shop owner can change the plan.
         </div>
-      </div>
+      )}
     </div>
   );
 }

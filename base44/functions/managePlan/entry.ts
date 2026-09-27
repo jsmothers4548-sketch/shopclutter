@@ -29,6 +29,12 @@ export default async function (req: Request): Promise<Response> {
     if (!shop) {
       return Response.json({ error: "We could not find your shop." }, { status: 404 });
     }
+    if (shop.owner_id !== user.id) {
+      return Response.json(
+        { error: "Only the shop owner can change the plan." },
+        { status: 403 }
+      );
+    }
     const sr = base44.asServiceRole;
 
     if (action === "confirm") {

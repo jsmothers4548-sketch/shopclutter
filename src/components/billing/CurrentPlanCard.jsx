@@ -17,7 +17,15 @@ function statusClass(status) {
   return 'bg-red-100 text-red-700';
 }
 
-export default function CurrentPlanCard({ shop, plan, usage, busy, onCompletePayment, onResume }) {
+export default function CurrentPlanCard({
+  shop,
+  plan,
+  usage,
+  busy,
+  canManage = true,
+  onCompletePayment,
+  onResume,
+}) {
   if (!shop || !plan) return null;
 
   const status = shop.plan_status || 'active';
@@ -50,9 +58,11 @@ export default function CurrentPlanCard({ shop, plan, usage, busy, onCompletePay
           <Clock className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="flex-1">
             <p>This plan isn't active until the payment goes through.</p>
-            <Button size="sm" className="mt-2" onClick={onCompletePayment} disabled={busy}>
-              Complete payment
-            </Button>
+            {canManage && (
+              <Button size="sm" className="mt-2" onClick={onCompletePayment} disabled={busy}>
+                Complete payment
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -71,9 +81,11 @@ export default function CurrentPlanCard({ shop, plan, usage, busy, onCompletePay
       {shop.cancel_at_period_end && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
           <span>Your plan is set to end at the end of this billing period.</span>
-          <Button size="sm" variant="outline" onClick={onResume} disabled={busy}>
-            Keep my plan
-          </Button>
+          {canManage && (
+            <Button size="sm" variant="outline" onClick={onResume} disabled={busy}>
+              Keep my plan
+            </Button>
+          )}
         </div>
       )}
     </div>
