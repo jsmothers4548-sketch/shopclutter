@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
-import { hasFeature } from "../../shared/plans.ts";
+import { requireFeature } from "../../shared/planGuard.ts";
 
 // Voice intake runs here, never in the browser. The recording is uploaded,
 // transcribed and turned into form fields only after we have confirmed the
@@ -157,33 +157,12 @@ export default async function (req: Request): Promise<Response> {
       return Response.json({ error: "No recording was sent." }, { status: 400 });
     }
 
-    // The shop is resolved from the signed-in user, never from the request.
+    // The shop and plan come from the signed-in user, never from the request.
+    // Nothing runs — no upload, no transcription, no AI call — unless the
+    // shop's plan includes voice intake.
+    const guard = await requireFeature(base44, user, "voice_intake");
+    if (!guard.ok) return guard.response;
     const sr = base44.asServiceRole;
-    const linkedShopId = user?.shop_id || user?.data?.shop_id || null;
-    let shop: any = null;
-    if (linkedShopId) {
-      shop = await sr.entities.Shop.get(linkedShopId).catch(() => null);
-    }
-    if (!shop) {
-      const owned = await sr.entities.Shop.filter(
-        { owner_id: user.id },
-        "-created_date",
-        1
-      );
-      shop = Array.isArray(owned) ? owned[0] : null;
-    }
-    if (!shop) {
-      return Response.json(
-        { error: "We could not find your shop yet. Reload the app and try again." },
-        { status: 403 }
-      );
-    }
-    if (!hasFeature(shop.plan_id, "voice_intake")) {
-      return Response.json(
-        { error: "Voice intake is included on our paid plans — upgrade to use it." },
-        { status: 403 }
-      );
-    }
 
     const base64 = audio.includes(",") ? audio.slice(audio.indexOf(",") + 1) : audio;
     const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));

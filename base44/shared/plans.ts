@@ -27,8 +27,44 @@ export const PLAN_RANK: Record<string, number> = {
 };
 
 export const FEATURE_RANK: Record<string, number> = {
+  templates: 1,
+  inventory: 1,
+  sales: 1,
+  reports: 1,
+  branding: 1,
   voice_intake: 1,
+  qr_scan: 1,
+  time_clock: 2,
+  staff_tasks: 2,
+  reimbursements: 2,
+  employee_earnings: 2,
+  supplier_orders: 2,
+  quickbooks: 2,
+  multi_location: 3,
 };
+
+// Shown to the user when a tool is refused. Mirrors the wording the app uses.
+export const FEATURE_LABELS: Record<string, string> = {
+  templates: "Job templates",
+  inventory: "Parts & inventory tracking",
+  sales: "Storefront sales",
+  reports: "Profit reports",
+  branding: "Your logo & business name",
+  voice_intake: "Voice intake",
+  qr_scan: "QR unit labels",
+  time_clock: "Time clock & timecards",
+  staff_tasks: "Staff tasks",
+  reimbursements: "Reimbursements",
+  employee_earnings: "Employee earnings",
+  supplier_orders: "Supplier orders & restocking",
+  quickbooks: "QuickBooks sync",
+  multi_location: "Multiple locations",
+};
+
+export function refusalMessage(feature: string) {
+  const label = FEATURE_LABELS[feature] || "That tool";
+  return `${label} is included on our paid plans — upgrade to use it.`;
+}
 
 export function hasFeature(planId: string, feature: string) {
   const required = FEATURE_RANK[feature];
