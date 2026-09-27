@@ -95,90 +95,94 @@ export default function ShopSettingsForm() {
   return (
     <form
       onSubmit={save}
-      className="bg-white rounded-xl border border-slate-200 p-4 space-y-3"
+      className="flex max-h-[85dvh] flex-col bg-white"
     >
-      <div className="flex items-center gap-2">
-        <Settings className="w-4 h-4 text-amber-600" />
+      <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-4 py-3 pr-12">
+        <Settings className="w-4 h-4 shrink-0 text-amber-600" />
         <h2 className="font-bold text-slate-900">Default Rates</h2>
-        <span className="text-xs text-slate-400">
+        <span className="min-w-0 truncate text-xs text-slate-400">
           Defaults for new records only
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {FIELDS.map(([key, label]) => (
-          <div key={key}>
-            <Label htmlFor={key}>{label}</Label>
-            <Input
-              id={key}
-              type="number"
-              step="0.01"
-              min="0"
-              value={form[key]}
-              onChange={(e) =>
-                setForm({ ...form, [key]: e.target.value })
-              }
-            />
-          </div>
-        ))}
-      </div>
-      <div className="pt-1 border-t border-slate-100 space-y-3">
-        <h3 className="font-semibold text-slate-900 text-sm">
-          Pickup &amp; Delivery
-        </h3>
-        {PICKUP_GROUPS.map((group) => (
-          <div
-            key={group.zone}
-            className="rounded-lg bg-slate-50 border border-slate-100 p-3"
-          >
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-              {group.zone}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {group.fields.map(([key, label]) => (
-                <div key={key}>
-                  <Label htmlFor={key}>{label}</Label>
-                  <Input
-                    id={key}
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form[key]}
-                    onChange={(e) =>
-                      setForm({ ...form, [key]: e.target.value })
-                    }
-                  />
-                </div>
-              ))}
+
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {FIELDS.map(([key, label]) => (
+            <div key={key}>
+              <Label htmlFor={key}>{label}</Label>
+              <Input
+                id={key}
+                type="number"
+                step="0.01"
+                min="0"
+                value={form[key]}
+                onChange={(e) =>
+                  setForm({ ...form, [key]: e.target.value })
+                }
+              />
             </div>
-          </div>
-        ))}
-        <p className="text-xs text-slate-400">
-          Pre-fills new jobs — amounts can be typed over on each job
-        </p>
+          ))}
+        </div>
+        <div className="pt-1 border-t border-slate-100 space-y-3">
+          <h3 className="font-semibold text-slate-900 text-sm">
+            Pickup &amp; Delivery
+          </h3>
+          {PICKUP_GROUPS.map((group) => (
+            <div
+              key={group.zone}
+              className="rounded-lg bg-slate-50 border border-slate-100 p-3"
+            >
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                {group.zone}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {group.fields.map(([key, label]) => (
+                  <div key={key}>
+                    <Label htmlFor={key}>{label}</Label>
+                    <Input
+                      id={key}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form[key]}
+                      onChange={(e) =>
+                        setForm({ ...form, [key]: e.target.value })
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <p className="text-xs text-slate-400">
+            Pre-fills new jobs — amounts can be typed over on each job
+          </p>
+        </div>
+        <div>
+          <Label htmlFor="overtime_rule">Overtime Rule</Label>
+          <Select
+            value={form.overtime_rule}
+            onValueChange={(v) => setForm({ ...form, overtime_rule: v })}
+          >
+            <SelectTrigger id="overtime_rule" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="federal">
+                Federal — over 40 hrs/week
+              </SelectItem>
+              <SelectItem value="daily">
+                Daily — over 8 hrs/day + over 40/week
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-400 mt-1">
+            Applied automatically to all time clock overtime
+          </p>
+        </div>
       </div>
-      <div>
-        <Label htmlFor="overtime_rule">Overtime Rule</Label>
-        <Select
-          value={form.overtime_rule}
-          onValueChange={(v) => setForm({ ...form, overtime_rule: v })}
-        >
-          <SelectTrigger id="overtime_rule" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="federal">
-              Federal — over 40 hrs/week
-            </SelectItem>
-            <SelectItem value="daily">
-              Daily — over 8 hrs/day + over 40/week
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-slate-400 mt-1">
-          Applied automatically to all time clock overtime
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
+
+      <div className="flex shrink-0 items-center gap-2 border-t border-slate-200 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <Button type="submit" disabled={saving}>
           {saving ? 'Saving…' : 'Save Settings'}
         </Button>

@@ -96,16 +96,17 @@ export default function BrandingForm() {
   return (
     <form
       onSubmit={save}
-      className="bg-white rounded-xl border border-slate-200 p-4 space-y-4"
+      className="flex max-h-[85dvh] flex-col bg-white"
     >
-      <div className="flex items-center gap-2">
-        <Palette className="w-4 h-4 text-amber-600" />
+      <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-4 py-3 pr-12">
+        <Palette className="w-4 h-4 shrink-0 text-amber-600" />
         <h2 className="font-bold text-slate-900">Branding</h2>
-        <span className="text-xs text-slate-400">
+        <span className="min-w-0 truncate text-xs text-slate-400">
           Your shop's name and logo
         </span>
       </div>
 
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
       <div>
         <Label htmlFor="brand_name">Business Name</Label>
         <Input
@@ -194,7 +195,9 @@ export default function BrandingForm() {
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2 border-t border-slate-200 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <Button type="submit" disabled={saving || uploading}>
           {saving ? 'Saving…' : 'Save Branding'}
         </Button>
