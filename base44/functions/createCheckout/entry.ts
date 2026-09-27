@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
 import { getPlan, amountFor } from "../../shared/plans.ts";
 import { stripePost, appId, updateShop } from "../../shared/stripe.ts";
+import { resolveOrigin } from "../../shared/origins.ts";
 
 export default async function (req: Request): Promise<Response> {
   try {
@@ -44,7 +45,9 @@ export default async function (req: Request): Promise<Response> {
       await updateShop(base44.asServiceRole, shopId, { stripe_customer_id: customerId });
     }
 
-    const origin = req.headers.get("origin") || "https://shop-clutter.base44.app";
+    // Only an approved address is used — anything else falls back to the
+    // published app address rather than whatever the browser reported.
+    const origin = resolveOrigin(req.headers.get("origin"));
     const amount = amountFor(plan, billingPeriod);
     const label = `${plan.name} (${billingPeriod})`;
 
