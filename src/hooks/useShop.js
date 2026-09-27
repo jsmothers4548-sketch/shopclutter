@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { getPendingPlan, clearPendingPlan } from '@/lib/pendingPlan';
-import { getPlan, isPaidPlan } from '@/lib/plans';
 
 // Guards against two mounts creating a shop at the same time.
 let inFlight = null;
 
 async function loadOrCreateShop(user) {
   const existing = await base44.entities.Shop.filter(
-    { created_by_id: user.id },
+    { owner_id: user.id },
     '-created_date',
     1
   );
@@ -17,19 +15,11 @@ async function loadOrCreateShop(user) {
   if (inFlight) return inFlight;
 
   inFlight = (async () => {
-    const pending = getPendingPlan();
-    const plan = getPlan(pending?.plan_id || 'free');
-    const paid = isPaidPlan(plan);
     const firstName = (user.full_name || '').split(' ')[0];
-    const created = await base44.entities.Shop.create({
-      name: firstName ? `${firstName}'s Shop` : 'My Shop',
-      owner_email: user.email,
-      plan_id: plan.id,
-      plan_status: paid ? 'pending' : 'active',
-      billing_period: pending?.billing_period === 'annual' ? 'annual' : 'monthly',
+    const res = await base44.functions.invoke('provisionShop', {
+      first_name: firstName,
     });
-    if (paid) clearPendingPlan();
-    return created;
+    return res.data?.shop || null;
   })();
 
   try {

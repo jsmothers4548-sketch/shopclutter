@@ -16,7 +16,7 @@ import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
 import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette, CreditCard, Lock } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette, CreditCard, KeyRound, Lock } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -97,6 +97,12 @@ export default function AdminMenu() {
             onClick={() => navigate('/billing')}
           >
             <CreditCard className="w-4 h-4" /> Plan &amp; Billing
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate('/beta-access')}
+          >
+            <KeyRound className="w-4 h-4" /> Beta access
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

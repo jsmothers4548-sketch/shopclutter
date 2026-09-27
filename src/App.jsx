@@ -39,6 +39,7 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Terms from '@/pages/Terms';
 import Pricing from '@/pages/Pricing';
 import Billing from '@/pages/Billing';
+import BetaAccess from '@/pages/BetaAccess';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
           <Route path="/units" element={<Units />} />
           <Route path="/units/:id" element={<UnitDetail />} />
           <Route path="/billing" element={<Billing />} />
+          <Route path="/beta-access" element={<BetaAccess />} />
         </Route>
         <Route path="/clock" element={<ClockPortal />} />
       </Route>

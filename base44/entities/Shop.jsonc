@@ -5,6 +5,9 @@
     "name": {
       "type": "string"
     },
+    "owner_id": {
+      "type": "string"
+    },
     "owner_email": {
       "type": "string"
     },
@@ -47,6 +50,13 @@
     "locations": {
       "type": "number",
       "default": 1
+    },
+    "beta_access": {
+      "type": "boolean",
+      "default": false
+    },
+    "beta_previous_plan_id": {
+      "type": "string"
     }
   },
   "required": [
@@ -56,9 +66,7 @@
     "read": {
       "$or": [
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.owner_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -68,25 +76,18 @@
       ]
     },
     "create": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "service"
+      }
     },
     "update": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "service"
+      }
     },
     "delete": {
       "user_condition": {
-        "role": "admin"
+        "role": "service"
       }
     }
   }

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import useShop from '@/hooks/useShop';
-import { PLANS, getPlan } from '@/lib/plans';
+import { PLANS, getPlan, isPaidPlan } from '@/lib/plans';
+import { getPendingPlan, clearPendingPlan } from '@/lib/pendingPlan';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import CurrentPlanCard from '@/components/billing/CurrentPlanCard';
 import PlanOption from '@/components/billing/PlanOption';
@@ -84,6 +85,7 @@ export default function Billing() {
     base44.functions
       .invoke('managePlan', { action: 'confirm', shop_id: shop.id, session_id: sessionId })
       .then(() => {
+        clearPendingPlan();
         setNotice('Payment received — your plan is now active.');
         return refresh();
       })
@@ -109,9 +111,13 @@ export default function Billing() {
   useEffect(() => {
     if (!shop || startedRef.current) return;
     if (checkout !== '1') return;
-    if (shop.plan_id === 'free' || shop.plan_status === 'active') return;
+    const pending = getPendingPlan();
+    if (!pending || !isPaidPlan(getPlan(pending.plan_id))) {
+      clearPendingPlan();
+      return;
+    }
     startedRef.current = true;
-    startCheckout(shop.plan_id, shop.billing_period);
+    startCheckout(pending.plan_id, pending.billing_period);
   }, [shop, checkout, startCheckout]);
 
   const handleChoose = async (planId) => {
