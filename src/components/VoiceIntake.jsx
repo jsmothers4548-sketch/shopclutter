@@ -64,11 +64,13 @@ export default function VoiceIntake({ formType = 'job', onExtracted }) {
       setStatus(null);
     } catch (err) {
       const code = err?.response?.status;
+      const message = err?.response?.data?.error;
       if (code === 401 || code === 403) {
-        setStatus(
-          err?.response?.data?.error ||
-            'Voice intake is not available on your plan.'
-        );
+        setStatus(message || 'Voice intake is not available on your plan.');
+        return;
+      }
+      if (code === 413) {
+        setStatus(message || 'That recording is too long to transcribe.');
         return;
       }
       await saveForLater(blob);

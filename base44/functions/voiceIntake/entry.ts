@@ -124,6 +124,10 @@ const AUDIO_EXTENSIONS: Record<string, string> = {
   "audio/flac": "flac",
 };
 
+// The transcription service refuses anything over 25 MB, so oversized
+// recordings are turned away before they are stored.
+const MAX_RECORDING_BYTES = 25 * 1024 * 1024;
+
 function extensionFor(mimeType: string) {
   const base = mimeType.split(";")[0].trim().toLowerCase();
   return AUDIO_EXTENSIONS[base] || "webm";
@@ -166,13 +170,30 @@ export default async function (req: Request): Promise<Response> {
 
     const base64 = audio.includes(",") ? audio.slice(audio.indexOf(",") + 1) : audio;
     const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    if (bytes.length > MAX_RECORDING_BYTES) {
+      return Response.json(
+        {
+          error:
+            "That recording is too long to transcribe. Keep it short and try again.",
+        },
+        { status: 413 }
+      );
+    }
+
     const file = new File([bytes], `intake.${extensionFor(mimeType)}`, {
       type: mimeType,
     });
 
-    const uploaded = await sr.integrations.Core.UploadPublicFile({ file });
+    // The recording is a customer conversation, so it goes to the app's private
+    // storage: no public copy is ever created. Transcription is handed a
+    // short-lived signed link that is used once and then expires.
+    const uploaded = await sr.integrations.Core.UploadPrivateFile({ file });
+    const signed = await sr.integrations.Core.CreateFileSignedUrl({
+      file_uri: uploaded.file_uri,
+      expires_in: 300,
+    });
     const transcript = await sr.integrations.Core.TranscribeAudio({
-      audio_url: uploaded.file_url,
+      audio_url: signed.signed_url,
     });
     const fields = await sr.integrations.Core.InvokeLLM({
       prompt: `${spec.intro}
