@@ -2,6 +2,9 @@
   "name": "JobTimeline",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "job_id": {
       "type": "string"
     },
@@ -22,61 +25,17 @@
     "job_id"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
     "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "update": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
     }
   }
 }
