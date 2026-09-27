@@ -2,6 +2,9 @@
   "name": "Equipment",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "label_number": {
       "type": "string"
     },
@@ -40,40 +43,19 @@
     "label_number"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
     "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "update": {
-      "$or": [
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "delete": {
+      "$and": [
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.shop_id": "{{user.data.shop_id}}"
         },
         {
           "user_condition": {
@@ -81,11 +63,6 @@
           }
         }
       ]
-    },
-    "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
     }
   }
 }

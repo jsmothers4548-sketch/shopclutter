@@ -2,6 +2,9 @@
   "name": "Job",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "customer_id": {
       "type": "string"
     },
@@ -124,52 +127,53 @@
     "problem_description"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
     "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "update": {
-      "$or": [
+      "$and": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "data.shop_id": "{{user.data.shop_id}}"
         },
         {
-          "data.status": {
-            "$ne": "Closed"
-          }
+          "$or": [
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            },
+            {
+              "data.status": {
+                "$ne": "Closed"
+              }
+            }
+          ]
         }
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "$or": [
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            },
+            {
+              "data.status": {
+                "$ne": "Closed"
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 }

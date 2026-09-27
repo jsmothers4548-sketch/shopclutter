@@ -2,6 +2,9 @@
   "name": "Payment",
   "type": "object",
   "properties": {
+    "shop_id": {
+      "type": "string"
+    },
     "job_id": {
       "type": "string"
     },
@@ -45,59 +48,51 @@
     "amount"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
     "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
     },
     "update": {
-      "$or": [
+      "$and": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "data.shop_id": "{{user.data.shop_id}}"
         },
         {
-          "data.job_status": {
-            "$ne": "Closed"
-          }
+          "$or": [
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            },
+            {
+              "data.job_status": {
+                "$ne": "Closed"
+              }
+            }
+          ]
         }
       ]
     },
     "delete": {
-      "$or": [
+      "$and": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "data.shop_id": "{{user.data.shop_id}}"
         },
         {
-          "data.job_status": {
-            "$ne": "Closed"
-          }
+          "$or": [
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            },
+            {
+              "data.job_status": {
+                "$ne": "Closed"
+              }
+            }
+          ]
         }
       ]
     }
