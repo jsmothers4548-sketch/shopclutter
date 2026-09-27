@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
 import { Plus, Edit, Trash2, Clock } from 'lucide-react';
 import TimeClockWeeks from '@/components/TimeClockWeeks';
+import StaffInvites from '@/components/StaffInvites';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -196,6 +197,8 @@ export default function Staff() {
           })}
         </div>
       )}
+
+      <StaffInvites />
 
       <TimeClockWeeks staff={staff} timeClocks={timeClocks} />
 

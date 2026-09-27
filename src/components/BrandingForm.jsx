@@ -8,6 +8,7 @@ import { Palette, Check, Upload, Trash2, Lock } from 'lucide-react';
 import { getShopSettings } from '@/lib/shopSettings';
 import useShop from '@/hooks/useShop';
 import { getPlan, canWhiteLabel } from '@/lib/plans';
+import { withShop } from '@/lib/shopScope';
 
 const FALLBACK = { brand_name: 'Shop Clutter', brand_logo_url: '' };
 

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 const CATEGORIES = ['Spark Plugs', 'Filters', 'Oil & Fluids', 'Belts', 'Blades', 'Hardware', 'Other'];
 
@@ -41,7 +42,7 @@ export default function ShopItemForm({ item, categories = CATEGORIES, onClose, o
       if (item) {
         await base44.entities.ShopItem.update(item.id, payload);
       } else {
-        await base44.entities.ShopItem.create(payload);
+        await base44.entities.ShopItem.create(withShop(payload));
       }
       onSaved();
     } finally {

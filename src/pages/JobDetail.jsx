@@ -23,6 +23,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
+import { withShop } from '@/lib/shopScope';
 import { useAuth } from '@/lib/AuthContext';
 
 const STATUSES = [
@@ -131,12 +132,14 @@ export default function JobDetail() {
         { $set: { job_status: newStatus } }
       ),
     ]);
-    await base44.entities.JobTimeline.create({
-      job_id: id,
-      stage: newStatus,
-      notes: `Status changed to ${newStatus}`,
-      photo_urls: [],
-    });
+    await base44.entities.JobTimeline.create(
+      withShop({
+        job_id: id,
+        stage: newStatus,
+        notes: `Status changed to ${newStatus}`,
+        photo_urls: [],
+      })
+    );
     loadData();
   };
 
