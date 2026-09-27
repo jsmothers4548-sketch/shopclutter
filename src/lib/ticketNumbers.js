@@ -1,4 +1,5 @@
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 export function buildTicketNumber(yy, n) {
   return `${String(yy).padStart(2, '0')}-${String(n).padStart(3, '0')}`;
@@ -22,7 +23,9 @@ export async function createJobWithTicket(payload) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const ticket_number = await nextTicketNumber();
     try {
-      return await base44.entities.Job.create({ ...payload, ticket_number });
+      return await base44.entities.Job.create(
+        withShop({ ...payload, ticket_number })
+      );
     } catch (err) {
       lastError = err;
     }

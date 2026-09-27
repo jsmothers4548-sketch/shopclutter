@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
+import { withShop } from '@/lib/shopScope';
 
 const CATEGORIES = ['Cleaning', 'Maintenance', 'Organization', 'Inventory', 'Other'];
 const PRIORITIES = ['low', 'medium', 'high'];
@@ -37,7 +38,7 @@ export default function StaffTaskForm({ task, onClose, onSaved }) {
       if (task) {
         await base44.entities.StaffTask.update(task.id, form);
       } else {
-        await base44.entities.StaffTask.create(form);
+        await base44.entities.StaffTask.create(withShop(form));
       }
       onSaved();
     } finally {

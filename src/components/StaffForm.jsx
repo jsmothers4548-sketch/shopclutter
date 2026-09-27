@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 const generateId = () =>
   Math.floor(1000 + Math.random() * 9000).toString();
@@ -36,7 +37,7 @@ export default function StaffForm({ staff, onClose, onSaved }) {
       if (staff) {
         await base44.entities.Staff.update(staff.id, form);
       } else {
-        await base44.entities.Staff.create(form);
+        await base44.entities.Staff.create(withShop(form));
       }
       onSaved();
     } finally {

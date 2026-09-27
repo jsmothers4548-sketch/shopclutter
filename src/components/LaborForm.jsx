@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 export default function LaborForm({ jobId, jobStatus, defaultRate, labor, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -46,7 +47,7 @@ export default function LaborForm({ jobId, jobStatus, defaultRate, labor, onClos
       if (labor) {
         await base44.entities.LaborEntry.update(labor.id, form);
       } else {
-        await base44.entities.LaborEntry.create(form);
+        await base44.entities.LaborEntry.create(withShop(form));
       }
       onSaved();
     } finally {

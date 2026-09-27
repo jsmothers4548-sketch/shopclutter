@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
+import { withShop } from '@/lib/shopScope';
 
 export default function CustomerForm({ customer, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -33,7 +34,7 @@ export default function CustomerForm({ customer, onClose, onSaved }) {
         await base44.entities.Customer.update(customer.id, form);
         saved = { ...customer, ...form };
       } else {
-        saved = await base44.entities.Customer.create(form);
+        saved = await base44.entities.Customer.create(withShop(form));
       }
       onSaved(saved);
     } finally {

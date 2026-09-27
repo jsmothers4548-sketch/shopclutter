@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 export default function PartForm({ jobId, jobStatus, part, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -29,7 +30,7 @@ export default function PartForm({ jobId, jobStatus, part, onClose, onSaved }) {
       if (part) {
         await base44.entities.Part.update(part.id, form);
       } else {
-        await base44.entities.Part.create(form);
+        await base44.entities.Part.create(withShop(form));
       }
       onSaved();
     } finally {

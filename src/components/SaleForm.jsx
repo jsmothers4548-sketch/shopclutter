@@ -4,6 +4,7 @@ import VoiceIntake from '@/components/VoiceIntake';
 import { getShopSettings } from '@/lib/shopSettings';
 import SaleLineEditor from '@/components/SaleLineEditor';
 import CustomerPicker from '@/components/CustomerPicker';
+import { withShop, withShopAll } from '@/lib/shopScope';
 import {
   Dialog,
   DialogContent,
@@ -122,7 +123,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
     if (saleId) {
       await base44.entities.Sale.update(saleId, payload);
     } else {
-      saleId = (await base44.entities.Sale.create(payload)).id;
+      saleId = (await base44.entities.Sale.create(withShop(payload))).id;
     }
 
     // Net stock change per inventory item: restore old lines, deduct new ones
@@ -149,7 +150,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
       await base44.entities.SaleItem.deleteMany({ sale_id: sale.id });
     }
     await base44.entities.SaleItem.bulkCreate(
-      valid.map((l) => ({
+      withShopAll(valid.map((l) => ({
         sale_id: saleId,
         description: l.description.trim(),
         part_number: l.part_number || '',
@@ -157,7 +158,7 @@ export default function SaleForm({ sale, onClose, onSaved }) {
         unit_price: Number(l.unit_price) || 0,
         unit_cost: Number(l.unit_cost) || 0,
         ...(l.shop_item_id ? { shop_item_id: l.shop_item_id } : {}),
-      }))
+      })))
     );
     setSaving(false);
     onSaved();

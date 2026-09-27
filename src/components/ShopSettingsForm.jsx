@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Settings, Check } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
+import { withShop } from '@/lib/shopScope';
 
 const FIELDS = [
   ['on_site_rate', 'On-site Hourly Rate ($/hr)'],
@@ -85,7 +86,9 @@ export default function ShopSettingsForm() {
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
     } else {
-      const created = await base44.entities.ShopSettings.create(payload);
+      const created = await base44.entities.ShopSettings.create(
+        withShop(payload)
+      );
       setRecord(created.id);
     }
     setSaving(false);

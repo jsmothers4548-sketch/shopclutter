@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { getShopSettings } from '@/lib/shopSettings';
 import { Plus, Trash2 } from 'lucide-react';
+import { withShop } from '@/lib/shopScope';
 
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
@@ -111,7 +112,7 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
       if (template) {
         saved = await base44.entities.JobTemplate.update(template.id, payload);
       } else {
-        saved = await base44.entities.JobTemplate.create(payload);
+        saved = await base44.entities.JobTemplate.create(withShop(payload));
       }
       onSaved(saved);
     } finally {

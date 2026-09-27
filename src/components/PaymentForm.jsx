@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { withShop } from '@/lib/shopScope';
 
 export default function PaymentForm({
   jobId,
@@ -46,7 +47,7 @@ export default function PaymentForm({
     if (payment?.id) {
       await base44.entities.Payment.update(payment.id, payload);
     } else {
-      await base44.entities.Payment.create(payload);
+      await base44.entities.Payment.create(withShop(payload));
     }
     setSaving(false);
     onSaved();

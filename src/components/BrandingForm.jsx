@@ -86,7 +86,9 @@ export default function BrandingForm() {
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
     } else {
-      const created = await base44.entities.ShopSettings.create(payload);
+      const created = await base44.entities.ShopSettings.create(
+        withShop(payload)
+      );
       setRecord(created.id);
     }
     setSaving(false);

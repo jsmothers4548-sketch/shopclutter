@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { withShop } from '@/lib/shopScope';
 
 const sentenceCase = (v) => v.trim().replace(/^./, (c) => c.toUpperCase());
 const today = () => new Date().toISOString().slice(0, 10);
@@ -47,14 +48,16 @@ export default function PartPurchaseForm({
     setSaving(true);
     setError('');
     try {
-      const rec = await base44.entities.PartPurchase.create({
-        part_name: partName,
-        part_number: partNumber || '',
-        supplier: sentenceCase(supplier),
-        quantity: Number(quantity) || 0,
-        unit_cost: Number(unitCost) || 0,
-        purchase_date: purchaseDate,
-      });
+      const rec = await base44.entities.PartPurchase.create(
+        withShop({
+          part_name: partName,
+          part_number: partNumber || '',
+          supplier: sentenceCase(supplier),
+          quantity: Number(quantity) || 0,
+          unit_cost: Number(unitCost) || 0,
+          purchase_date: purchaseDate,
+        })
+      );
       onSaved?.(rec);
       onClose();
     } catch (e) {

@@ -1,11 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { setShopId } from '@/lib/shopScope';
 
 // Guards against two mounts creating a shop at the same time.
 let inFlight = null;
 
 async function loadOrCreateShop(user) {
+  const knownId = user?.shop_id || user?.data?.shop_id;
+  if (knownId) {
+    const mine = await base44.entities.Shop.filter(
+      { id: knownId },
+      '-created_date',
+      1
+    );
+    if (Array.isArray(mine) && mine.length) return mine[0];
+  }
   const existing = await base44.entities.Shop.filter(
     { owner_id: user.id },
     '-created_date',
@@ -41,6 +51,7 @@ export default function useShop() {
       return null;
     }
     const next = await loadOrCreateShop(user);
+    setShopId(next?.id || null);
     setShop(next);
     setLoading(false);
     return next;

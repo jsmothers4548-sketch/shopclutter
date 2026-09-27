@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { Camera, X } from 'lucide-react';
+import { withShop } from '@/lib/shopScope';
 
 export default function TimelineForm({ jobId, stage, onClose, onSaved }) {
   const [notes, setNotes] = useState('');
@@ -37,12 +38,14 @@ export default function TimelineForm({ jobId, stage, onClose, onSaved }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.JobTimeline.create({
-        job_id: jobId,
-        stage,
-        notes,
-        photo_urls: photoUrls,
-      });
+      await base44.entities.JobTimeline.create(
+        withShop({
+          job_id: jobId,
+          stage,
+          notes,
+          photo_urls: photoUrls,
+        })
+      );
       onSaved();
     } finally {
       setSaving(false);

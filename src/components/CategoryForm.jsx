@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
+import { withShop } from '@/lib/shopScope';
 
 export default function CategoryForm({ onClose, onSaved }) {
   const [name, setName] = useState('');
@@ -20,7 +21,9 @@ export default function CategoryForm({ onClose, onSaved }) {
     if (!name.trim()) return;
     setSaving(true);
     try {
-      await base44.entities.InventoryCategory.create({ name: name.trim() });
+      await base44.entities.InventoryCategory.create(
+        withShop({ name: name.trim() })
+      );
       onSaved();
     } finally {
       setSaving(false);

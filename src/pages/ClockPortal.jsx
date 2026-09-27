@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { getShopSettings } from '@/lib/shopSettings';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import { withShopAsync } from '@/lib/shopScope';
 import usePlanFeature from '@/hooks/usePlanFeature';
 import { Clock, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 
@@ -43,12 +44,14 @@ export default function ClockPortal() {
         lastEntry?.action === 'clock_in' ? 'clock_out' : 'clock_in';
 
       const now = new Date();
-      await base44.entities.TimeClock.create({
-        employee_id: id,
-        action: nextAction,
-        timestamp: now.toISOString(),
-        shift_date: now.toISOString().split('T')[0],
-      });
+      await base44.entities.TimeClock.create(
+        await withShopAsync({
+          employee_id: id,
+          action: nextAction,
+          timestamp: now.toISOString(),
+          shift_date: now.toISOString().split('T')[0],
+        })
+      );
 
       setStatus({
         action: nextAction,

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { withShop } from '@/lib/shopScope';
 
 export default function ExpenseForm({
   jobId,
@@ -52,7 +53,7 @@ export default function ExpenseForm({
     if (expense?.id) {
       await base44.entities.JobExpense.update(expense.id, payload);
     } else {
-      await base44.entities.JobExpense.create(payload);
+      await base44.entities.JobExpense.create(withShop(payload));
     }
     setSaving(false);
     onSaved();

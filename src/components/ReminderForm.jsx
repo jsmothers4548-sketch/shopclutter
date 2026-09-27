@@ -14,6 +14,7 @@ import { base44 } from '@/api/base44Client';
 import VoiceIntake from '@/components/VoiceIntake';
 import CustomerPicker from '@/components/CustomerPicker';
 import { MapPin } from 'lucide-react';
+import { withShop } from '@/lib/shopScope';
 
 const APPOINTMENT_TYPES = ['General', 'On-site', 'Off-site'];
 const selectClass = 'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm md:text-sm';
@@ -58,7 +59,7 @@ export default function ReminderForm({ reminder, onClose, onSaved }) {
       if (reminder) {
         await base44.entities.Reminder.update(reminder.id, form);
       } else {
-        await base44.entities.Reminder.create(form);
+        await base44.entities.Reminder.create(withShop(form));
       }
       onSaved();
     } finally {

@@ -16,6 +16,7 @@ import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { createJobWithTicket } from '@/lib/ticketNumbers';
+import { withShop, withShopAll } from '@/lib/shopScope';
 
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
@@ -199,15 +200,17 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
       let finalUnitId = unitId;
       const label = unitLabel.trim();
       if (label && !finalUnitId) {
-        const createdUnit = await base44.entities.Equipment.create({
-          label_number: label,
-          customer_id: form.customer_id,
-          customer_name: form.customer_name,
-          equipment_type: form.equipment_type,
-          make: form.make,
-          model: form.model,
-          serial_number: form.serial_number,
-        });
+        const createdUnit = await base44.entities.Equipment.create(
+          withShop({
+            label_number: label,
+            customer_id: form.customer_id,
+            customer_name: form.customer_name,
+            equipment_type: form.equipment_type,
+            make: form.make,
+            model: form.model,
+            serial_number: form.serial_number,
+          })
+        );
         finalUnitId = createdUnit.id;
       }
       const payload = { ...form, unit_id: finalUnitId || null };
@@ -221,12 +224,16 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           const labor = template.labor_data ? JSON.parse(template.labor_data) : [];
           if (parts.length) {
             await base44.entities.Part.bulkCreate(
-              parts.map((p) => ({ ...p, job_id: saved.id, job_status: saved.status }))
+              withShopAll(
+                parts.map((p) => ({ ...p, job_id: saved.id, job_status: saved.status }))
+              )
             );
           }
           if (labor.length) {
             await base44.entities.LaborEntry.bulkCreate(
-              labor.map((l) => ({ ...l, job_id: saved.id, job_status: saved.status }))
+              withShopAll(
+                labor.map((l) => ({ ...l, job_id: saved.id, job_status: saved.status }))
+              )
             );
           }
         }
