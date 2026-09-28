@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
-import StatusBadge from '@/components/StatusBadge';
+import JobStatusControl from '@/components/JobStatusControl';
 import ContactButtons from '@/components/ContactButtons';
 import JobForm from '@/components/JobForm';
 import PartForm from '@/components/PartForm';
@@ -26,17 +26,6 @@ import {
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { withShop } from '@/lib/shopScope';
 import { useAuth } from '@/lib/AuthContext';
-
-const STATUSES = [
-  'Intake',
-  'Diagnosed',
-  'Estimate Sent',
-  'Approved',
-  'In Progress',
-  'Waiting on Parts',
-  'Ready for Pickup',
-  'Closed',
-];
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -246,19 +235,11 @@ export default function JobDetail() {
 
       {/* Status control */}
       <div className="bg-white rounded-xl border border-slate-200 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <StatusBadge status={job.status} />
-          <select
-            value={job.status}
-            onChange={(e) => updateStatus(e.target.value)}
-            disabled={!canEdit}
-            className="text-sm rounded-lg border border-slate-200 px-2 py-1.5 bg-white disabled:opacity-50"
-          >
-            {STATUSES.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </div>
+        <JobStatusControl
+          status={job.status}
+          disabled={!canEdit}
+          onChange={updateStatus}
+        />
       </div>
 
       {job.status === 'Ready for Pickup' && (
