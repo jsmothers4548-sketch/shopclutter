@@ -68,7 +68,7 @@ export default function UnitLabel({ labelNumber, closeLabel = 'Close', onClose }
               onClick={() => window.print()}
               className="w-full flex items-center justify-center gap-2 bg-amber-500 text-slate-900 py-3 rounded-lg font-semibold active:bg-amber-600"
             >
-              <Printer className="w-4 h-4" /> Print Label
+              <Printer className="w-4 h-4" /> Print QR Code
             </button>
             <button
               onClick={onClose}

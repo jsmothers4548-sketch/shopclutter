@@ -14,7 +14,7 @@ import QrScanner from '@/components/QrScanner';
 import UnitLabel from '@/components/UnitLabel';
 import CustomerPicker from '@/components/CustomerPicker';
 import VoiceIntake from '@/components/VoiceIntake';
-import { ScanLine } from 'lucide-react';
+import { ScanLine, Printer } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { createJobWithTicket } from '@/lib/ticketNumbers';
 import { withShop, withShopAll } from '@/lib/shopScope';
@@ -60,7 +60,6 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   const [unitNote, setUnitNote] = useState(unit ? `Unit #${unit.label_number} linked` : '');
   const [showScanner, setShowScanner] = useState(false);
   const [printLabel, setPrintLabel] = useState('');
-  const [savedJob, setSavedJob] = useState(null);
   const [settings, setSettings] = useState(null);
 
   useEffect(() => {
@@ -122,6 +121,34 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
       setUnitId(null);
       setUnitNote(`Unit #${value} is new — it will be created for this job`);
     }
+  };
+
+  // Prints the label for whatever number is in the Unit Label # field,
+  // creating the unit first when that number is new.
+  const handlePrintLabel = async () => {
+    const label = unitLabel.trim();
+    if (!label) {
+      setUnitNote('Enter a unit label number first, then print its QR code');
+      return;
+    }
+    let id = unitId;
+    if (!id) {
+      const created = await base44.entities.Equipment.create(
+        withShop({
+          label_number: label,
+          customer_id: form.customer_id,
+          customer_name: form.customer_name,
+          equipment_type: form.equipment_type,
+          make: form.make,
+          model: form.model,
+          serial_number: form.serial_number,
+        })
+      );
+      id = created.id;
+      setUnitId(id);
+      setUnitNote(`Unit #${label} created`);
+    }
+    setPrintLabel(label);
   };
 
   const handleVoiceExtracted = (d) => {
@@ -201,7 +228,6 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     setSaving(true);
     try {
       let finalUnitId = unitId;
-      let newUnitLabel = '';
       const label = unitLabel.trim();
       if (label && !finalUnitId) {
         const createdUnit = await base44.entities.Equipment.create(
@@ -216,7 +242,6 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           })
         );
         finalUnitId = createdUnit.id;
-        newUnitLabel = label;
       }
       const payload = { ...form, unit_id: finalUnitId || null };
       let saved;
@@ -242,11 +267,6 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
             );
           }
         }
-      }
-      if (newUnitLabel) {
-        setSavedJob(saved);
-        setPrintLabel(newUnitLabel);
-        return;
       }
       onSaved(saved);
     } finally {
@@ -283,8 +303,9 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           </div>
           <div>
             <Label>Unit Label #</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Input
+                className="flex-1 min-w-[120px]"
                 value={unitLabel}
                 onChange={(e) => setUnitLabel(e.target.value)}
                 onBlur={(e) => lookupUnit(e.target.value)}
@@ -299,6 +320,14 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
               >
                 <ScanLine className="w-4 h-4" />
                 Scan QR Code
+              </Button>
+              <Button
+                type="button"
+                onClick={handlePrintLabel}
+                className="px-3 shrink-0 bg-amber-500 text-slate-900 hover:bg-amber-600"
+              >
+                <Printer className="w-4 h-4" />
+                Print QR Code
               </Button>
             </div>
             {unitNote && (
@@ -576,11 +605,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
         {printLabel && (
           <UnitLabel
             labelNumber={printLabel}
-            closeLabel="Done"
-            onClose={() => {
-              setPrintLabel('');
-              onSaved(savedJob);
-            }}
+            onClose={() => setPrintLabel('')}
           />
         )}
         {showScanner && (

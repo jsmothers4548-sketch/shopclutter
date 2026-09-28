@@ -104,7 +104,7 @@ export default function UnitDetail() {
             onClick={() => setShowLabel(true)}
             className="w-full flex items-center justify-center gap-2 border border-slate-300 text-slate-700 py-2.5 rounded-lg text-sm font-semibold active:bg-slate-50"
           >
-            <Printer className="w-4 h-4" /> Print Label
+            <Printer className="w-4 h-4" /> Print QR Code
           </button>
         </div>
       </div>

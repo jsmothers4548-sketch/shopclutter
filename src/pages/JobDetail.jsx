@@ -10,6 +10,7 @@ import TimelineForm from '@/components/TimelineForm';
 import PaymentForm from '@/components/PaymentForm';
 import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
+import UnitLabel from '@/components/UnitLabel';
 import {
   ArrowLeft,
   Edit,
@@ -59,6 +60,7 @@ export default function JobDetail() {
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [activeExpense, setActiveExpense] = useState(null);
   const [showPickupText, setShowPickupText] = useState(false);
+  const [labelNumber, setLabelNumber] = useState('');
 
   const loadData = async () => {
     try {
@@ -161,6 +163,13 @@ export default function JobDetail() {
   const deleteExpense = async (expenseId) => {
     await base44.entities.JobExpense.delete(expenseId);
     setExpenses(expenses.filter((e) => e.id !== expenseId));
+  };
+
+  const printQrCode = async () => {
+    try {
+      const unit = await base44.entities.Equipment.get(job.unit_id);
+      if (unit?.label_number) setLabelNumber(unit.label_number);
+    } catch {}
   };
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -282,19 +291,27 @@ export default function JobDetail() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <button
           onClick={() => navigate(`/jobs/${id}/estimate`)}
-          className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-3 py-2.5 rounded-lg text-sm font-semibold active:bg-slate-50"
+          className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-2 py-2.5 rounded-lg text-xs font-semibold active:bg-slate-50"
         >
           <FileText className="w-4 h-4" /> Estimate
         </button>
         <button
           onClick={() => navigate(`/jobs/${id}/invoice`)}
-          className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-3 py-2.5 rounded-lg text-sm font-semibold active:bg-slate-50"
+          className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-2 py-2.5 rounded-lg text-xs font-semibold active:bg-slate-50"
         >
           <Receipt className="w-4 h-4" /> Invoice
         </button>
+        {job.unit_id && (
+          <button
+            onClick={printQrCode}
+            className="flex items-center justify-center gap-1.5 bg-amber-500 text-slate-900 px-2 py-2.5 rounded-lg text-xs font-semibold active:bg-amber-600"
+          >
+            <Printer className="w-4 h-4" /> Print QR Code
+          </button>
+        )}
       </div>
 
       {/* Timeline */}
@@ -828,6 +845,13 @@ export default function JobDetail() {
         <PickupTextDialog
           job={job}
           onClose={() => setShowPickupText(false)}
+        />
+      )}
+
+      {labelNumber && (
+        <UnitLabel
+          labelNumber={labelNumber}
+          onClose={() => setLabelNumber('')}
         />
       )}
 
