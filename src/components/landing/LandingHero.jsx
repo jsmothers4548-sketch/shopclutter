@@ -10,15 +10,20 @@ export default function LandingHero({ brand }) {
           Built by a small engine tech
         </p>
         <h1 className="mt-5 text-4xl sm:text-6xl font-bold tracking-tight text-slate-900 leading-[1.05]">
-          The all-in-one shop manager that grows with your business.
+          Stop running your repair shop out of a notebook.
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed">
-          Whether you&rsquo;re a one-man shop or managing a large team, {brand.name}{' '}
-          organizes your jobs, customers, parts and invoices without the mess.
+          Tickets go missing. Estimates never get sent. Invoices wait until Sunday night.
+          {' '}{brand.name} keeps the jobs, estimates, invoices, parts, inventory and
+          reminders in one place, so the paperwork stops eating your evenings.
+        </p>
+        <p className="mt-4 text-base text-slate-500 leading-relaxed">
+          Shop management software for small engine and equipment repair — from a one-man
+          bench to a full crew.
         </p>
         <div className="mt-9 flex flex-col sm:flex-row gap-3">
           <Button asChild size="lg" className="h-12 sm:w-auto">
-            <Link to="/pricing">Get Started</Link>
+            <Link to="/pricing">Start Now</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12 sm:w-auto">
             <Link to="/login">Sign In</Link>

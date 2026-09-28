@@ -14,11 +14,11 @@ export default function LandingFooter({ brand }) {
           </div>
         </div>
         <div className="flex flex-col gap-2 text-sm sm:text-right">
+          <Link to="/pricing" className="font-medium text-slate-700 hover:text-slate-900">
+            Start Now
+          </Link>
           <Link to="/login" className="font-medium text-slate-700 hover:text-slate-900">
             Sign In
-          </Link>
-          <Link to="/pricing" className="font-medium text-slate-700 hover:text-slate-900">
-            Get Started
           </Link>
           <Link to="/privacy" className="text-slate-500 hover:text-slate-800">
             Privacy Policy
