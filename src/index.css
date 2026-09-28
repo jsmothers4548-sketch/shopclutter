@@ -96,5 +96,23 @@
   body { background: white !important; }
 }
 
+/* Unit labels: while a label is open, print only the label itself. */
+@media print {
+  body.printing-label > *:not(.print-root) { display: none !important; }
+  body.printing-label .print-root {
+    position: static !important;
+    display: block !important;
+    background: white !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body.printing-label .no-print { display: none !important; }
+  body.printing-label .print-area {
+    background: white !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import QrScanner from '@/components/QrScanner';
+import UnitLabel from '@/components/UnitLabel';
 import CustomerPicker from '@/components/CustomerPicker';
 import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine } from 'lucide-react';
@@ -58,6 +59,8 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   const [unitLabel, setUnitLabel] = useState(unit?.label_number || '');
   const [unitNote, setUnitNote] = useState(unit ? `Unit #${unit.label_number} linked` : '');
   const [showScanner, setShowScanner] = useState(false);
+  const [printLabel, setPrintLabel] = useState('');
+  const [savedJob, setSavedJob] = useState(null);
   const [settings, setSettings] = useState(null);
 
   useEffect(() => {
@@ -198,6 +201,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     setSaving(true);
     try {
       let finalUnitId = unitId;
+      let newUnitLabel = '';
       const label = unitLabel.trim();
       if (label && !finalUnitId) {
         const createdUnit = await base44.entities.Equipment.create(
@@ -212,6 +216,7 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           })
         );
         finalUnitId = createdUnit.id;
+        newUnitLabel = label;
       }
       const payload = { ...form, unit_id: finalUnitId || null };
       let saved;
@@ -238,6 +243,11 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
           }
         }
       }
+      if (newUnitLabel) {
+        setSavedJob(saved);
+        setPrintLabel(newUnitLabel);
+        return;
+      }
       onSaved(saved);
     } finally {
       setSaving(false);
@@ -245,7 +255,12 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
   };
 
   return (
-    <Dialog open onOpenChange={() => onClose()}>
+    <Dialog
+      open
+      onOpenChange={() => {
+        if (!printLabel) onClose();
+      }}
+    >
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -558,6 +573,16 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
             </Button>
           </DialogFooter>
         </form>
+        {printLabel && (
+          <UnitLabel
+            labelNumber={printLabel}
+            closeLabel="Done"
+            onClose={() => {
+              setPrintLabel('');
+              onSaved(savedJob);
+            }}
+          />
+        )}
         {showScanner && (
           <QrScanner
             onClose={() => setShowScanner(false)}

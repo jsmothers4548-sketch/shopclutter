@@ -89,8 +89,15 @@ export default function Home() {
       const res = await base44.entities.Equipment.filter({
         label_number: c,
       });
-      if (Array.isArray(res) && res.length) {
-        navigate(`/units/${res[0].id}`);
+      const units = Array.isArray(res) ? res : res?.items || [];
+      if (units.length) {
+        const unit = units[0];
+        const unitJobs = await base44.entities.Job.filter(
+          { unit_id: unit.id, status: { $ne: 'Closed' } },
+          { sort: '-created_date', limit: 1 }
+        );
+        const openJob = (Array.isArray(unitJobs) ? unitJobs : unitJobs?.items || [])[0];
+        navigate(openJob ? `/jobs/${openJob.id}` : `/units/${unit.id}`);
         return;
       }
     }

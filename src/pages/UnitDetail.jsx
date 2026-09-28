@@ -4,7 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ContactButtons from '@/components/ContactButtons';
 import JobForm from '@/components/JobForm';
 import StatusBadge from '@/components/StatusBadge';
-import { ArrowLeft, Plus, Wrench } from 'lucide-react';
+import UnitLabel from '@/components/UnitLabel';
+import { ArrowLeft, Plus, Wrench, Printer } from 'lucide-react';
 
 export default function UnitDetail() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ export default function UnitDetail() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showJobForm, setShowJobForm] = useState(false);
+  const [showLabel, setShowLabel] = useState(false);
 
   const loadData = async () => {
     try {
@@ -97,6 +99,14 @@ export default function UnitDetail() {
             />
           </div>
         )}
+        <div className="pt-3 border-t border-slate-100">
+          <button
+            onClick={() => setShowLabel(true)}
+            className="w-full flex items-center justify-center gap-2 border border-slate-300 text-slate-700 py-2.5 rounded-lg text-sm font-semibold active:bg-slate-50"
+          >
+            <Printer className="w-4 h-4" /> Print Label
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -128,6 +138,13 @@ export default function UnitDetail() {
           )}
         </div>
       </div>
+
+      {showLabel && (
+        <UnitLabel
+          labelNumber={unit.label_number}
+          onClose={() => setShowLabel(false)}
+        />
+      )}
 
       {showJobForm && (
         <JobForm
