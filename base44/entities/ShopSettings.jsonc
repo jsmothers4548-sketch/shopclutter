@@ -68,6 +68,10 @@
     "brand_email": {
       "type": "string",
       "default": ""
+    },
+    "highest_printed_label": {
+      "type": "number",
+      "default": 1000
     }
   },
   "required": [],

@@ -114,5 +114,35 @@
   }
 }
 
+/* Label sheets: while a sheet is open, print only the sheet itself, at full
+   size, so the 12-up grid lands on letter paper at the browser's page margin. */
+@media print {
+  body.printing-sheet > *:not(.print-root) { display: none !important; }
+  body.printing-sheet .print-root {
+    position: static !important;
+    display: block !important;
+    background: white !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body.printing-sheet .no-print { display: none !important; }
+  body.printing-sheet .sheet-viewport {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+  body.printing-sheet .sheet-frame {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+  body.printing-sheet .sheet-scale { transform: none !important; }
+  body.printing-sheet .sheet-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -1,0 +1,67 @@
+{
+  "name": "RoadmapNote",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "done": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "title",
+    "topic"
+  ],
+  "rls": {
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

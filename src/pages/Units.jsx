@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { Search, Wrench } from 'lucide-react';
+import { Search, Wrench, Printer } from 'lucide-react';
+import LabelSheetDialog from '@/components/LabelSheetDialog';
 
 export default function Units() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Units() {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showSheet, setShowSheet] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -50,7 +52,15 @@ export default function Units() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">Units</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-slate-900">Units</h1>
+        <button
+          onClick={() => setShowSheet(true)}
+          className="flex items-center gap-1.5 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg text-sm font-semibold active:bg-amber-600 shrink-0"
+        >
+          <Printer className="w-4 h-4" /> Print Labels
+        </button>
+      </div>
 
       <div className="relative">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -93,6 +103,8 @@ export default function Units() {
           ))}
         </div>
       )}
+
+      {showSheet && <LabelSheetDialog onClose={() => setShowSheet(false)} />}
     </div>
   );
 }

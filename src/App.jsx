@@ -27,6 +27,7 @@ import StaffDetail from '@/pages/StaffDetail';
 import SaleDetail from '@/pages/SaleDetail';
 import Units from '@/pages/Units';
 import UnitDetail from '@/pages/UnitDetail';
+import Roadmap from '@/pages/Roadmap';
 import ClockPortal from '@/pages/ClockPortal';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
           <Route path="/sales/:id" element={<SaleDetail />} />
           <Route path="/units" element={<Units />} />
           <Route path="/units/:id" element={<UnitDetail />} />
+          <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/beta-access" element={<BetaAccess />} />
         </Route>
