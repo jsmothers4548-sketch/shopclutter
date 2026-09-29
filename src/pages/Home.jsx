@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
+import UnitsInShopCard from '@/components/UnitsInShopCard';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Bell, Calendar, MapPin, ScanLine, Search } from 'lucide-react';
 import QrScanner from '@/components/QrScanner';
@@ -15,6 +16,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
+  const [locationFilter, setLocationFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -140,6 +142,7 @@ export default function Home() {
   };
 
   const filteredJobs = (filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter))
+    .filter((j) => locationFilter === 'All' || j.job_location === locationFilter)
     .filter(matchesSearch);
 
   if (loading) {
@@ -196,6 +199,9 @@ export default function Home() {
           </button>
         </div>
       </div>
+      <UnitsInShopCard
+        locationFilter={locationFilter}
+        setLocationFilter={setLocationFilter} />
       {todaysSchedule.length > 0 &&
       <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
