@@ -17,6 +17,7 @@ import VoiceIntake from '@/components/VoiceIntake';
 import { ScanLine, Printer } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { createJobWithTicket } from '@/lib/ticketNumbers';
+import { nextUnitLabel } from '@/lib/unitNumbers';
 import { withShop, withShopAll } from '@/lib/shopScope';
 
 const EQUIPMENT_TYPES = [
@@ -67,6 +68,15 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
     base44.entities.Customer.list('-created_date', 500).then((list) =>
       setCustomers(Array.isArray(list) ? list : [])
     );
+  }, []);
+
+  // Start the field on the shop's next available number so the label can be
+  // printed right away. Never overwrites a linked unit or a typed value.
+  useEffect(() => {
+    if (unit?.label_number || job?.unit_id) return;
+    nextUnitLabel()
+      .then((n) => setUnitLabel((prev) => prev || n))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
