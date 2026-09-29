@@ -15,7 +15,7 @@ export default function UnitLabel({ labelNumber, closeLabel = 'Close', onClose }
     if (locked) return;
     QRCode.toString(String(labelNumber), {
       type: 'svg',
-      margin: 1,
+      margin: 4,
       errorCorrectionLevel: 'M',
     })
       .then(setSvg)
