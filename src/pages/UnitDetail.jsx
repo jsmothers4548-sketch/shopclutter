@@ -5,7 +5,8 @@ import ContactButtons from '@/components/ContactButtons';
 import JobForm from '@/components/JobForm';
 import StatusBadge from '@/components/StatusBadge';
 import UnitLabel from '@/components/UnitLabel';
-import { ArrowLeft, Plus, Wrench, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Wrench, Printer, Trash2, AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function UnitDetail() {
   const { id } = useParams();
@@ -16,6 +17,20 @@ export default function UnitDetail() {
   const [loading, setLoading] = useState(true);
   const [showJobForm, setShowJobForm] = useState(false);
   const [showLabel, setShowLabel] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  const deleteUnit = async () => {
+    setDeleting(true);
+    try {
+      await base44.entities.Equipment.delete(id);
+      navigate('/units');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -138,6 +153,47 @@ export default function UnitDetail() {
           )}
         </div>
       </div>
+
+      {isAdmin && (
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 py-2.5 rounded-lg text-sm font-semibold active:bg-red-50"
+        >
+          <Trash2 className="w-4 h-4" /> Delete Unit
+        </button>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-5 max-w-sm w-full space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Delete this unit?</h3>
+            </div>
+            <p className="text-sm text-slate-500">
+              This removes Unit #{unit.label_number} from your list. Its jobs and
+              all of their parts, labor, payments and history are kept.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-2.5 rounded-lg border border-slate-200 font-semibold text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteUnit}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-semibold text-sm disabled:opacity-50"
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showLabel && (
         <UnitLabel
