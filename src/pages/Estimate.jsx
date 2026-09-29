@@ -90,12 +90,12 @@ export default function Estimate() {
               <img src={brand.logo} alt="Logo" className="h-12 w-12 object-contain" />
             )}
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{brand.name}</h1>
+              <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">{brand.name}</h1>
               <p className="text-xs text-slate-400">Small Engine Repair</p>
             </div>
           </div>
           <div className="text-right">
-            <h2 className="text-xl font-bold text-amber-600">ESTIMATE</h2>
+            <h2 className="text-xl font-bold text-[hsl(var(--primary))]">ESTIMATE</h2>
             {job.ticket_number && (
               <p className="text-xs font-semibold text-slate-600">
                 Ticket #{job.ticket_number}
