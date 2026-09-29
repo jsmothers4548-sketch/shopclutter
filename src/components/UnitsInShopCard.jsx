@@ -7,8 +7,9 @@ const CHIPS = [
   { key: 'Off-site', label: 'Off-site' },
 ];
 
-export default function UnitsInShopCard({ locationFilter, setLocationFilter }) {
+export default function UnitsInShopCard({ locationFilter, onSelect }) {
   const [counts, setCounts] = useState(null);
+  const totalActive = locationFilter === 'In shop';
 
   useEffect(() => {
     let active = true;
@@ -34,14 +35,22 @@ export default function UnitsInShopCard({ locationFilter, setLocationFilter }) {
     <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex items-center justify-between gap-3">
       <button
         type="button"
-        onClick={() => setLocationFilter('All')}
+        onClick={() => onSelect(totalActive ? 'All' : 'In shop')}
         className="flex items-center gap-2 text-left"
       >
-        <span className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-          <Package className="w-5 h-5 text-amber-600" />
+        <span
+          className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+            totalActive ? 'bg-amber-500' : 'bg-amber-100'
+          }`}
+        >
+          <Package className={`w-5 h-5 ${totalActive ? 'text-white' : 'text-amber-600'}`} />
         </span>
         <span>
-          <span className="block text-2xl font-bold text-slate-900 leading-none">
+          <span
+            className={`block text-2xl font-bold leading-none ${
+              totalActive ? 'text-amber-600' : 'text-slate-900'
+            }`}
+          >
             {counts ? counts.total : '—'}
           </span>
           <span className="block text-xs text-slate-500 mt-0.5">
@@ -56,7 +65,7 @@ export default function UnitsInShopCard({ locationFilter, setLocationFilter }) {
             <button
               key={key}
               type="button"
-              onClick={() => setLocationFilter(active ? 'All' : key)}
+              onClick={() => onSelect(active ? 'All' : key)}
               className={`px-3 py-1.5 rounded-lg border text-center transition-colors ${
                 active
                   ? 'bg-amber-500 border-amber-600 text-slate-900'

@@ -141,8 +141,14 @@ export default function Home() {
     }
   };
 
+  const inShopView = ['In shop', 'On-site', 'Off-site'].includes(locationFilter);
   const filteredJobs = (filter === 'All' ? safeJobs : safeJobs.filter((j) => j.status === filter))
-    .filter((j) => locationFilter === 'All' || j.job_location === locationFilter)
+    .filter((j) => {
+      if (!inShopView) return true;
+      if (j.status === 'Closed') return false;
+      if (locationFilter === 'In shop') return true;
+      return j.job_location === locationFilter;
+    })
     .filter(matchesSearch);
 
   if (loading) {
@@ -201,7 +207,10 @@ export default function Home() {
       </div>
       <UnitsInShopCard
         locationFilter={locationFilter}
-        setLocationFilter={setLocationFilter} />
+        onSelect={(value) => {
+          setLocationFilter(value);
+          setFilter('All');
+        }} />
       {todaysSchedule.length > 0 &&
       <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm">
           <h2 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
@@ -243,7 +252,13 @@ export default function Home() {
           className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm"
         />
       </form>
-      <JobStatusDropdown jobs={safeJobs} filter={filter} setFilter={setFilter} />
+      <JobStatusDropdown
+        jobs={safeJobs}
+        filter={filter}
+        setFilter={(value) => {
+          setFilter(value);
+          setLocationFilter('All');
+        }} />
       {filteredJobs.length === 0 ?
       <div className="text-center py-20 text-white">
            <p className="text-sm">{search ? 'No jobs match your search' : 'No jobs in this view'}</p>
