@@ -15,16 +15,7 @@
       "type": "string"
     },
     "equipment_type": {
-      "type": "string",
-      "enum": [
-        "Lawn Mower",
-        "Motorcycle/ATV",
-        "Generator",
-        "Compressor",
-        "Chainsaw",
-        "Weed Eater",
-        "Other"
-      ]
+      "type": "string"
     },
     "make": {
       "type": "string"

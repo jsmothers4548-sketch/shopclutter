@@ -13,16 +13,7 @@ import { gated } from '@/lib/planApi';
 import { getShopSettings } from '@/lib/shopSettings';
 import { Plus, Trash2 } from 'lucide-react';
 import { withShop } from '@/lib/shopScope';
-
-const EQUIPMENT_TYPES = [
-  'Lawn Mower',
-  'Motorcycle/ATV',
-  'Generator',
-  'Compressor',
-  'Chainsaw',
-  'Weed Eater',
-  'Other',
-];
+import EquipmentTypeField from '@/components/EquipmentTypeField';
 
 export default function JobTemplateForm({ template, onClose, onSaved }) {
   const [name, setName] = useState(template?.name || '');
@@ -138,18 +129,10 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
               required
             />
           </div>
-          <div>
-            <Label>Equipment Type</Label>
-            <select
-              value={equipmentType}
-              onChange={(e) => setEquipmentType(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {EQUIPMENT_TYPES.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </div>
+          <EquipmentTypeField
+            value={equipmentType}
+            onChange={setEquipmentType}
+          />
           <div>
             <Label>Default Problem / Work Description</Label>
             <textarea

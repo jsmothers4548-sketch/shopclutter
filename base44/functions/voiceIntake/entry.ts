@@ -6,28 +6,40 @@ import { requireFeature } from "../../shared/planGuard.ts";
 // caller is signed in and their shop's plan includes voice intake, so the
 // app's AI credits can only be spent by shops entitled to the feature.
 
+// Mirrors src/lib/equipmentTypes.js — the picker's guided list. Anything the
+// technician names that is not on it is kept as its own name.
 const EQUIPMENT_TYPES = [
   'Lawn Mower',
-  'Motorcycle/ATV',
+  'Riding Mower',
+  'Zero-Turn Mower',
+  'Weed Eater',
+  'Edger',
+  'Hedge Trimmer',
+  'Handheld Blower',
+  'Backpack Blower',
+  'Chainsaw',
+  'Pressure Washer',
   'Generator',
   'Compressor',
-  'Chainsaw',
-  'Weed Eater',
-  'Other',
+  'Tiller',
+  'Snow Blower',
+  'Motorcycle/ATV',
+  'Go-Kart',
+  'Side-by-Side (UTV)',
 ];
 
 const EXTRACTION_SPECS: Record<string, any> = {
   job: {
     intro:
       'A small engine repair shop technician described a new job intake verbally. Extract the details from the transcript and return them as form fields.',
-    rules: `- equipment_type must be one of: ${EQUIPMENT_TYPES.join(', ')} (best guess, use "Other" if unclear).
+    rules: `- equipment_type: the machine's own name. Use one of these when it fits: ${EQUIPMENT_TYPES.join(', ')}. If the technician names a machine that is not on that list, use the name they said rather than "Other".
 - problem_description: a concise summary of the reported issue in the technician's terms.
 - unit_label: the unit label number if one is spoken (digits only, e.g. "1001"). Empty string if not mentioned.
 - customer_name: the customer's name if spoken. Empty string if not mentioned.`,
     schema: {
       customer_name: { type: 'string' },
       unit_label: { type: 'string' },
-      equipment_type: { type: 'string', enum: EQUIPMENT_TYPES },
+      equipment_type: { type: 'string' },
       make: { type: 'string' },
       model: { type: 'string' },
       serial_number: { type: 'string' },

@@ -19,16 +19,7 @@ import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { createJobWithTicket } from '@/lib/ticketNumbers';
 import { nextUnitLabel } from '@/lib/unitNumbers';
 import { withShop, withShopAll } from '@/lib/shopScope';
-
-const EQUIPMENT_TYPES = [
-  'Lawn Mower',
-  'Motorcycle/ATV',
-  'Generator',
-  'Compressor',
-  'Chainsaw',
-  'Weed Eater',
-  'Other',
-];
+import EquipmentTypeField from '@/components/EquipmentTypeField';
 
 export default function JobForm({ customer, unit, job, template, jobLocation, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -455,20 +446,13 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
               </>
             )}
           </div>
-          <div>
-            <Label>Equipment Type *</Label>
-            <select
-              value={form.equipment_type}
-              onChange={(e) =>
-                setForm({ ...form, equipment_type: e.target.value })
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {EQUIPMENT_TYPES.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </div>
+          <EquipmentTypeField
+            required
+            value={form.equipment_type}
+            onChange={(v) =>
+              setForm((prev) => ({ ...prev, equipment_type: v }))
+            }
+          />
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Make</Label>
