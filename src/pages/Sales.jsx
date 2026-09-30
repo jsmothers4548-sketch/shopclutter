@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { Search, Plus, Edit, Trash2, ShoppingBag } from 'lucide-react';
 import SaleForm from '@/components/SaleForm';
 import UpgradePrompt from '@/components/UpgradePrompt';
@@ -47,7 +48,7 @@ export default function Sales() {
   );
 
   const deleteSale = async (id) => {
-    await base44.entities.Sale.delete(id);
+    await gated.sales.delete(id);
     setSales(sales.filter((s) => s.id !== id));
   };
 

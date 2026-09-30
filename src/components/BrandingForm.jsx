@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -85,11 +86,9 @@ export default function BrandingForm() {
       brand_email: form.brand_email || '',
     };
     if (record) {
-      await base44.entities.ShopSettings.update(record, payload);
+      await gated.branding.update(record, payload);
     } else {
-      const created = await base44.entities.ShopSettings.create(
-        withShop(payload)
-      );
+      const created = await gated.branding.create(withShop(payload));
       setRecord(created.id);
     }
     setSaving(false);

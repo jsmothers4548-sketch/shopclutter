@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { getShopSettings } from '@/lib/shopSettings';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { withShopAsync } from '@/lib/shopScope';
@@ -44,7 +45,7 @@ export default function ClockPortal() {
         lastEntry?.action === 'clock_in' ? 'clock_out' : 'clock_in';
 
       const now = new Date();
-      await base44.entities.TimeClock.create(
+      await gated.timeClock.create(
         await withShopAsync({
           employee_id: id,
           action: nextAction,

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gatedRead } from '@/lib/planApi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Printer, User } from 'lucide-react';
@@ -24,6 +24,7 @@ function EarningsDetail() {
   const year = Number(params.get('year')) || new Date().getFullYear();
 
   const [data, setData] = useState(null);
+  const [locked, setLocked] = useState(false);
   const [staffId, setStaffId] = useState(null);
   const [periodKey, setPeriodKey] = useState('full');
   const [month, setMonth] = useState(new Date().getMonth());
@@ -42,11 +43,17 @@ function EarningsDetail() {
 
   useEffect(() => {
     (async () => {
-      const [laborData, jobsData, staffData] = await Promise.all([
-        base44.entities.LaborEntry.list('-created_date', 2000),
-        base44.entities.Job.list('-created_date', 500),
-        base44.entities.Staff.list('-created_date'),
-      ]);
+      let lists = [];
+      try {
+        lists = await gatedRead('employee_earnings', [
+          { entity: 'LaborEntry', sort: '-created_date', limit: 2000 },
+          { entity: 'Job', sort: '-created_date', limit: 500 },
+          { entity: 'Staff', sort: '-created_date', limit: 500 },
+        ]);
+      } catch (err) {
+        setLocked(!!err?.locked);
+      }
+      const [laborData, jobsData, staffData] = lists;
       const labor = (Array.isArray(laborData) ? laborData : []).filter(
         (l) => (l.technician || 'Unassigned') === name
       );
@@ -109,6 +116,8 @@ function EarningsDetail() {
     }),
     [rows]
   );
+
+  if (locked) return <UpgradePrompt feature="employee_earnings" />;
 
   if (!data) {
     return (

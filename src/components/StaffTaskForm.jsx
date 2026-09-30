@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import VoiceIntake from '@/components/VoiceIntake';
 import { withShop } from '@/lib/shopScope';
 
@@ -36,9 +36,9 @@ export default function StaffTaskForm({ task, onClose, onSaved }) {
     setSaving(true);
     try {
       if (task) {
-        await base44.entities.StaffTask.update(task.id, form);
+        await gated.staffTasks.update(task.id, form);
       } else {
-        await base44.entities.StaffTask.create(withShop(form));
+        await gated.staffTasks.create(withShop(form));
       }
       onSaved();
     } finally {

@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { getShopSettings } from '@/lib/shopSettings';
 import { Plus, Trash2 } from 'lucide-react';
 import { withShop } from '@/lib/shopScope';
@@ -110,9 +110,9 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
       };
       let saved;
       if (template) {
-        saved = await base44.entities.JobTemplate.update(template.id, payload);
+        saved = await gated.templates.update(template.id, payload);
       } else {
-        saved = await base44.entities.JobTemplate.create(withShop(payload));
+        saved = await gated.templates.create(withShop(payload));
       }
       onSaved(saved);
     } finally {

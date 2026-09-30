@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gated, gatedRead } from '@/lib/planApi';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { Wallet } from 'lucide-react';
 
 export default function ReimbursementsDialog({ open, onOpenChange }) {
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setLocked(false);
     (async () => {
       try {
-        const [expensesData, staffData] = await Promise.all([
-          base44.entities.JobExpense.list('-expense_date', 500),
-          base44.entities.Staff.list(),
-        ]);
+        let lists = [];
+        try {
+          lists = await gatedRead('reimbursements', [
+            { entity: 'JobExpense', sort: '-expense_date', limit: 500 },
+            { entity: 'Staff', limit: 500 },
+          ]);
+        } catch (err) {
+          setLocked(!!err?.locked);
+        }
+        const [expensesData, staffData] = lists;
         const staff = Array.isArray(staffData) ? staffData : [];
         const outstanding = (Array.isArray(expensesData) ? expensesData : []).filter(
           (e) => !e.reimbursed
@@ -48,7 +57,7 @@ export default function ReimbursementsDialog({ open, onOpenChange }) {
   }, [open]);
 
   const markPaid = async (expenseId) => {
-    await base44.entities.JobExpense.update(expenseId, { reimbursed: true });
+    await gated.reimbursements.update(expenseId, { reimbursed: true });
     removeExpense(expenseId);
   };
 
@@ -57,7 +66,7 @@ export default function ReimbursementsDialog({ open, onOpenChange }) {
       .find((g) => g.name === personName)
       ?.items.map((e) => e.id) || [];
     if (ids.length === 0) return;
-    await base44.entities.JobExpense.bulkUpdate(
+    await gated.reimbursements.bulkUpdate(
       ids.map((id) => ({ id, reimbursed: true }))
     );
     setGroups((prev) => prev.filter((g) => g.name !== personName));
@@ -89,7 +98,9 @@ export default function ReimbursementsDialog({ open, onOpenChange }) {
           </p>
         </DialogHeader>
 
-        {loading ? (
+        {locked ? (
+          <UpgradePrompt feature="reimbursements" />
+        ) : loading ? (
           <div className="flex justify-center py-12">
             <div className="w-6 h-6 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin" />
           </div>

@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
 
@@ -36,7 +36,7 @@ export default function RestockDialog({ item, onClose, onSaved }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.ShopItem.update(item.id, {
+      await gated.supplierStock.update(item.id, {
         stock_quantity: currentStock + addAmount,
       });
       onSaved();

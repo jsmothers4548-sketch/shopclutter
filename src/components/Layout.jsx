@@ -48,7 +48,10 @@ export default function Layout() {
           {brand.name}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
-          <NavLink to="/clock" className={headerBtnClass}>
+          <NavLink
+            to={clockLocked ? '/billing' : '/clock'}
+            className={headerBtnClass}
+          >
             <Clock className="w-4 h-4" /> Clock
             {clockLocked && <Lock className="w-3 h-3 text-slate-300" />}
           </NavLink>

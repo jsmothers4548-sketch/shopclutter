@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Printer, Phone, Mail, MapPin } from 'lucide-react';
@@ -41,6 +43,7 @@ export default function StaffDetail() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [section, setSection] = useState('personal');
+  const { locked: reimbursementsLocked } = usePlanFeature('reimbursements');
 
   useEffect(() => {
     if (user && user.role !== 'admin') navigate('/');
@@ -154,7 +157,7 @@ export default function StaffDetail() {
   );
 
   const markReimbursed = async (expenseId) => {
-    await base44.entities.JobExpense.update(expenseId, { reimbursed: true });
+    await gated.reimbursements.update(expenseId, { reimbursed: true });
     setExpenses((prev) =>
       prev.map((e) => (e.id === expenseId ? { ...e, reimbursed: true } : e))
     );
@@ -163,7 +166,7 @@ export default function StaffDetail() {
   const markAllReimbursed = async () => {
     const ids = staffExpenses.filter((e) => !e.reimbursed).map((e) => e.id);
     if (ids.length === 0) return;
-    await base44.entities.JobExpense.bulkUpdate(
+    await gated.reimbursements.bulkUpdate(
       ids.map((eid) => ({ id: eid, reimbursed: true }))
     );
     setExpenses((prev) =>
@@ -190,7 +193,9 @@ export default function StaffDetail() {
     { key: 'personal', label: 'Personal Info' },
     { key: 'wages', label: 'Wages' },
     { key: 'hours', label: 'Hours Worked' },
-    { key: 'reimbursements', label: 'Reimbursements' },
+    ...(reimbursementsLocked
+      ? []
+      : [{ key: 'reimbursements', label: 'Reimbursements' }]),
   ];
 
   return (

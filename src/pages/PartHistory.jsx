@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gatedRead } from '@/lib/planApi';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, PackagePlus, Printer } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function PartHistory() {
   const year = Number(params.get('year')) || new Date().getFullYear();
 
   const [data, setData] = useState(null);
+  const [locked, setLocked] = useState(false);
   const [settings, setSettings] = useState(null);
   const [periodKey, setPeriodKey] = useState(
     params.get('periodKey') || 'full'
@@ -46,15 +48,20 @@ export default function PartHistory() {
 
   useEffect(() => {
     (async () => {
-      const [partsData, saleItemsData, jobsData, salesData, purchasesData, shopSettings] =
-        await Promise.all([
-          base44.entities.Part.list(),
-          base44.entities.SaleItem.list('-created_date', 2000),
-          base44.entities.Job.list('-created_date', 500),
-          base44.entities.Sale.list('-sale_date', 500),
-          base44.entities.PartPurchase.list('-purchase_date', 2000),
-          getShopSettings(),
+      let lists = [];
+      try {
+        lists = await gatedRead('reports', [
+          { entity: 'Part', limit: 3000 },
+          { entity: 'SaleItem', sort: '-created_date', limit: 2000 },
+          { entity: 'Job', sort: '-created_date', limit: 500 },
+          { entity: 'Sale', sort: '-sale_date', limit: 500 },
+          { entity: 'PartPurchase', sort: '-purchase_date', limit: 2000 },
         ]);
+      } catch (err) {
+        setLocked(!!err?.locked);
+      }
+      const [partsData, saleItemsData, jobsData, salesData, purchasesData] = lists;
+      const shopSettings = await getShopSettings();
       setData({
         parts: Array.isArray(partsData) ? partsData : [],
         saleItems: Array.isArray(saleItemsData) ? saleItemsData : [],
@@ -186,6 +193,8 @@ export default function PartHistory() {
       </div>
     );
   }
+
+  if (locked) return <UpgradePrompt feature="reports" />;
 
   if (!data) {
     return (

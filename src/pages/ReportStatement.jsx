@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import useReportsData from '@/hooks/useReportsData';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { periodSearchParams } from '@/lib/reportPeriod';
 import ReportsHeader from '@/components/reports/ReportsHeader';
 import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
@@ -55,6 +56,8 @@ export default function ReportStatement() {
       </div>
     );
   }
+
+  if (report.locked) return <UpgradePrompt feature="reports" />;
 
   if (report.loading) {
     return (

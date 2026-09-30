@@ -54,23 +54,31 @@ export default function BottomNav() {
         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-30 w-44 bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
           {moreItems.map((item) => {
             const Icon = item.icon;
+            const locked = isLocked(item);
             return (
               <NavLink
                 key={item.to}
-                to={item.to}
+                to={locked ? '/billing' : item.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors ${
-                    isActive
+                    locked
+                      ? 'text-slate-500'
+                      : isActive
                       ? 'bg-amber-500/15 text-amber-400'
                       : 'text-slate-200 active:bg-slate-700'
                   }`
                 }
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-4 h-4 ${locked ? 'opacity-50' : ''}`} />
                 {item.label}
-                {isLocked(item) && (
-                  <Lock className="w-3.5 h-3.5 ml-auto text-slate-500" />
+                {locked && (
+                  <>
+                    <span className="ml-auto text-[10px] uppercase tracking-wide text-slate-500">
+                      Locked
+                    </span>
+                    <Lock className="w-3.5 h-3.5 text-slate-500" />
+                  </>
                 )}
               </NavLink>
             );
@@ -84,15 +92,19 @@ export default function BottomNav() {
           return (
             <NavLink
               key={item.to}
-              to={item.to}
+              to={locked ? '/billing' : item.to}
               end={item.end}
               className={({ isActive }) =>
                 `relative flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 transition-colors ${
-                  isActive ? 'text-amber-400' : 'text-slate-400'
+                  locked
+                    ? 'text-slate-500'
+                    : isActive
+                    ? 'text-amber-400'
+                    : 'text-slate-400'
                 }`
               }
             >
-              <Icon className="w-5 h-5" />
+              <Icon className={`w-5 h-5 ${locked ? 'opacity-50' : ''}`} />
               <span className="text-xs font-medium">{item.label}</span>
               {locked && (
                 <Lock className="absolute top-1.5 right-1/2 translate-x-5 w-3 h-3 text-slate-500" />

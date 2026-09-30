@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import VoiceIntake from '@/components/VoiceIntake';
 import { getShopSettings } from '@/lib/shopSettings';
 import SaleLineEditor from '@/components/SaleLineEditor';
@@ -121,9 +122,9 @@ export default function SaleForm({ sale, onClose, onSaved }) {
     };
     let saleId = sale?.id;
     if (saleId) {
-      await base44.entities.Sale.update(saleId, payload);
+      await gated.sales.update(saleId, payload);
     } else {
-      saleId = (await base44.entities.Sale.create(withShop(payload))).id;
+      saleId = (await gated.sales.create(withShop(payload))).id;
     }
 
     // Net stock change per inventory item: restore old lines, deduct new ones
@@ -140,16 +141,16 @@ export default function SaleForm({ sale, onClose, onSaved }) {
       if (!delta) continue;
       const item = shopItems.find((s) => s.id === itemId);
       if (!item) continue;
-      await base44.entities.ShopItem.update(itemId, {
+      await gated.salesStock.update(itemId, {
         stock_quantity: (item.stock_quantity || 0) + delta,
       });
     }
 
     // Replace line items
     if (sale?.id) {
-      await base44.entities.SaleItem.deleteMany({ sale_id: sale.id });
+      await gated.saleItems.deleteMany({ sale_id: sale.id });
     }
-    await base44.entities.SaleItem.bulkCreate(
+    await gated.saleItems.bulkCreate(
       withShopAll(valid.map((l) => ({
         sale_id: saleId,
         description: l.description.trim(),

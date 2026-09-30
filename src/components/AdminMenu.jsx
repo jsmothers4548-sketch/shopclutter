@@ -62,7 +62,7 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => navigate('/reports')}
+            onClick={() => navigate(reportsLocked ? '/billing' : '/reports')}
           >
             <BarChart3 className="w-4 h-4" /> Reports
             {reportsLocked && (
@@ -71,7 +71,11 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => setShowReimbursements(true)}
+            onClick={() =>
+              reimbursementsLocked
+                ? navigate('/billing')
+                : setShowReimbursements(true)
+            }
           >
             <Wallet className="w-4 h-4" /> Reimbursements
             {reimbursementsLocked && (
@@ -86,7 +90,9 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => setShowBranding(true)}
+            onClick={() =>
+              brandingLocked ? navigate('/billing') : setShowBranding(true)
+            }
           >
             <Palette className="w-4 h-4" /> Branding
             {brandingLocked && (

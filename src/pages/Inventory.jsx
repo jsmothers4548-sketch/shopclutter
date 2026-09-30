@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import ShopItemForm from '@/components/ShopItemForm';
 import RestockDialog from '@/components/RestockDialog';
 import SupplierOrderDialog from '@/components/SupplierOrderDialog';
@@ -102,7 +103,7 @@ export default function Inventory() {
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}" from inventory?`)) return;
     try {
-      await base44.entities.ShopItem.delete(item.id);
+      await gated.inventory.delete(item.id);
       setItems((prev) => prev.filter((i) => i.id !== item.id));
     } catch (err) {
       window.alert('Failed to delete item');

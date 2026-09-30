@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import StaffTaskForm from '@/components/StaffTaskForm';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
@@ -50,7 +51,7 @@ export default function StaffTasks() {
     const next = NEXT_STATUS[task.status] || 'todo';
     setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: next } : t)));
     try {
-      await base44.entities.StaffTask.update(task.id, { status: next });
+      await gated.staffTasks.update(task.id, { status: next });
     } catch (err) {
       setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: task.status } : t)));
       window.alert('Failed to update task status');
@@ -61,7 +62,7 @@ export default function StaffTasks() {
     if (!window.confirm(`Delete "${task.title}"?`)) return;
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
     try {
-      await base44.entities.StaffTask.delete(task.id);
+      await gated.staffTasks.delete(task.id);
     } catch (err) {
       window.alert('Failed to delete task');
       loadTasks();

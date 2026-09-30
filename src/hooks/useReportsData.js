@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gatedRead } from '@/lib/planApi';
 import { computeJobProfit } from '@/lib/billing';
 import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
 
@@ -14,9 +14,27 @@ export default function useReportsData({
   statusFilter,
 }) {
   const [data, setData] = useState(null);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     (async () => {
+      // The reporting lists come from the server, which confirms the shop's
+      // plan includes profit reports before returning anything.
+      let lists = [];
+      try {
+        lists = await gatedRead('reports', [
+          { entity: 'Job', sort: '-created_date', limit: 500 },
+          { entity: 'Part', limit: 3000 },
+          { entity: 'LaborEntry', limit: 3000 },
+          { entity: 'Sale', sort: '-sale_date', limit: 500 },
+          { entity: 'SaleItem', sort: '-created_date', limit: 2000 },
+          { entity: 'JobExpense', limit: 3000 },
+          { entity: 'Payment', sort: '-payment_date', limit: 2000 },
+          { entity: 'PartPurchase', sort: '-purchase_date', limit: 2000 },
+        ]);
+      } catch (err) {
+        setLocked(!!err?.locked);
+      }
       const [
         jobsData,
         partsData,
@@ -26,16 +44,7 @@ export default function useReportsData({
         expensesData,
         paymentsData,
         purchasesData,
-      ] = await Promise.all([
-        base44.entities.Job.list('-created_date', 500),
-        base44.entities.Part.list(),
-        base44.entities.LaborEntry.list(),
-        base44.entities.Sale.list('-sale_date', 500),
-        base44.entities.SaleItem.list('-created_date', 2000),
-        base44.entities.JobExpense.list(),
-        base44.entities.Payment.list('-payment_date', 2000),
-        base44.entities.PartPurchase.list('-purchase_date', 2000),
-      ]);
+      ] = lists;
       setData({
         jobs: Array.isArray(jobsData) ? jobsData : [],
         parts: Array.isArray(partsData) ? partsData : [],
@@ -383,6 +392,7 @@ export default function useReportsData({
 
   return {
     loading: !data,
+    locked,
     years,
     period,
     jobs: data?.jobs || [],

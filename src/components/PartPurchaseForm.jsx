@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import {
   Dialog,
   DialogContent,
@@ -48,7 +48,7 @@ export default function PartPurchaseForm({
     setSaving(true);
     setError('');
     try {
-      const rec = await base44.entities.PartPurchase.create(
+      const rec = await gated.partPurchases.create(
         withShop({
           part_name: partName,
           part_number: partNumber || '',

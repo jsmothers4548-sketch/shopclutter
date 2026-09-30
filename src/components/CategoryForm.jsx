@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { withShop } from '@/lib/shopScope';
 
 export default function CategoryForm({ onClose, onSaved }) {
@@ -21,7 +21,7 @@ export default function CategoryForm({ onClose, onSaved }) {
     if (!name.trim()) return;
     setSaving(true);
     try {
-      await base44.entities.InventoryCategory.create(
+      await gated.inventoryCategories.create(
         withShop({ name: name.trim() })
       );
       onSaved();

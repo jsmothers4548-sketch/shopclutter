@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import JobTemplateForm from '@/components/JobTemplateForm';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
@@ -27,7 +28,7 @@ export default function Templates() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this template?')) return;
-    await base44.entities.JobTemplate.delete(id);
+    await gated.templates.delete(id);
     loadData();
   };
 
