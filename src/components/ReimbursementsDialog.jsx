@@ -3,6 +3,7 @@ import { gated, gatedRead } from '@/lib/planApi';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 import { Wallet } from 'lucide-react';
 
 export default function ReimbursementsDialog({ open, onOpenChange }) {
@@ -56,20 +57,36 @@ export default function ReimbursementsDialog({ open, onOpenChange }) {
     })();
   }, [open]);
 
-  const markPaid = async (expenseId) => {
-    await gated.reimbursements.update(expenseId, { reimbursed: true });
-    removeExpense(expenseId);
+  const markPaid = async (expense) => {
+    await gated.reimbursements.update(expense.id, { reimbursed: true });
+    removeExpense(expense.id);
+    const who = expense.paid_by || 'Unassigned';
+    await recordAudit({
+      category: AUDIT_CATEGORIES.REIMBURSEMENTS,
+      action: 'update',
+      target: who,
+      summary: `Marked an expense paid for ${who}`,
+      details: `${expense.description} · $${(expense.amount || 0).toFixed(2)}`,
+    });
   };
 
   const markAllPaid = async (personName) => {
-    const ids = groups
-      .find((g) => g.name === personName)
-      ?.items.map((e) => e.id) || [];
+    const group = groups.find((g) => g.name === personName);
+    const ids = group?.items.map((e) => e.id) || [];
     if (ids.length === 0) return;
     await gated.reimbursements.bulkUpdate(
       ids.map((id) => ({ id, reimbursed: true }))
     );
     setGroups((prev) => prev.filter((g) => g.name !== personName));
+    await recordAudit({
+      category: AUDIT_CATEGORIES.REIMBURSEMENTS,
+      action: 'update',
+      target: personName,
+      summary: `Marked ${ids.length} expense${
+        ids.length === 1 ? '' : 's'
+      } paid for ${personName}`,
+      details: `Total $${(group?.total || 0).toFixed(2)}`,
+    });
   };
 
   const removeExpense = (expenseId) => {
@@ -178,7 +195,7 @@ export default function ReimbursementsDialog({ open, onOpenChange }) {
                         ${(e.amount || 0).toFixed(2)}
                       </span>
                       <button
-                        onClick={() => markPaid(e.id)}
+                        onClick={() => markPaid(e)}
                         className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-lg shrink-0 active:bg-green-100"
                       >
                         Mark Paid

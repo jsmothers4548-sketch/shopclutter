@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { withShop } from '@/lib/shopScope';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 
 const generateId = () =>
   Math.floor(1000 + Math.random() * 9000).toString();
@@ -36,8 +37,28 @@ export default function StaffForm({ staff, onClose, onSaved }) {
     try {
       if (staff) {
         await base44.entities.Staff.update(staff.id, form);
+        const before = Number(staff.pay_rate) || 0;
+        const after = Number(form.pay_rate) || 0;
+        if (before !== after) {
+          await recordAudit({
+            category: AUDIT_CATEGORIES.EMPLOYEE_PAY,
+            action: 'update',
+            target: form.name,
+            summary: `Changed pay rate for ${form.name}`,
+            details: `$${before.toFixed(2)}/hr → $${after.toFixed(2)}/hr`,
+          });
+        }
       } else {
         await base44.entities.Staff.create(withShop(form));
+        await recordAudit({
+          category: AUDIT_CATEGORIES.EMPLOYEE_PAY,
+          action: 'create',
+          target: form.name,
+          summary: `Added employee ${form.name}`,
+          details: `Starting pay rate $${(
+            Number(form.pay_rate) || 0
+          ).toFixed(2)}/hr`,
+        });
       }
       onSaved();
     } finally {

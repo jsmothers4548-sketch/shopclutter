@@ -6,6 +6,7 @@ import StaffForm from '@/components/StaffForm';
 import { Plus, Edit, Trash2, Clock } from 'lucide-react';
 import TimeClockWeeks from '@/components/TimeClockWeeks';
 import StaffInvites from '@/components/StaffInvites';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 
 export default function Staff() {
   const { user } = useAuth();
@@ -66,9 +67,16 @@ export default function Staff() {
     return map;
   }, [labor, weekRange]);
 
-  const deleteStaff = async (id) => {
+  const deleteStaff = async (member) => {
     if (!confirm('Remove this staff member?')) return;
-    await base44.entities.Staff.delete(id);
+    await base44.entities.Staff.delete(member.id);
+    await recordAudit({
+      category: AUDIT_CATEGORIES.EMPLOYEE_PAY,
+      action: 'delete',
+      target: member.name,
+      summary: `Removed employee ${member.name}`,
+      details: `Pay rate was $${(member.pay_rate || 0).toFixed(2)}/hr`,
+    });
     loadData();
   };
 
@@ -145,7 +153,7 @@ export default function Staff() {
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => deleteStaff(s.id)}
+                      onClick={() => deleteStaff(s)}
                       className="p-1.5 text-slate-300 hover:text-red-500"
                     >
                       <Trash2 className="w-4 h-4" />

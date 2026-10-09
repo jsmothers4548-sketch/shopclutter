@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import TimeClockEntryForm from '@/components/TimeClockEntryForm';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 
 const fmtDay = (ts) =>
   new Date(ts).toLocaleDateString(undefined, {
@@ -36,7 +37,18 @@ export default function StaffTimeClockList({ employeeId, clocks, onChanged }) {
   );
 
   const handleDelete = async () => {
-    await base44.entities.TimeClock.delete(deleting.id);
+    const removed = deleting;
+    await base44.entities.TimeClock.delete(removed.id);
+    const who = removed.staff_name || `employee ${removed.employee_id}`;
+    await recordAudit({
+      category: AUDIT_CATEGORIES.TIME_CLOCK,
+      action: 'delete',
+      target: removed.staff_name || removed.employee_id || '',
+      summary: `Deleted clock record for ${who}`,
+      details: `${
+        removed.action === 'clock_in' ? 'Clock In' : 'Clock Out'
+      } · ${fmtDay(removed.timestamp)} ${fmtTime(removed.timestamp)}`,
+    });
     setDeleting(null);
     onChanged();
   };

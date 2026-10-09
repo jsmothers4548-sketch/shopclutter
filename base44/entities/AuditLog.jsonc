@@ -1,0 +1,94 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "actor_name": {
+      "type": "string"
+    },
+    "actor_email": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    "target": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "category",
+    "action",
+    "summary"
+  ],
+  "rls": {
+    "read": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

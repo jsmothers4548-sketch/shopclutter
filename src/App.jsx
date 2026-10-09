@@ -29,6 +29,7 @@ import Units from '@/pages/Units';
 import UnitDetail from '@/pages/UnitDetail';
 import ShopUnitDetail from '@/pages/ShopUnitDetail';
 import Roadmap from '@/pages/Roadmap';
+import AuditLog from '@/pages/AuditLog';
 import ClockPortal from '@/pages/ClockPortal';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
@@ -90,6 +91,7 @@ const AuthenticatedApp = () => {
           <Route path="/units/:id" element={<UnitDetail />} />
           <Route path="/shop-units/:id" element={<ShopUnitDetail />} />
           <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/audit-log" element={<AuditLog />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/beta-access" element={<BetaAccess />} />
         </Route>

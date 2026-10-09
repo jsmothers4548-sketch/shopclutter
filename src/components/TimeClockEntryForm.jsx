@@ -10,6 +10,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
+
+const describe = (act, ts) =>
+  `${act === 'clock_in' ? 'Clock In' : 'Clock Out'} · ${new Date(
+    ts
+  ).toLocaleString()}`;
 
 const selectClass =
   'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm md:text-sm';
@@ -37,6 +43,17 @@ export default function TimeClockEntryForm({ entry, onClose, onSaved }) {
         action,
         timestamp: iso,
         shift_date: when.slice(0, 10),
+      });
+      const who = entry.staff_name || `employee ${entry.employee_id}`;
+      await recordAudit({
+        category: AUDIT_CATEGORIES.TIME_CLOCK,
+        action: 'update',
+        target: entry.staff_name || entry.employee_id || '',
+        summary: `Edited clock record for ${who}`,
+        details: `${describe(entry.action, entry.timestamp)} → ${describe(
+          action,
+          iso
+        )}`,
       });
       onSaved();
     } finally {

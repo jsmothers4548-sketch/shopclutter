@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Printer, Phone, Mail, MapPin } from 'lucide-react';
 import StaffTimeClockList from '@/components/StaffTimeClockList';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 import {
   startOfWeek,
   endOfWeek,
@@ -157,11 +158,19 @@ export default function StaffDetail() {
     [staffExpenses]
   );
 
-  const markReimbursed = async (expenseId) => {
-    await gated.reimbursements.update(expenseId, { reimbursed: true });
+  const markReimbursed = async (expense) => {
+    await gated.reimbursements.update(expense.id, { reimbursed: true });
     setExpenses((prev) =>
-      prev.map((e) => (e.id === expenseId ? { ...e, reimbursed: true } : e))
+      prev.map((e) => (e.id === expense.id ? { ...e, reimbursed: true } : e))
     );
+    const who = expense.paid_by || staff?.name || 'Unassigned';
+    await recordAudit({
+      category: AUDIT_CATEGORIES.REIMBURSEMENTS,
+      action: 'update',
+      target: who,
+      summary: `Marked an expense paid for ${who}`,
+      details: `${expense.description} · $${(expense.amount || 0).toFixed(2)}`,
+    });
   };
 
   const markAllReimbursed = async () => {
@@ -177,6 +186,16 @@ export default function StaffDetail() {
           : e
       )
     );
+    const who = staff?.name || 'Unassigned';
+    await recordAudit({
+      category: AUDIT_CATEGORIES.REIMBURSEMENTS,
+      action: 'update',
+      target: who,
+      summary: `Marked ${ids.length} expense${
+        ids.length === 1 ? '' : 's'
+      } paid for ${who}`,
+      details: `Total $${outstandingTotal.toFixed(2)}`,
+    });
   };
 
   if (loading) {
@@ -442,7 +461,7 @@ export default function StaffDetail() {
                 </span>
                 {!e.reimbursed && (
                   <button
-                    onClick={() => markReimbursed(e.id)}
+                    onClick={() => markReimbursed(e)}
                     className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-lg shrink-0"
                   >
                     Mark Paid

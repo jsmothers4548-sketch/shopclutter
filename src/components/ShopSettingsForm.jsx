@@ -13,6 +13,11 @@ import {
 import { Settings, Check } from 'lucide-react';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { withShop } from '@/lib/shopScope';
+import {
+  recordAudit,
+  AUDIT_CATEGORIES,
+  formatAuditValue,
+} from '@/lib/auditLog';
 
 const FIELDS = [
   ['on_site_rate', 'On-site Hourly Rate ($/hr)'],
@@ -39,9 +44,23 @@ const PICKUP_GROUPS = [
   },
 ];
 
+const RATE_FIELDS = [
+  ['on_site_rate', 'On-site hourly rate', 'money'],
+  ['off_site_rate', 'Off-site hourly rate', 'money'],
+  ['service_call_fee', 'Service call fee', 'money'],
+  ['pickup_in_town', 'In-town pickup', 'money'],
+  ['return_in_town', 'In-town delivery', 'money'],
+  ['pickup_out_of_town', 'Out-of-town pickup', 'money'],
+  ['return_out_of_town', 'Out-of-town delivery', 'money'],
+  ['job_tax_rate', 'Job tax rate', 'percent'],
+  ['sales_tax_rate', 'Sales tax rate', 'percent'],
+  ['overtime_rule', 'Overtime rule', 'overtime'],
+];
+
 export default function ShopSettingsForm() {
   const [record, setRecord] = useState(null);
   const [form, setForm] = useState(null);
+  const [initial, setInitial] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -49,7 +68,7 @@ export default function ShopSettingsForm() {
     getShopSettings()
       .then((s) => {
         setRecord(s.id || null);
-        setForm({
+        const values = {
           on_site_rate: s.on_site_rate,
           off_site_rate: s.off_site_rate,
           service_call_fee: s.service_call_fee,
@@ -60,7 +79,9 @@ export default function ShopSettingsForm() {
           job_tax_rate: s.job_tax_rate,
           sales_tax_rate: s.sales_tax_rate,
           overtime_rule: s.overtime_rule || 'federal',
-        });
+        };
+        setInitial(values);
+        setForm(values);
       })
       .catch(() => setForm({ ...DEFAULT_SETTINGS }));
   }, []);
@@ -91,6 +112,30 @@ export default function ShopSettingsForm() {
       );
       setRecord(created.id);
     }
+
+    const changed = RATE_FIELDS.filter(
+      ([key]) => String(initial?.[key] ?? '') !== String(payload[key] ?? '')
+    );
+    if (changed.length) {
+      await recordAudit({
+        category: AUDIT_CATEGORIES.DEFAULT_RATES,
+        action: 'update',
+        target: 'Shop defaults',
+        summary: `Changed ${changed.length} default rate${
+          changed.length === 1 ? '' : 's'
+        }`,
+        details: changed
+          .map(
+            ([key, label, kind]) =>
+              `${label}: ${formatAuditValue(
+                initial?.[key],
+                kind
+              )} → ${formatAuditValue(payload[key], kind)}`
+          )
+          .join('\n'),
+      });
+    }
+
     setSaving(false);
     setSaved(true);
   };

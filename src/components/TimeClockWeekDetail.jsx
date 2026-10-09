@@ -24,6 +24,7 @@ import {
   weekLabel,
 } from '@/lib/timecard';
 import TimeClockEntryForm from '@/components/TimeClockEntryForm';
+import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
 
 const DAY_MS = 7 * 24 * 3600000;
 
@@ -102,7 +103,20 @@ export default function TimeClockWeekDetail({
   }, [selected, staff, timeClocks, rule]);
 
   const handleDelete = async () => {
-    await base44.entities.TimeClock.delete(deleting.id);
+    const removed = deleting;
+    const who = info?.name || `employee ${removed.employee_id}`;
+    await base44.entities.TimeClock.delete(removed.id);
+    await recordAudit({
+      category: AUDIT_CATEGORIES.TIME_CLOCK,
+      action: 'delete',
+      target: info?.name || removed.employee_id || '',
+      summary: `Deleted clock record for ${who}`,
+      details: `${
+        removed.action === 'clock_in' ? 'Clock In' : 'Clock Out'
+      } · ${fmtDay(removed.shift_date || removed.timestamp.slice(0, 10))} ${fmtTime(
+        removed.timestamp
+      )}`,
+    });
     setDeleting(null);
     onChanged?.();
   };
