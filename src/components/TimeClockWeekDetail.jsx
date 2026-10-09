@@ -1,10 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import {
   getWeekStart,
   pairShifts,
@@ -12,6 +23,7 @@ import {
   weekPay,
   weekLabel,
 } from '@/lib/timecard';
+import TimeClockEntryForm from '@/components/TimeClockEntryForm';
 
 const DAY_MS = 7 * 24 * 3600000;
 
@@ -36,28 +48,50 @@ export default function TimeClockWeekDetail({
   timeClocks,
   rule,
   onWeekChange,
+  onChanged,
 }) {
+  const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const currentWeekStart = getWeekStart(new Date()).getTime();
 
   const info = useMemo(() => {
     if (!selected) return null;
     const staffMatch = staff.find((s) => s.employee_id === selected.employeeId);
     const payRate = staffMatch?.pay_rate || 0;
-    const shifts = pairShifts(
-      (timeClocks || []).filter((tc) => tc.employee_id === selected.employeeId)
-    ).filter((s) => getWeekStart(new Date(s.in)).getTime() === selected.weekStart);
+    const all = (timeClocks || []).filter(
+      (tc) => tc.employee_id === selected.employeeId
+    );
 
-    const byDay = {};
+    // Individual clock records for the week (what the admin edits or deletes).
+    const entries = all
+      .filter(
+        (tc) =>
+          getWeekStart(new Date(tc.timestamp)).getTime() === selected.weekStart
+      )
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Paired shifts drive the hours and overtime totals.
+    const shifts = pairShifts(all).filter(
+      (s) => getWeekStart(new Date(s.in)).getTime() === selected.weekStart
+    );
+    const shiftHours = {};
     for (const sh of shifts) {
-      (byDay[sh.date] = byDay[sh.date] || []).push(sh);
+      shiftHours[sh.date] = (shiftHours[sh.date] || 0) + sh.hours;
     }
-    const days = Object.keys(byDay)
+
+    const byDate = {};
+    for (const e of entries) {
+      const date = e.shift_date || e.timestamp.slice(0, 10);
+      (byDate[date] = byDate[date] || []).push(e);
+    }
+    const days = Object.keys(byDate)
       .sort()
       .map((date) => ({
         date,
-        shifts: byDay[date],
-        hours: byDay[date].reduce((s, x) => s + x.hours, 0),
+        entries: byDate[date],
+        hours: shiftHours[date] || 0,
       }));
+
     const ot = computeOvertime(days, rule);
     return {
       name: staffMatch?.name || `ID: ${selected.employeeId}`,
@@ -66,6 +100,12 @@ export default function TimeClockWeekDetail({
       pay: weekPay(ot, payRate),
     };
   }, [selected, staff, timeClocks, rule]);
+
+  const handleDelete = async () => {
+    await base44.entities.TimeClock.delete(deleting.id);
+    setDeleting(null);
+    onChanged?.();
+  };
 
   if (!selected || !info) return null;
 
@@ -108,8 +148,10 @@ export default function TimeClockWeekDetail({
         ) : (
           <div className="space-y-2">
             {info.days.map((d) => {
-              const dayOt = rule === 'daily' ? Math.max(0, Math.min(d.hours, 12) - 8) : 0;
-              const dayDouble = rule === 'daily' ? Math.max(0, d.hours - 12) : 0;
+              const dayOt =
+                rule === 'daily' ? Math.max(0, Math.min(d.hours, 12) - 8) : 0;
+              const dayDouble =
+                rule === 'daily' ? Math.max(0, d.hours - 12) : 0;
               return (
                 <div key={d.date} className="bg-slate-50 rounded-lg p-3">
                   <div className="flex items-center justify-between gap-2">
@@ -132,13 +174,45 @@ export default function TimeClockWeekDetail({
                       )}
                     </div>
                   </div>
-                  <div className="mt-1.5 space-y-0.5">
-                    {d.shifts.map((sh, i) => (
-                      <p key={i} className="text-xs text-slate-500">
-                        {fmtTime(sh.in)} – {fmtTime(sh.out)} (
-                        {sh.hours.toFixed(2)} hrs)
-                      </p>
-                    ))}
+                  <div className="mt-1.5 divide-y divide-slate-200/70">
+                    {d.entries.map((e) => {
+                      const isIn = e.action === 'clock_in';
+                      return (
+                        <div
+                          key={e.id}
+                          className="flex items-center gap-1.5 py-1"
+                        >
+                          <span
+                            className={`text-xs font-semibold ${
+                              isIn ? 'text-green-700' : 'text-slate-500'
+                            }`}
+                          >
+                            {isIn ? 'In' : 'Out'}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {fmtTime(e.timestamp)}
+                          </span>
+                          <div className="ml-auto flex items-center gap-0.5">
+                            <button
+                              type="button"
+                              onClick={() => setEditing(e)}
+                              className="p-1.5 rounded-lg text-slate-500 active:bg-slate-200"
+                              aria-label="Edit record"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleting(e)}
+                              className="p-1.5 rounded-lg text-red-600 active:bg-red-50"
+                              aria-label="Delete record"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -180,6 +254,46 @@ export default function TimeClockWeekDetail({
             </span>
           </div>
         </div>
+
+        {editing && (
+          <TimeClockEntryForm
+            entry={editing}
+            onClose={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
+              onChanged?.();
+            }}
+          />
+        )}
+
+        <AlertDialog
+          open={!!deleting}
+          onOpenChange={(o) => !o && setDeleting(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this clock record?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {deleting
+                  ? `${
+                      deleting.action === 'clock_in' ? 'Clock In' : 'Clock Out'
+                    } on ${fmtDay(
+                      deleting.shift_date || deleting.timestamp.slice(0, 10)
+                    )} at ${fmtTime(deleting.timestamp)} will be removed. This cannot be undone.`
+                  : ''}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );

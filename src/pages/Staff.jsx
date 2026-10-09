@@ -200,7 +200,11 @@ export default function Staff() {
 
       <StaffInvites />
 
-      <TimeClockWeeks staff={staff} timeClocks={timeClocks} />
+      <TimeClockWeeks
+        staff={staff}
+        timeClocks={timeClocks}
+        onChanged={loadData}
+      />
 
       {showForm && (
         <StaffForm

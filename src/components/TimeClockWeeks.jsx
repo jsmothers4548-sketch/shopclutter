@@ -11,7 +11,7 @@ import {
 } from '@/lib/timecard';
 import TimeClockWeekDetail from '@/components/TimeClockWeekDetail';
 
-export default function TimeClockWeeks({ staff, timeClocks }) {
+export default function TimeClockWeeks({ staff, timeClocks, onChanged }) {
   const [rule, setRule] = useState('federal');
   const [selected, setSelected] = useState(null);
 
@@ -115,6 +115,7 @@ export default function TimeClockWeeks({ staff, timeClocks }) {
         onWeekChange={(ws) =>
           setSelected((s) => (s ? { ...s, weekStart: ws } : s))
         }
+        onChanged={onChanged}
       />
     </div>
   );
