@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { gated } from '@/lib/planApi';
 import { withShop } from '@/lib/shopScope';
 
@@ -28,6 +29,8 @@ export default function ShopItemForm({ item, categories = CATEGORIES, onClose, o
     stock_quantity: item?.stock_quantity ?? 0,
     unit_cost: item?.unit_cost ?? 0,
     reorder_threshold: item?.reorder_threshold ?? 0,
+    for_sale: item?.for_sale ?? false,
+    sale_price: item?.sale_price ?? 0,
   });
   const [saving, setSaving] = useState(false);
 
@@ -137,6 +140,33 @@ export default function ShopItemForm({ item, categories = CATEGORIES, onClose, o
               />
             </div>
           </div>
+          <div className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5">
+            <div>
+              <p className="text-sm font-medium text-slate-900">Available for sale</p>
+              <p className="text-xs text-slate-500">
+                Show this stock in the For Sale list
+              </p>
+            </div>
+            <Switch
+              checked={form.for_sale}
+              onCheckedChange={(v) => setForm({ ...form, for_sale: v })}
+            />
+          </div>
+          {form.for_sale && (
+            <div>
+              <Label>Sale Price ($)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.sale_price}
+                onChange={(e) =>
+                  setForm({ ...form, sale_price: parseFloat(e.target.value) || 0 })
+                }
+                placeholder="Price per unit"
+              />
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

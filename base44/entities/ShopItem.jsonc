@@ -28,6 +28,14 @@
     "reorder_threshold": {
       "type": "number",
       "default": 0
+    },
+    "for_sale": {
+      "type": "boolean",
+      "default": false
+    },
+    "sale_price": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

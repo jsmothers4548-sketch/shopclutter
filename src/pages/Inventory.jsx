@@ -231,6 +231,11 @@ export default function Inventory() {
                     <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Other']}`}>
                       {item.category || 'Other'}
                     </span>
+                    {item.for_sale && (
+                      <span className="inline-block mt-1 ml-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+                        For sale
+                      </span>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
                     <p className={`text-lg font-bold ${isLow ? 'text-red-600' : 'text-slate-900'}`}>{stock}</p>

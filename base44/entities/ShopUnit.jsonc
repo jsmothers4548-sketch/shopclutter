@@ -1,0 +1,82 @@
+{
+  "name": "ShopUnit",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "serial_number": {
+      "type": "string"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Used",
+        "Refurbished"
+      ],
+      "default": "Used"
+    },
+    "cost": {
+      "type": "number",
+      "default": 0
+    },
+    "price": {
+      "type": "number",
+      "default": 0
+    },
+    "for_sale": {
+      "type": "boolean",
+      "default": true
+    },
+    "sold": {
+      "type": "boolean",
+      "default": false
+    },
+    "sold_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "sale_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "update": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
