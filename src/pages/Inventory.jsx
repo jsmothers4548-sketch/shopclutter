@@ -172,7 +172,29 @@ export default function Inventory() {
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
+      <div className="flex gap-2 sm:hidden">
+        <select
+          value={activeCategory}
+          onChange={(e) => setActiveCategory(e.target.value)}
+          className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          {['All', ...categories].map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        {isAdmin && (
+          <button
+            onClick={() => setShowCategoryForm(true)}
+            className="shrink-0 flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold border border-dashed border-amber-500 text-amber-600 bg-white active:bg-amber-50"
+          >
+            <Plus className="w-4 h-4" /> Category
+          </button>
+        )}
+      </div>
+
+      <div className="hidden sm:flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
         {['All', ...categories].map((cat) => (
           <button
             key={cat}
