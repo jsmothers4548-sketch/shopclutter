@@ -5,6 +5,7 @@ import usePlanFeature from '@/hooks/usePlanFeature';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Printer, Phone, Mail, MapPin } from 'lucide-react';
+import StaffTimeClockList from '@/components/StaffTimeClockList';
 import {
   startOfWeek,
   endOfWeek,
@@ -379,6 +380,12 @@ export default function StaffDetail() {
             </tbody>
           </table>
         </div>
+
+        <StaffTimeClockList
+          employeeId={staff.employee_id}
+          clocks={clocks}
+          onChanged={loadData}
+        />
       </div>
 
       {/* Reimbursements */}
