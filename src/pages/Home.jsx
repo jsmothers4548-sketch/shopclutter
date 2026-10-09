@@ -5,8 +5,10 @@ import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import UnitsInShopCard from '@/components/UnitsInShopCard';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Bell, Calendar, MapPin, ScanLine, Search } from 'lucide-react';
+import { Plus, Bell, Calendar, MapPin, Search } from 'lucide-react';
 import QrScanner from '@/components/QrScanner';
+import QrMenuButton from '@/components/QrMenuButton';
+import UnitLabel from '@/components/UnitLabel';
 import { normalizeTicketInput } from '@/lib/ticketNumbers';
 
 export default function Home() {
@@ -20,6 +22,8 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [printAfterSave, setPrintAfterSave] = useState(false);
+  const [printLabel, setPrintLabel] = useState('');
   const [reminders, setReminders] = useState([]);
   const navigate = useNavigate();
 
@@ -116,6 +120,22 @@ export default function Home() {
     );
   };
 
+  // After an intake started from the QR "Print" option, show the new unit's
+  // label for printing instead of opening the job.
+  const handleJobSaved = async (job) => {
+    setShowQuickAdd(false);
+    const wantsPrint = printAfterSave;
+    setPrintAfterSave(false);
+    if (wantsPrint && job?.unit_id) {
+      const unit = await base44.entities.Equipment.get(job.unit_id).catch(() => null);
+      if (unit?.label_number) {
+        setPrintLabel(String(unit.label_number));
+        return;
+      }
+    }
+    navigate(`/jobs/${job.id}`);
+  };
+
   const searchLower = search.trim().toLowerCase();
   const matchesSearch = (j) => {
     if (!searchLower) return true;
@@ -191,12 +211,9 @@ export default function Home() {
               </span>
             }
           </button>
-          <button
-            onClick={() => setShowScanner(true)}
-            className="flex items-center gap-1 bg-slate-900 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-700">
-            
-            <ScanLine className="w-4 h-4" /> Scan QR Code
-          </button>
+          <QrMenuButton
+            onScan={() => setShowScanner(true)}
+            onPrint={() => { setPrintAfterSave(true); setShowQuickAdd(true); }} />
           <button
             onClick={() => setShowQuickAdd(true)}
             className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600">
@@ -272,17 +289,20 @@ export default function Home() {
       }
       {showQuickAdd &&
       <JobQuickAdd
-        onClose={() => setShowQuickAdd(false)}
-        onSaved={(job) => {
-          setShowQuickAdd(false);
-          navigate(`/jobs/${job.id}`);
-        }} />
+        onClose={() => { setShowQuickAdd(false); setPrintAfterSave(false); }}
+        onSaved={handleJobSaved} />
 
       }
       {showScanner &&
       <QrScanner
         onClose={() => setShowScanner(false)}
         onResult={handleScanResult} />
+      }
+      {printLabel &&
+      <UnitLabel
+        labelNumber={printLabel}
+        closeLabel="Done"
+        onClose={() => setPrintLabel('')} />
       }
     </div>);
 
