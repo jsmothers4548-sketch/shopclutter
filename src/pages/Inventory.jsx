@@ -8,6 +8,7 @@ import CategoryForm from '@/components/CategoryForm';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
 import { useAuth } from '@/lib/AuthContext';
+import ForSalePanel from '@/components/units/ForSalePanel';
 import { Plus, Package, AlertTriangle, Trash2, Pencil, PackagePlus, Search, Truck } from 'lucide-react';
 
 const CATEGORY_COLORS = {
@@ -22,6 +23,11 @@ const CATEGORY_COLORS = {
 
 const DEFAULT_CATEGORIES = ['Spark Plugs', 'Filters', 'Oil & Fluids', 'Belts', 'Blades', 'Hardware', 'Other'];
 
+const TABS = [
+  { id: 'parts', label: 'Parts Inventory' },
+  { id: 'units', label: 'Units for Sale' },
+];
+
 export default function Inventory() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +40,7 @@ export default function Inventory() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [savedCategories, setSavedCategories] = useState([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [tab, setTab] = useState('parts');
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const { locked, loading: planLoading } = usePlanFeature('inventory');
@@ -141,6 +148,7 @@ export default function Inventory() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Shop Inventory</h1>
+        {tab === 'parts' && (
         <div className="flex items-center gap-2">
           {lowStockCount > 0 && (
             <button
@@ -157,8 +165,27 @@ export default function Inventory() {
             <Plus className="w-4 h-4" /> Add
           </button>
         </div>
+        )}
       </div>
 
+      <div className="flex gap-2">
+        {(isAdmin ? TABS : TABS.filter((t) => t.id === 'parts')).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`shrink-0 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              tab === t.id
+                ? 'bg-slate-900 text-white'
+                : 'bg-white border border-slate-200 text-slate-600'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'parts' && (
+      <>
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs text-slate-500">Total Value</p>
@@ -305,6 +332,10 @@ export default function Inventory() {
           )}
         </>
       )}
+      </>
+      )}
+
+      {tab === 'units' && <ForSalePanel />}
 
       {showForm && (
         <ShopItemForm
