@@ -30,8 +30,16 @@ export default function Reminders() {
     setLoading(true);
     setError(null);
     try {
-      const data = await base44.entities.Reminder.list('-due_date', 200);
-      setReminders(Array.isArray(data) ? data : []);
+      const me = await base44.auth.me();
+      if (!me?.id) {
+        setReminders([]);
+        return;
+      }
+      const page = await base44.entities.Reminder.filter(
+        { created_by_id: me.id },
+        { sort: '-due_date', limit: 200 }
+      );
+      setReminders(page?.items || []);
     } catch (err) {
       setError(err);
       setReminders([]);
@@ -108,7 +116,12 @@ export default function Reminders() {
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Reminders</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">My Reminders</h1>
+          <p className="text-xs text-slate-400">
+            Private to you — no one else sees these
+          </p>
+        </div>
         <button
           onClick={() => { setEditReminder(null); setShowForm(true); }}
           className="flex items-center gap-1 bg-red-500 text-white px-3 py-2 rounded-lg font-semibold text-sm active:bg-red-600"
