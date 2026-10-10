@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from '@/components/StatusBadge';
 import PickupTextDialog from '@/components/PickupTextDialog';
-import { Clock, MessageSquare } from 'lucide-react';
+import { Clock, MessageSquare, Repeat } from 'lucide-react';
 
 const EQUIPMENT_ICONS = {
   'Lawn Mower': '🌿',
@@ -14,7 +14,7 @@ const EQUIPMENT_ICONS = {
   'Other': '🔧'
 };
 
-export default function JobCard({ job, totalCost }) {
+export default function JobCard({ job, totalCost, visits = 0 }) {
   const navigate = useNavigate();
   const [showPickupText, setShowPickupText] = useState(false);
   const daysInShop = Math.floor(
@@ -36,6 +36,14 @@ export default function JobCard({ job, totalCost }) {
             {job.ticket_number && (
               <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded shrink-0">
                 {job.ticket_number}
+              </span>
+            )}
+            {visits > 0 && (
+              <span
+                title={`${visits} job ticket${visits === 1 ? '' : 's'} for this customer`}
+                className="flex items-center gap-1 text-[11px] font-bold text-white bg-slate-900 px-1.5 py-0.5 rounded shrink-0"
+              >
+                <Repeat className="w-3 h-3" /> {visits}
               </span>
             )}
           </div>

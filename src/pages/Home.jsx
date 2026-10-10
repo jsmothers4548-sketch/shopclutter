@@ -11,6 +11,8 @@ import { useAuth } from '@/lib/AuthContext';
 import QrScanner from '@/components/QrScanner';
 import QrMenuButton from '@/components/QrMenuButton';
 import UnitLabel from '@/components/UnitLabel';
+import LoyaltyRemindersCard from '@/components/LoyaltyRemindersCard';
+import useLoyalty from '@/hooks/useLoyalty';
 import { normalizeTicketInput } from '@/lib/ticketNumbers';
 
 export default function Home() {
@@ -31,6 +33,14 @@ export default function Home() {
   const [reminders, setReminders] = useState([]);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // How many times each customer has been in the shop, and — for an
+  // administrator — the milestone reminders those visits have earned.
+  const {
+    visitCounts,
+    reminders: loyaltyReminders,
+    reload: reloadLoyalty,
+  } = useLoyalty(user?.role === 'admin');
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -243,6 +253,9 @@ export default function Home() {
         </div>
       </div>
       <ActiveJobClock />
+      <LoyaltyRemindersCard
+        reminders={loyaltyReminders}
+        onChanged={reloadLoyalty} />
       <UnitsInShopCard
         locationFilter={locationFilter}
         onSelect={(value) => {
@@ -316,7 +329,11 @@ export default function Home() {
 
       <div className="space-y-2">
           {filteredJobs.map((job) =>
-        <JobCard key={job.id} job={job} totalCost={costByJob[job.id] || 0} />
+        <JobCard
+          key={job.id}
+          job={job}
+          totalCost={costByJob[job.id] || 0}
+          visits={visitCounts[job.customer_id] || 0} />
         )}
         </div>
       }

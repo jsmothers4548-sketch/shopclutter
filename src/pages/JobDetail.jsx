@@ -10,6 +10,7 @@ import TimelineForm from '@/components/TimelineForm';
 import PrivateImage from '@/components/PrivateImage';
 import JobAssignmentsCard from '@/components/JobAssignmentsCard';
 import JobTimerCard from '@/components/JobTimerCard';
+import LoyaltyDiscountCard from '@/components/LoyaltyDiscountCard';
 import PaymentForm from '@/components/PaymentForm';
 import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
@@ -92,6 +93,7 @@ export default function JobDetail() {
     laborTotal,
     partsDiscount,
     laborDiscount,
+    loyaltyDiscount,
     serviceCallFee,
     subtotal,
     taxAmount,
@@ -248,6 +250,10 @@ export default function JobDetail() {
       {/* Who is on this job, and their time on it */}
       <JobAssignmentsCard jobId={id} />
       <JobTimerCard jobId={id} jobStatus={job.status} />
+
+      {isAdmin && (
+        <LoyaltyDiscountCard job={job} subtotal={subtotal} onChanged={loadData} />
+      )}
 
       {job.status === 'Ready for Pickup' && (
         <button
@@ -671,6 +677,12 @@ export default function JobDetail() {
           <div className="flex justify-between text-sm text-slate-300">
             <span>Expenses</span>
             <span>${expensesTotal.toFixed(2)}</span>
+          </div>
+        )}
+        {loyaltyDiscount > 0 && (
+          <div className="flex justify-between text-sm text-green-400">
+            <span>Loyalty Discount</span>
+            <span>−${loyaltyDiscount.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm text-slate-300">

@@ -48,6 +48,7 @@ export default function Estimate() {
     laborTotal,
     partsDiscount,
     laborDiscount,
+    loyaltyDiscount,
     serviceCallFee,
     pickupFee,
     returnFee,
@@ -57,7 +58,7 @@ export default function Estimate() {
   } = computeBilling({ parts, labor, job });
 
   const handleText = () => {
-    const discountTotal = partsDiscount + laborDiscount;
+    const discountTotal = partsDiscount + laborDiscount + loyaltyDiscount;
     const msg = `Estimate for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}${discountTotal > 0 ? `, Discount -$${discountTotal.toFixed(2)}` : ''}, Tax $${taxAmount.toFixed(2)}, Total $${grandTotal.toFixed(2)}. Reply to approve.`;
     window.location.href = `sms:${customer.phone?.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(msg)}`;
   };
@@ -244,6 +245,12 @@ export default function Estimate() {
             <div className="flex justify-between text-sm text-slate-500">
               <span>Delivery</span>
               <span>${returnFee.toFixed(2)}</span>
+            </div>
+          )}
+          {loyaltyDiscount > 0 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Loyalty Discount</span>
+              <span>−${loyaltyDiscount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm text-slate-500">

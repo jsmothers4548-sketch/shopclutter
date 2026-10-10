@@ -109,6 +109,21 @@
     "labor_discount_value": {
       "type": "number",
       "default": 0
+    },
+    "loyalty_discount_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "percentage"
+      ],
+      "default": "fixed"
+    },
+    "loyalty_discount_value": {
+      "type": "number",
+      "default": 0
+    },
+    "loyalty_reminder_id": {
+      "type": "string"
     }
   },
   "required": [

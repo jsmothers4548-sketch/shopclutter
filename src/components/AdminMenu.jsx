@@ -14,9 +14,10 @@ import {
 import ReimbursementsDialog from '@/components/ReimbursementsDialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
+import LoyaltyDiscountsForm from '@/components/LoyaltyDiscountsForm';
 import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Palette, CreditCard, KeyRound, Lock, ListChecks, History } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -27,6 +28,7 @@ export default function AdminMenu() {
   const [showReimbursements, setShowReimbursements] = useState(false);
   const [showRates, setShowRates] = useState(false);
   const [showBranding, setShowBranding] = useState(false);
+  const [showLoyalty, setShowLoyalty] = useState(false);
   const { shop } = useShop();
   const plan = getPlan(shop?.plan_id);
   const brandingLocked = !hasFeature(plan, 'branding');
@@ -91,6 +93,12 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
+            onClick={() => setShowLoyalty(true)}
+          >
+            <Gift className="w-4 h-4" /> Loyalty Discounts
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
             onClick={() =>
               brandingLocked ? navigate('/billing') : setShowBranding(true)
             }
@@ -143,6 +151,13 @@ export default function AdminMenu() {
         <DialogContent className="p-0 border-0 max-w-md overflow-hidden rounded-xl">
           <DialogTitle className="sr-only">Branding</DialogTitle>
           <BrandingForm />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLoyalty} onOpenChange={setShowLoyalty}>
+        <DialogContent className="p-0 border-0 max-w-md overflow-hidden rounded-xl">
+          <DialogTitle className="sr-only">Loyalty Discounts</DialogTitle>
+          <LoyaltyDiscountsForm />
         </DialogContent>
       </Dialog>
     </>

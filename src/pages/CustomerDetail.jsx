@@ -5,7 +5,7 @@ import ContactButtons from '@/components/ContactButtons';
 import CustomerForm from '@/components/CustomerForm';
 import StatusBadge from '@/components/StatusBadge';
 import JobForm from '@/components/JobForm';
-import { ArrowLeft, Edit, Plus, MapPin, AlertTriangle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, MapPin, AlertTriangle, Trash2, Repeat } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,7 @@ export default function CustomerDetail() {
   const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [visits, setVisits] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showJobForm, setShowJobForm] = useState(false);
@@ -36,12 +37,14 @@ export default function CustomerDetail() {
 
   const loadData = async () => {
     try {
-      const [cust, allJobs] = await Promise.all([
+      const [cust, allJobs, visitCount] = await Promise.all([
         base44.entities.Customer.get(id),
         base44.entities.Job.filter({ customer_id: id }, '-created_date'),
+        base44.entities.Job.count({ customer_id: id }),
       ]);
       setCustomer(cust);
       setJobs(allJobs);
+      setVisits(visitCount || 0);
     } finally {
       setLoading(false);
     }
@@ -80,6 +83,15 @@ export default function CustomerDetail() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Repeat className="w-4 h-4 shrink-0 text-amber-600" />
+          <p className="text-sm font-semibold text-slate-800">
+            {visits} visit{visits === 1 ? '' : 's'}
+          </p>
+          <span className="text-xs text-slate-400">
+            Every job ticket counts
+          </span>
+        </div>
         <ContactButtons phone={customer.phone} email={customer.email} />
         {customer.address && (
           <p className="text-sm text-slate-500 flex items-start gap-1.5">

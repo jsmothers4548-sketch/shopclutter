@@ -42,13 +42,24 @@ export function computeBilling({ parts, labor, job, expenses = [] }) {
 
   const discountedParts = Math.max(partsTotal - partsDiscount, 0);
   const discountedLabor = Math.max(laborTotal - laborDiscount, 0);
-  const subtotal =
+
+  // A visit-milestone reward comes off the whole ticket, before tax.
+  const loyaltyDiscountType = job?.loyalty_discount_type || 'fixed';
+  const loyaltyDiscountValue = Number(job?.loyalty_discount_value) || 0;
+  const beforeLoyalty =
     discountedParts +
     discountedLabor +
     serviceCallFee +
     pickupFee +
     returnFee +
     expensesTotal;
+  const loyaltyDiscount =
+    loyaltyDiscountValue > 0
+      ? loyaltyDiscountType === 'percentage'
+        ? (beforeLoyalty * loyaltyDiscountValue) / 100
+        : Math.min(loyaltyDiscountValue, beforeLoyalty)
+      : 0;
+  const subtotal = Math.max(beforeLoyalty - loyaltyDiscount, 0);
   const taxAmount = (subtotal * (job?.tax_rate || 0)) / 100;
   const grandTotal = subtotal + taxAmount;
 
@@ -59,6 +70,9 @@ export function computeBilling({ parts, labor, job, expenses = [] }) {
     laborDiscount,
     discountedParts,
     discountedLabor,
+    loyaltyDiscount,
+    loyaltyDiscountType,
+    loyaltyDiscountValue,
     serviceCallFee,
     pickupDeliveryType,
     pickupFee,

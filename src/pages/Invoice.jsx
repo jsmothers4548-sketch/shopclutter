@@ -59,6 +59,7 @@ export default function Invoice() {
     laborTotal,
     partsDiscount,
     laborDiscount,
+    loyaltyDiscount,
     serviceCallFee,
     pickupFee,
     returnFee,
@@ -72,7 +73,7 @@ export default function Invoice() {
   const balanceDue = grandTotal - paymentsTotal;
 
   const handleText = () => {
-    const discountTotal = partsDiscount + laborDiscount;
+    const discountTotal = partsDiscount + laborDiscount + loyaltyDiscount;
     const msg = `Invoice for ${job.equipment_type} ${job.make || ''} ${job.model || ''}: Parts $${partsTotal.toFixed(2)}, Labor $${laborTotal.toFixed(2)}${discountTotal > 0 ? `, Discount -$${discountTotal.toFixed(2)}` : ''}, Tax $${taxAmount.toFixed(2)}${paymentsTotal > 0 ? `, Paid $${paymentsTotal.toFixed(2)}` : ''}, ${paymentsTotal > 0 ? 'Balance Due' : 'Amount Due'} $${balanceDue.toFixed(2)}. Thank you for your business!`;
     window.location.href = `sms:${customer.phone?.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(msg)}`;
   };
@@ -361,6 +362,12 @@ export default function Invoice() {
             <span>Expenses</span>
             <span>${expensesTotal.toFixed(2)}</span>
           </div>
+          }
+          {loyaltyDiscount > 0 &&
+          <div className="flex justify-between text-sm text-green-600">
+              <span>Loyalty Discount</span>
+              <span>−${loyaltyDiscount.toFixed(2)}</span>
+            </div>
           }
           <div className="flex justify-between text-sm text-slate-500">
             <span>Subtotal</span>
