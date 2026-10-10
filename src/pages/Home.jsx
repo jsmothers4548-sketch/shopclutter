@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
+import CustomerMatchLinks from '@/components/CustomerMatchLinks';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import UnitsInShopCard from '@/components/UnitsInShopCard';
@@ -201,6 +202,20 @@ export default function Home() {
     .filter((j) => !assignedOnly || myJobIds.has(j.id))
     .filter(matchesSearch);
 
+  // Customers whose name matches the search, so the name itself can open their
+  // full record alongside their tickets.
+  const matchingCustomers = (() => {
+    if (!searchLower) return [];
+    const found = new Map();
+    for (const j of safeJobs) {
+      if (!j.customer_id || found.has(j.customer_id)) continue;
+      if ((j.customer_name || '').toLowerCase().includes(searchLower)) {
+        found.set(j.customer_id, { id: j.customer_id, name: j.customer_name });
+      }
+    }
+    return Array.from(found.values());
+  })();
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -322,6 +337,7 @@ export default function Home() {
           <UserCheck className="w-4 h-4" /> Assigned to me
         </button>
       }
+      <CustomerMatchLinks customers={matchingCustomers} />
       {filteredJobs.length === 0 ?
       <div className="text-center py-20 text-white">
            <p className="text-sm">{search ? 'No jobs match your search' : 'No jobs in this view'}</p>
