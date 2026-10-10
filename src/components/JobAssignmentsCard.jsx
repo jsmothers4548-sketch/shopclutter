@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { withShop } from '@/lib/shopScope';
 import { useAuth } from '@/lib/AuthContext';
+import usePlanFeature from '@/hooks/usePlanFeature';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { UserPlus, X, Users } from 'lucide-react';
 
 // Who is working on this job. An admin picks one or several technicians; a
@@ -9,6 +11,7 @@ import { UserPlus, X, Users } from 'lucide-react';
 export default function JobAssignmentsCard({ jobId }) {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { locked } = usePlanFeature('job_time_clock');
   const [assignments, setAssignments] = useState([]);
   const [staff, setStaff] = useState([]);
   const [picking, setPicking] = useState(false);
@@ -32,6 +35,8 @@ export default function JobAssignmentsCard({ jobId }) {
   useEffect(() => {
     load();
   }, [jobId, isAdmin]);
+
+  if (locked) return <UpgradePrompt feature="job_time_clock" />;
 
   const assignedIds = new Set(assignments.map((a) => a.staff_id));
   const available = staff.filter((s) => !assignedIds.has(s.id));

@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { entryMinutes, formatHours, formatTimer } from '@/lib/jobTime';
+import usePlanFeature from '@/hooks/usePlanFeature';
+import UpgradePrompt from '@/components/UpgradePrompt';
 import { Play, Square, Clock } from 'lucide-react';
 
 // Clocking in and out of a job. Time is written by the server, which also
 // enforces the shop's one-job-at-a-time rule.
 export default function JobTimerCard({ jobId, jobStatus }) {
   const { user } = useAuth();
+  const { locked } = usePlanFeature('job_time_clock');
   const [entries, setEntries] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -34,6 +37,8 @@ export default function JobTimerCard({ jobId, jobStatus }) {
     const t = setInterval(() => setTick(Date.now()), 1000);
     return () => clearInterval(t);
   }, [mineOpen?.id]);
+
+  if (locked) return <UpgradePrompt feature="job_time_clock" />;
 
   const clock = async (action) => {
     setBusy(true);

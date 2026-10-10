@@ -48,6 +48,12 @@ export const FEATURES = {
     label: 'QR unit labels',
     blurb: 'Scan a unit label to jump straight to that unit or ticket.',
   },
+  job_time_clock: {
+    rank: 2,
+    label: 'Job time tracking',
+    blurb:
+      'Let techs clock in and out of each job and see the hours land in your reports.',
+  },
   time_clock: {
     rank: 2,
     label: 'Time clock & timecards',
@@ -80,7 +86,7 @@ export const FEATURES = {
     blurb: 'Push customers, invoices and payments into QuickBooks.',
   },
   multi_location: {
-    rank: 3,
+    rank: 2,
     label: 'Multiple locations',
     blurb:
       'Run several shops from one account, each with its own jobs, customers and inventory.',
@@ -137,6 +143,7 @@ export const PLANS = [
       'Up to 10 users',
       '1 location',
       'Time clock & timecards',
+      'Job clock-in/out by job',
       'Staff tasks',
       'Reimbursements & employee earnings',
       'Supplier orders & restocking',

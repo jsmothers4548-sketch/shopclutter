@@ -34,13 +34,14 @@ export const FEATURE_RANK: Record<string, number> = {
   branding: 1,
   voice_intake: 1,
   qr_scan: 1,
+  job_time_clock: 2,
   time_clock: 2,
   staff_tasks: 2,
   reimbursements: 2,
   employee_earnings: 2,
   supplier_orders: 2,
   quickbooks: 2,
-  multi_location: 3,
+  multi_location: 2,
 };
 
 // Shown to the user when a tool is refused. Mirrors the wording the app uses.
@@ -52,6 +53,7 @@ export const FEATURE_LABELS: Record<string, string> = {
   branding: "Your logo & business name",
   voice_intake: "Voice intake",
   qr_scan: "QR unit labels",
+  job_time_clock: "Job time tracking",
   time_clock: "Time clock & timecards",
   staff_tasks: "Staff tasks",
   reimbursements: "Reimbursements",

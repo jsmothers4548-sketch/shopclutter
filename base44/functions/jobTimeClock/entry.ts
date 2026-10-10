@@ -1,4 +1,5 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.52";
+import { requireFeature } from "../../shared/planGuard.ts";
 
 // Clocking in and out of a job. The shop, the caller and the job are resolved
 // from the signed-in user and the job record, never trusted from the request,
@@ -38,27 +39,12 @@ export default async function (req: Request): Promise<Response> {
 
     const sr = base44.asServiceRole;
 
-    // The shop comes from the caller's account, so a hand-made request cannot
-    // clock time against another shop.
-    const linkedShopId = user?.shop_id || user?.data?.shop_id || null;
-    let shop: any = linkedShopId
-      ? await sr.entities.Shop.get(linkedShopId).catch(() => null)
-      : null;
-    if (!shop) {
-      const owned = await sr.entities.Shop.filter(
-        { owner_id: user.id },
-        "-created_date",
-        1
-      );
-      shop = rowsOf(owned)[0] || null;
-    }
-    if (!shop) {
-      return Response.json(
-        { error: "We could not find your shop yet. Reload the app and try again." },
-        { status: 403 }
-      );
-    }
-    const shopId = shop.id;
+    // The gate resolves the shop from the caller's account — never from the
+    // request — and refuses the write outright when job time tracking is not
+    // part of the shop's plan, so a hand-made request cannot bypass the tier.
+    const guard = await requireFeature(base44, user, "job_time_clock");
+    if (!guard.ok) return guard.response;
+    const shopId = guard.shop.id;
 
     const job = await sr.entities.Job.get(jobId).catch(() => null);
     if (!job || job.shop_id !== shopId) {
