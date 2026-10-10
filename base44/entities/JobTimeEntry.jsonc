@@ -1,0 +1,81 @@
+{
+  "name": "JobTimeEntry",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_label": {
+      "type": "string"
+    },
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "clock_in": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "clock_out": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "minutes": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "job_id",
+    "clock_in"
+  ],
+  "rls": {
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

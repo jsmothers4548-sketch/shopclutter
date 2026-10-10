@@ -7,6 +7,7 @@ import {
   Package,
   Receipt,
   TrendingUp,
+  Clock,
 } from 'lucide-react';
 
 // Landing-view tiles for the Reports page: one card per statement section.
@@ -46,6 +47,12 @@ const SECTIONS = [
     label: 'Expenditures',
     hint: 'All spending, itemized',
     icon: Receipt,
+  },
+  {
+    key: 'jobtime',
+    label: 'Job Time',
+    hint: 'Hours by job & technician',
+    icon: Clock,
   },
   {
     key: 'spending',

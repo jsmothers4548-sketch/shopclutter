@@ -9,12 +9,14 @@ import ProfitLossStatement from '@/components/reports/ProfitLossStatement';
 import BreakdownList from '@/components/reports/BreakdownList';
 import AllPartsReport from '@/components/reports/AllPartsReport';
 import ExpenditureReport from '@/components/reports/ExpenditureReport';
+import JobTimeReport from '@/components/reports/JobTimeReport';
 
 const STATEMENTS = {
   pl: { label: 'Statement of Profit & Loss' },
   sales: { label: 'Sales Statement' },
   parts: { label: 'Parts Statement' },
   expenditures: { label: 'Itemized Expenditures' },
+  jobtime: { label: 'Time on Jobs' },
 };
 
 export default function ReportStatement() {
@@ -131,6 +133,15 @@ export default function ReportStatement() {
           totals={report.expenditureTotals}
           visible={report.expenditureRows.length}
           onOpen={(r) => navigate(r.link)}
+        />
+      )}
+
+      {type === 'jobtime' && (
+        <JobTimeReport
+          periodLabel={report.period.label}
+          byJob={report.jobTimeByJob}
+          byTech={report.jobTimeByTech}
+          totalMinutes={report.jobTimeTotal}
         />
       )}
     </div>

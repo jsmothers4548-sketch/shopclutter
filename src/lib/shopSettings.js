@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS = {
   job_tax_rate: 9,
   sales_tax_rate: 9,
   overtime_rule: 'federal',
+  allow_overlapping_job_timers: false,
   brand_name: 'Shop Clutter',
   brand_logo_url: '',
 };

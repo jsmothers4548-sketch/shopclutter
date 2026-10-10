@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { gatedRead } from '@/lib/planApi';
 import { computeJobProfit } from '@/lib/billing';
 import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
+import { entryMinutes } from '@/lib/jobTime';
 
 // Loads all reporting data once and derives every figure the Reports page
 // and its standalone statement pages need for the selected period.
@@ -31,6 +32,7 @@ export default function useReportsData({
           { entity: 'JobExpense', limit: 3000 },
           { entity: 'Payment', sort: '-payment_date', limit: 2000 },
           { entity: 'PartPurchase', sort: '-purchase_date', limit: 2000 },
+          { entity: 'JobTimeEntry', sort: '-clock_in', limit: 3000 },
         ]);
       } catch (err) {
         setLocked(!!err?.locked);
@@ -44,6 +46,7 @@ export default function useReportsData({
         expensesData,
         paymentsData,
         purchasesData,
+        jobTimeData,
       ] = lists;
       setData({
         jobs: Array.isArray(jobsData) ? jobsData : [],
@@ -54,6 +57,7 @@ export default function useReportsData({
         expenses: Array.isArray(expensesData) ? expensesData : [],
         payments: Array.isArray(paymentsData) ? paymentsData : [],
         purchases: Array.isArray(purchasesData) ? purchasesData : [],
+        jobTime: Array.isArray(jobTimeData) ? jobTimeData : [],
       });
     })();
   }, []);
@@ -273,6 +277,53 @@ export default function useReportsData({
       .sort((a, b) => b.earned - a.earned);
   }, [data, filteredJobIds]);
 
+  // Recorded job time, totalled two ways: per job and per technician.
+  const jobTimeByJob = useMemo(() => {
+    const map = {};
+    for (const e of data?.jobTime || []) {
+      if (!inPeriod(e.clock_in || e.created_date, period)) continue;
+      const key = e.job_id || 'unknown';
+      if (!map[key]) {
+        const job = jobById[key];
+        map[key] = {
+          id: key,
+          title: job
+            ? `${job.customer_name || '—'}${
+                job.ticket_number ? ` · #${job.ticket_number}` : ''
+              }`
+            : e.job_label || 'Job',
+          subtitle: job?.equipment_type || '',
+          minutes: 0,
+          sessions: 0,
+        };
+      }
+      map[key].minutes += entryMinutes(e);
+      map[key].sessions += 1;
+    }
+    return Object.values(map).sort((a, b) => b.minutes - a.minutes);
+  }, [data, period, jobById]);
+
+  const jobTimeByTech = useMemo(() => {
+    const map = {};
+    for (const e of data?.jobTime || []) {
+      if (!inPeriod(e.clock_in || e.created_date, period)) continue;
+      const name = e.staff_name || e.staff_email || 'Unassigned';
+      if (!map[name])
+        map[name] = { name, minutes: 0, sessions: 0, jobIds: new Set() };
+      map[name].minutes += entryMinutes(e);
+      map[name].sessions += 1;
+      if (e.job_id) map[name].jobIds.add(e.job_id);
+    }
+    return Object.values(map)
+      .map((r) => ({ ...r, jobCount: r.jobIds.size }))
+      .sort((a, b) => b.minutes - a.minutes);
+  }, [data, period]);
+
+  const jobTimeTotal = useMemo(
+    () => jobTimeByJob.reduce((sum, r) => sum + r.minutes, 0),
+    [jobTimeByJob]
+  );
+
   const jobRows = useMemo(
     () =>
       jobProfits.map((jp) => ({
@@ -407,6 +458,9 @@ export default function useReportsData({
     combined,
     payments: paymentsReceived,
     employeeStats,
+    jobTimeByJob,
+    jobTimeByTech,
+    jobTimeTotal,
     expenditureRows,
     expenditureTotals,
   };

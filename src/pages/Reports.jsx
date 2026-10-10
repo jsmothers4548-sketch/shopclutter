@@ -12,6 +12,7 @@ import BreakdownList from '@/components/reports/BreakdownList';
 import PartsSpendingReport from '@/components/reports/PartsSpendingReport';
 import AllPartsReport from '@/components/reports/AllPartsReport';
 import ExpenditureReport from '@/components/reports/ExpenditureReport';
+import JobTimeReport from '@/components/reports/JobTimeReport';
 import SectionActions from '@/components/reports/SectionActions';
 import SectionChooser from '@/components/reports/SectionChooser';
 import UpgradePrompt from '@/components/UpgradePrompt';
@@ -26,6 +27,10 @@ const SECTION_META = {
   expenditures: {
     title: 'Expenditures',
     fullPageTo: '/reports/statement/expenditures',
+  },
+  jobtime: {
+    title: 'Time on Jobs',
+    fullPageTo: '/reports/statement/jobtime',
   },
   spending: { title: 'Parts Spending' },
 };
@@ -245,6 +250,15 @@ export default function Reports() {
           sales={report.sales}
           onOpenJob={(id) => navigate(`/jobs/${id}`)}
           onOpenSale={(id) => navigate(`/sales/${id}`)}
+        />
+      </div>
+
+      <div className={sectionClass('jobtime')}>
+        <JobTimeReport
+          periodLabel={report.period.label}
+          byJob={report.jobTimeByJob}
+          byTech={report.jobTimeByTech}
+          totalMinutes={report.jobTimeTotal}
         />
       </div>
     </div>

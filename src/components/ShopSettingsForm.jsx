@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Settings, Check } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { withShop } from '@/lib/shopScope';
 import {
@@ -79,6 +80,7 @@ export default function ShopSettingsForm() {
           job_tax_rate: s.job_tax_rate,
           sales_tax_rate: s.sales_tax_rate,
           overtime_rule: s.overtime_rule || 'federal',
+          allow_overlapping_job_timers: !!s.allow_overlapping_job_timers,
         };
         setInitial(values);
         setForm(values);
@@ -103,6 +105,7 @@ export default function ShopSettingsForm() {
       job_tax_rate: Number(form.job_tax_rate) || 0,
       sales_tax_rate: Number(form.sales_tax_rate) || 0,
       overtime_rule: form.overtime_rule || 'federal',
+      allow_overlapping_job_timers: !!form.allow_overlapping_job_timers,
     };
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
@@ -227,6 +230,26 @@ export default function ShopSettingsForm() {
           <p className="text-xs text-slate-400 mt-1">
             Applied automatically to all time clock overtime
           </p>
+        </div>
+        <div className="pt-1 border-t border-slate-100">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <Label htmlFor="allow_overlapping_job_timers">
+                Allow more than one job timer
+              </Label>
+              <p className="text-xs text-slate-400 mt-1">
+                Off: a technician must clock out of one job before starting
+                another
+              </p>
+            </div>
+            <Switch
+              id="allow_overlapping_job_timers"
+              checked={!!form.allow_overlapping_job_timers}
+              onCheckedChange={(v) =>
+                setForm({ ...form, allow_overlapping_job_timers: v })
+              }
+            />
+          </div>
         </div>
       </div>
 

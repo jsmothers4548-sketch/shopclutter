@@ -8,6 +8,8 @@ import PartForm from '@/components/PartForm';
 import LaborForm from '@/components/LaborForm';
 import TimelineForm from '@/components/TimelineForm';
 import PrivateImage from '@/components/PrivateImage';
+import JobAssignmentsCard from '@/components/JobAssignmentsCard';
+import JobTimerCard from '@/components/JobTimerCard';
 import PaymentForm from '@/components/PaymentForm';
 import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
@@ -242,6 +244,10 @@ export default function JobDetail() {
           onChange={updateStatus}
         />
       </div>
+
+      {/* Who is on this job, and their time on it */}
+      <JobAssignmentsCard jobId={id} />
+      <JobTimerCard jobId={id} jobStatus={job.status} />
 
       {job.status === 'Ready for Pickup' && (
         <button

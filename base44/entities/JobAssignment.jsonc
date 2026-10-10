@@ -1,0 +1,69 @@
+{
+  "name": "JobAssignment",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "assigned_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "staff_name"
+  ],
+  "rls": {
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -22,6 +22,7 @@ export const FEATURE_ENTITIES: Record<string, string[]> = {
     "PartPurchase",
     "ShopItem",
     "Staff",
+    "JobTimeEntry",
   ],
   employee_earnings: ["LaborEntry", "Job", "Staff", "TimeClock", "JobExpense"],
 };

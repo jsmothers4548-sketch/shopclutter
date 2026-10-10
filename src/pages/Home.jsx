@@ -5,7 +5,8 @@ import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import UnitsInShopCard from '@/components/UnitsInShopCard';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Bell, Calendar, MapPin, Search } from 'lucide-react';
+import { Plus, Bell, Calendar, MapPin, Search, UserCheck } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 import QrScanner from '@/components/QrScanner';
 import QrMenuButton from '@/components/QrMenuButton';
 import UnitLabel from '@/components/UnitLabel';
@@ -20,27 +21,32 @@ export default function Home() {
   const [filter, setFilter] = useState('All');
   const [locationFilter, setLocationFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [assignments, setAssignments] = useState([]);
+  const [assignedOnly, setAssignedOnly] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [printAfterSave, setPrintAfterSave] = useState(false);
   const [printLabel, setPrintLabel] = useState('');
   const [reminders, setReminders] = useState([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [jobsData, partsData, laborData, remindersData] = await Promise.all([
+      const [jobsData, partsData, laborData, remindersData, assignmentsData] = await Promise.all([
       base44.entities.Job.list('-created_date', 200),
       base44.entities.Part.list(),
       base44.entities.LaborEntry.list(),
-      base44.entities.Reminder.list('due_date', 200)]
+      base44.entities.Reminder.list('due_date', 200),
+      base44.entities.JobAssignment.list('-created_date', 500)]
       );
       setJobs(Array.isArray(jobsData) ? jobsData : []);
       setParts(Array.isArray(partsData) ? partsData : []);
       setLabor(Array.isArray(laborData) ? laborData : []);
       setReminders(Array.isArray(remindersData) ? remindersData : []);
+      setAssignments(Array.isArray(assignmentsData) ? assignmentsData : []);
     } catch (err) {
       setError(err);
       setJobs([]);
@@ -84,6 +90,18 @@ export default function Home() {
   sort((a, b) => (a.appointment_type || '').localeCompare(b.appointment_type || ''));
 
   const safeJobs = Array.isArray(jobs) ? jobs : [];
+
+  // The signed-in user's own jobs, matched to a staff record by email.
+  const myEmail = (user?.email || '').toLowerCase();
+  const myJobIds = useMemo(() => {
+    const set = new Set();
+    for (const a of assignments) {
+      if (myEmail && (a.staff_email || '').toLowerCase() === myEmail) {
+        set.add(a.job_id);
+      }
+    }
+    return set;
+  }, [assignments, myEmail]);
 
   const handleScanResult = async (text) => {
     setShowScanner(false);
@@ -169,6 +187,7 @@ export default function Home() {
       if (locationFilter === 'In shop') return true;
       return j.job_location === locationFilter;
     })
+    .filter((j) => !assignedOnly || myJobIds.has(j.id))
     .filter(matchesSearch);
 
   if (loading) {
@@ -276,6 +295,18 @@ export default function Home() {
           setFilter(value);
           setLocationFilter('All');
         }} />
+      {myJobIds.size > 0 &&
+      <button
+        onClick={() => setAssignedOnly((v) => !v)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+        assignedOnly ?
+        'bg-amber-500 text-slate-900' :
+        'bg-white text-slate-600 border border-slate-200'}`
+        }>
+        
+          <UserCheck className="w-4 h-4" /> Assigned to me
+        </button>
+      }
       {filteredJobs.length === 0 ?
       <div className="text-center py-20 text-white">
            <p className="text-sm">{search ? 'No jobs match your search' : 'No jobs in this view'}</p>

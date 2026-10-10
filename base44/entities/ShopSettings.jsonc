@@ -49,6 +49,10 @@
       ],
       "default": "federal"
     },
+    "allow_overlapping_job_timers": {
+      "type": "boolean",
+      "default": false
+    },
     "brand_name": {
       "type": "string",
       "default": "Shop Clutter"
