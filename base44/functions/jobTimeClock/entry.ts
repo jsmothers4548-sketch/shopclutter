@@ -30,9 +30,20 @@ export default async function (req: Request): Promise<Response> {
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action || "");
     const jobId = String(body?.job_id || "");
-    if (!["clock_in", "clock_out"].includes(action) || !jobId) {
+    const entryId = String(body?.entry_id || "");
+    if (
+      !["clock_in", "clock_out", "update_entry", "delete_entry"].includes(action)
+    ) {
       return Response.json(
         { error: "That time action is not supported." },
+        { status: 400 }
+      );
+    }
+    const isEntryAction =
+      action === "update_entry" || action === "delete_entry";
+    if (isEntryAction ? !entryId : !jobId) {
+      return Response.json(
+        { error: "That time action is missing its record." },
         { status: 400 }
       );
     }
@@ -45,6 +56,109 @@ export default async function (req: Request): Promise<Response> {
     const guard = await requireFeature(base44, user, "job_time_clock");
     if (!guard.ok) return guard.response;
     const shopId = guard.shop.id;
+
+    // Correcting or removing recorded time is an administrator's job: it is
+    // refused for everyone else here, not just hidden in the browser. The
+    // duration is recomputed from the corrected timestamps, and the change is
+    // written to the audit trail because it moves a person's hours.
+    if (isEntryAction) {
+      if (user.role !== "admin") {
+        return Response.json(
+          { error: "Only an administrator can change recorded time." },
+          { status: 403 }
+        );
+      }
+
+      const entry: any = await sr.entities.JobTimeEntry.get(entryId).catch(
+        () => null
+      );
+      if (!entry || entry.shop_id !== shopId) {
+        return Response.json(
+          { error: "That time entry is not part of your shop." },
+          { status: 403 }
+        );
+      }
+
+      const showTime = (iso: string) =>
+        iso ? new Date(iso).toLocaleString("en-US") : "still running";
+      const jobLabel = entry.job_label || "a job";
+      const actorName = user.full_name || user.email || "Administrator";
+      const audit = {
+        shop_id: shopId,
+        actor_name: actorName,
+        actor_email: user.email || "",
+        category: "Time Clock",
+        target: jobLabel,
+        occurred_at: new Date().toISOString(),
+      };
+
+      if (action === "delete_entry") {
+        await sr.entities.JobTimeEntry.delete(entryId);
+        await sr.entities.AuditLog.create({
+          ...audit,
+          action: "delete",
+          summary: `Deleted ${entry.staff_name || "a technician"}'s time on ${jobLabel}`,
+          details: `${showTime(entry.clock_in)} – ${showTime(entry.clock_out)}`,
+        });
+        return Response.json({ deleted: true });
+      }
+
+      const clockIn = String(body?.clock_in || "");
+      const clockOut = String(body?.clock_out || "");
+      if (!clockIn) {
+        return Response.json(
+          { error: "A clock-in time is required." },
+          { status: 400 }
+        );
+      }
+      const inAt = new Date(clockIn);
+      if (isNaN(inAt.getTime())) {
+        return Response.json(
+          { error: "That clock-in time is not valid." },
+          { status: 400 }
+        );
+      }
+      let outAt: Date | null = null;
+      if (clockOut) {
+        outAt = new Date(clockOut);
+        if (isNaN(outAt.getTime())) {
+          return Response.json(
+            { error: "That clock-out time is not valid." },
+            { status: 400 }
+          );
+        }
+        if (outAt.getTime() < inAt.getTime()) {
+          return Response.json(
+            { error: "The clock-out time must come after the clock-in time." },
+            { status: 400 }
+          );
+        }
+      }
+
+      const updated = await sr.entities.JobTimeEntry.update(entryId, {
+        clock_in: inAt.toISOString(),
+        clock_out: outAt ? outAt.toISOString() : null,
+        minutes: outAt
+          ? Math.max(0, Math.round((outAt.getTime() - inAt.getTime()) / 60000))
+          : 0,
+        staff_name: String(body?.staff_name || entry.staff_name || ""),
+        correction_note: String(body?.correction_note || ""),
+      });
+
+      const note = String(body?.correction_note || "").trim();
+      await sr.entities.AuditLog.create({
+        ...audit,
+        action: "update",
+        summary: `Edited ${entry.staff_name || "a technician"}'s time on ${jobLabel}`,
+        details: `${showTime(entry.clock_in)} – ${showTime(
+          entry.clock_out
+        )} changed to ${showTime(inAt.toISOString())} – ${showTime(
+          outAt ? outAt.toISOString() : ""
+        )}${note ? ` · ${note}` : ""}`,
+      });
+
+      return Response.json({ entry: updated });
+    }
 
     const job = await sr.entities.Job.get(jobId).catch(() => null);
     if (!job || job.shop_id !== shopId) {

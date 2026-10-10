@@ -37,6 +37,18 @@ export function formatTimer(entry, now = Date.now()) {
   return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
+// A stored timestamp as the value a datetime-local input expects, in the
+// browser's own timezone. Used when an admin corrects an entry by hand.
+export function toLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
+}
+
 export function jobLabel(job) {
   if (!job) return '';
   return `${job.customer_name || ''}${

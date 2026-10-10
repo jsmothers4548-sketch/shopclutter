@@ -31,6 +31,9 @@
     "minutes": {
       "type": "number",
       "default": 0
+    },
+    "correction_note": {
+      "type": "string"
     }
   },
   "required": [
