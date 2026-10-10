@@ -74,9 +74,11 @@ export default async function (req: Request): Promise<Response> {
       staff_email: user.email || "",
     };
 
-    // This person's unfinished timers.
+    // This person's unfinished timers. Entries are written with the service
+    // role, so the record's own created_by_id belongs to the service account —
+    // the technician is identified by the email stored on the entry.
     const minePage = await sr.entities.JobTimeEntry.filter(
-      { shop_id: shopId, created_by_id: user.id },
+      { shop_id: shopId, staff_email: user.email },
       { sort: "-clock_in", limit: 100 }
     );
     const open = rowsOf(minePage).filter((e: any) => !e.clock_out);

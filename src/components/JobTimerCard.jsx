@@ -28,8 +28,12 @@ export default function JobTimerCard({ jobId, jobStatus }) {
     load();
   }, [jobId]);
 
+  // Time entries are written by the server with the service role, so the
+  // record's own created_by_id belongs to the service account. The technician
+  // is matched on the email stored on the entry instead.
+  const myEmail = (user?.email || '').toLowerCase();
   const mineOpen = entries.find(
-    (e) => !e.clock_out && e.created_by_id === user?.id
+    (e) => !e.clock_out && (e.staff_email || '').toLowerCase() === myEmail
   );
 
   useEffect(() => {
