@@ -7,6 +7,7 @@ import JobForm from '@/components/JobForm';
 import PartForm from '@/components/PartForm';
 import LaborForm from '@/components/LaborForm';
 import TimelineForm from '@/components/TimelineForm';
+import PrivateImage from '@/components/PrivateImage';
 import PaymentForm from '@/components/PaymentForm';
 import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
@@ -323,12 +324,11 @@ export default function JobDetail() {
               )}
               {entry.photo_urls?.length > 0 && (
                 <div className="flex gap-2 mt-2 overflow-x-auto">
-                  {entry.photo_urls.map((url, i) => (
-                    <img
+                  {entry.photo_urls.map((uri, i) => (
+                    <PrivateImage
                       key={i}
-                      src={url}
+                      fileUri={uri}
                       className="w-20 h-20 object-cover rounded-lg shrink-0"
-                      alt=""
                     />
                   ))}
                 </div>

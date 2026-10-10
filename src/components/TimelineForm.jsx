@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { Camera, X } from 'lucide-react';
 import { withShop } from '@/lib/shopScope';
+import PrivateImage from '@/components/PrivateImage';
 
 export default function TimelineForm({ jobId, stage, onClose, onSaved }) {
   const [notes, setNotes] = useState('');
@@ -24,10 +25,12 @@ export default function TimelineForm({ jobId, stage, onClose, onSaved }) {
     if (!files.length) return;
     setUploading(true);
     try {
-      const urls = await Promise.all(
-        files.map((f) => base44.integrations.Core.UploadFile({ file: f }))
+      // Photos of a customer's property and job site are customer data, so they
+      // go to private storage; they are shown through short-lived signed links.
+      const uploaded = await Promise.all(
+        files.map((f) => base44.integrations.Core.UploadPrivateFile({ file: f }))
       );
-      setPhotoUrls([...photoUrls, ...urls.map((u) => u.file_url)]);
+      setPhotoUrls([...photoUrls, ...uploaded.map((u) => u.file_uri)]);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -71,12 +74,11 @@ export default function TimelineForm({ jobId, stage, onClose, onSaved }) {
           <div>
             <Label>Photos</Label>
             <div className="flex gap-2 flex-wrap mt-1">
-              {photoUrls.map((url, i) => (
+              {photoUrls.map((uri, i) => (
                 <div key={i} className="relative w-20 h-20">
-                  <img
-                    src={url}
+                  <PrivateImage
+                    fileUri={uri}
                     className="w-full h-full object-cover rounded-lg"
-                    alt=""
                   />
                   <button
                     type="button"
