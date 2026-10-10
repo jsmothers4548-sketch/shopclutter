@@ -1,6 +1,12 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.52";
 import { requireFeature } from "../../shared/planGuard.ts";
 import { FEATURE_ENTITIES, BRAND_FIELDS } from "../../shared/gatedEntities.ts";
+import {
+  READ_ADMIN_ONLY,
+  requiresAdmin,
+  isClosedJobGuarded,
+  isAdmin,
+} from "../../shared/entityPermissions.ts";
 
 // Every paid tool's data changes and report reads come through here. The shop
 // and its plan are resolved from the signed-in user inside requireFeature,
@@ -18,6 +24,23 @@ const WRITE_OPS = [
 const MAX_BATCH = 500;
 const MAX_READS = 12;
 const MAX_LIMIT = 3000;
+
+// The service role skips the entities' own data rules, so the role rules are
+// applied here instead: a non-admin is refused admin-only operations, and may
+// not change a record whose job is already Closed.
+const adminOnly = () =>
+  Response.json(
+    { error: "Only a shop administrator can do that." },
+    { status: 403 }
+  );
+const closedForbidden = () =>
+  Response.json(
+    {
+      error:
+        "That record belongs to a closed job and can only be changed by an administrator.",
+    },
+    { status: 403 }
+  );
 
 function bodyFor(entity: string, data: any) {
   if (entity === "ShopSettings") {
@@ -79,6 +102,9 @@ export default async function (req: Request): Promise<Response> {
             { status: 400 }
           );
         }
+        if (READ_ADMIN_ONLY.includes(entity) && !isAdmin(user)) {
+          return adminOnly();
+        }
         const query = { ...(spec?.query || {}), shop_id: shopId };
         const limit = Math.min(
           Math.max(Number(spec?.limit) || 500, 1),
@@ -106,24 +132,33 @@ export default async function (req: Request): Promise<Response> {
         { status: 400 }
       );
     }
+    if (requiresAdmin(entity, op) && !isAdmin(user)) {
+      return adminOnly();
+    }
 
     const payload = body?.payload;
     const records = sr.entities[entity];
 
     // The service role skips the data rules, so ownership is confirmed here
     // before anything is changed.
-    const isMine = async (id: string) => {
+    const findMine = async (id: string) => {
       const found = await records.filter(
         { id, shop_id: shopId },
         { limit: 1 }
       );
-      return rowsOf(found).length > 0;
+      const rows = rowsOf(found);
+      return rows.length ? rows[0] : null;
     };
     const notYours = () =>
       Response.json(
         { error: "That record is not part of your shop." },
         { status: 403 }
       );
+    // A record whose job is Closed is frozen for everyone but an administrator.
+    const blockedByClosedJob = (record: any) =>
+      isClosedJobGuarded(entity) &&
+      !isAdmin(user) &&
+      record?.job_status === "Closed";
 
     if (op === "create") {
       const record = await records.create({
@@ -135,14 +170,18 @@ export default async function (req: Request): Promise<Response> {
 
     if (op === "update") {
       const id = payload?.id;
-      if (!id || !(await isMine(id))) return notYours();
+      const mine = id ? await findMine(id) : null;
+      if (!mine) return notYours();
+      if (blockedByClosedJob(mine)) return closedForbidden();
       const record = await records.update(id, bodyFor(entity, payload?.data));
       return Response.json({ record });
     }
 
     if (op === "delete") {
       const id = payload?.id;
-      if (!id || !(await isMine(id))) return notYours();
+      const mine = id ? await findMine(id) : null;
+      if (!mine) return notYours();
+      if (blockedByClosedJob(mine)) return closedForbidden();
       await records.delete(id);
       return Response.json({ ok: true });
     }
@@ -168,19 +207,28 @@ export default async function (req: Request): Promise<Response> {
         { id: { $in: ids }, shop_id: shopId },
         { limit: MAX_BATCH }
       );
-      const mine = new Set(rowsOf(found).map((row: any) => row.id));
+      const mineRows = rowsOf(found);
+      const mine = new Set(mineRows.map((row: any) => row.id));
       if (ids.some((id: string) => !mine.has(id))) return notYours();
+      if (mineRows.some((row: any) => blockedByClosedJob(row))) {
+        return closedForbidden();
+      }
       const updated = await records.bulkUpdate(
         rows.map((row: any) => ({ ...bodyFor(entity, row), shop_id: shopId }))
       );
       return Response.json({ records: updated });
     }
 
-    // deleteMany: the query is always pinned to the caller's own shop.
-    await records.deleteMany({
-      ...(payload?.query || {}),
-      shop_id: shopId,
-    });
+    // deleteMany: the query is always pinned to the caller's own shop, and for
+    // a non-admin it also skips records whose job is already Closed.
+    const deleteQuery: any = { ...(payload?.query || {}) };
+    if (isClosedJobGuarded(entity) && !isAdmin(user)) {
+      deleteQuery.$and = [
+        ...(Array.isArray(deleteQuery.$and) ? deleteQuery.$and : []),
+        { job_status: { $ne: "Closed" } },
+      ];
+    }
+    await records.deleteMany({ ...deleteQuery, shop_id: shopId });
     return Response.json({ ok: true });
   } catch (error: any) {
     console.error("planGate failed", error?.message);
