@@ -272,9 +272,6 @@ export default function Home() {
         </div>
       </div>
       <ActiveJobClock />
-      <MyAssignmentsCard
-        staffName={user?.full_name || ''}
-        jobs={myAssignedJobs} />
       <LoyaltyRemindersCard
         reminders={loyaltyReminders}
         onChanged={reloadLoyalty} />
@@ -325,13 +322,16 @@ export default function Home() {
           className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-sm"
         />
       </form>
-      <JobStatusDropdown
-        jobs={safeJobs}
-        filter={filter}
-        setFilter={(value) => {
-          setFilter(value);
-          setLocationFilter('All');
-        }} />
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <JobStatusDropdown
+          jobs={safeJobs}
+          filter={filter}
+          setFilter={(value) => {
+            setFilter(value);
+            setLocationFilter('All');
+          }} />
+        <MyAssignmentsCard jobs={myAssignedJobs} />
+      </div>
       {myJobIds.size > 0 &&
       <button
         onClick={() => setAssignedOnly((v) => !v)}
