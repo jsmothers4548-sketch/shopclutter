@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import JobCard from '@/components/JobCard';
 import CustomerMatchLinks from '@/components/CustomerMatchLinks';
+import MyAssignmentsCard from '@/components/MyAssignmentsCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import UnitsInShopCard from '@/components/UnitsInShopCard';
@@ -22,7 +23,8 @@ export default function Home() {
   const [labor, setLabor] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('All');
+  // The board opens on Intake so new work is the first thing a technician sees.
+  const [filter, setFilter] = useState('Intake');
   const [locationFilter, setLocationFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [assignments, setAssignments] = useState([]);
@@ -114,6 +116,8 @@ export default function Home() {
     }
     return set;
   }, [assignments, myEmail]);
+
+  const myAssignedJobs = safeJobs.filter((j) => myJobIds.has(j.id));
 
   const handleScanResult = async (text) => {
     setShowScanner(false);
@@ -268,6 +272,9 @@ export default function Home() {
         </div>
       </div>
       <ActiveJobClock />
+      <MyAssignmentsCard
+        staffName={user?.full_name || ''}
+        jobs={myAssignedJobs} />
       <LoyaltyRemindersCard
         reminders={loyaltyReminders}
         onChanged={reloadLoyalty} />
