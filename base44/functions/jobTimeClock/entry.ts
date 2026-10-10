@@ -32,7 +32,9 @@ export default async function (req: Request): Promise<Response> {
     const jobId = String(body?.job_id || "");
     const entryId = String(body?.entry_id || "");
     if (
-      !["clock_in", "clock_out", "update_entry", "delete_entry"].includes(action)
+      !["clock_in", "clock_out", "status", "update_entry", "delete_entry"].includes(
+        action
+      )
     ) {
       return Response.json(
         { error: "That time action is not supported." },
@@ -56,6 +58,21 @@ export default async function (req: Request): Promise<Response> {
     const guard = await requireFeature(base44, user, "job_time_clock");
     if (!guard.ok) return guard.response;
     const shopId = guard.shop.id;
+
+    // A technician asks only about their own clock: whether they are still
+    // running on this job, or on another one. Everyone else's times stay out
+    // of reach, because the records themselves are administrator-only.
+    if (action === "status") {
+      const minePage = await sr.entities.JobTimeEntry.filter(
+        { shop_id: shopId, staff_email: user.email },
+        { sort: "-clock_in", limit: 100 }
+      );
+      const open = rowsOf(minePage).filter((e: any) => !e.clock_out);
+      return Response.json({
+        open_entry: open.find((e: any) => e.job_id === jobId) || null,
+        open_elsewhere: open.find((e: any) => e.job_id !== jobId) || null,
+      });
+    }
 
     // Correcting or removing recorded time is an administrator's job: it is
     // refused for everyone else here, not just hidden in the browser. The

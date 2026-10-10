@@ -17,12 +17,17 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-// Clocking in and out of a job. Time is written by the server, which also
-// enforces the shop's one-job-at-a-time rule.
+// Clocking in and out of a job. The clock is optional and is the shop's own
+// measure of how long a job really took — never a charge. The bill still comes
+// from the labor entries. Administrators see every entry and the job's total; a
+// technician sees only their own clock. Time is written by the server, which
+// also enforces the shop's one-job-at-a-time rule.
 export default function JobTimerCard({ jobId, jobStatus }) {
   const { user } = useAuth();
   const { locked } = usePlanFeature('job_time_clock');
+  const isAdmin = user?.role === 'admin';
   const [entries, setEntries] = useState([]);
+  const [myOpen, setMyOpen] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [tick, setTick] = useState(Date.now());
@@ -31,33 +36,50 @@ export default function JobTimerCard({ jobId, jobStatus }) {
   const [removingBusy, setRemovingBusy] = useState(false);
 
   const load = async () => {
-    const page = await base44.entities.JobTimeEntry.filter(
-      { job_id: jobId },
-      { sort: '-clock_in', limit: 200 }
-    );
-    setEntries(Array.isArray(page) ? page : page?.items || []);
+    if (isAdmin) {
+      const page = await base44.entities.JobTimeEntry.filter(
+        { job_id: jobId },
+        { sort: '-clock_in', limit: 200 }
+      );
+      const list = Array.isArray(page) ? page : page?.items || [];
+      setEntries(list);
+      const email = (user?.email || '').toLowerCase();
+      setMyOpen(
+        list.find(
+          (e) => !e.clock_out && (e.staff_email || '').toLowerCase() === email
+        ) || null
+      );
+      return;
+    }
+    // A technician asks the server only about their own clock, since the
+    // records themselves are administrator-only. A shop without the tool
+    // simply shows no clock.
+    try {
+      const res = await base44.functions.invoke('jobTimeClock', {
+        action: 'status',
+        job_id: jobId,
+      });
+      setMyOpen(res?.data?.open_entry || null);
+    } catch {
+      setMyOpen(null);
+    }
   };
 
   useEffect(() => {
     load();
-  }, [jobId]);
-
-  // Time entries are written by the server with the service role, so the
-  // record's own created_by_id belongs to the service account. The technician
-  // is matched on the email stored on the entry instead.
-  const isAdmin = user?.role === 'admin';
-  const myEmail = (user?.email || '').toLowerCase();
-  const mineOpen = entries.find(
-    (e) => !e.clock_out && (e.staff_email || '').toLowerCase() === myEmail
-  );
+  }, [jobId, isAdmin]);
 
   useEffect(() => {
-    if (!mineOpen) return;
+    if (!myOpen) return;
     const t = setInterval(() => setTick(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [mineOpen?.id]);
+  }, [myOpen?.id]);
 
   if (locked) return <UpgradePrompt feature="job_time_clock" />;
+
+  const isClosed = jobStatus === 'Closed';
+  // A closed job keeps no clock for a technician, so there is nothing to show.
+  if (!isAdmin && isClosed && !myOpen) return null;
 
   const clock = async (action) => {
     setBusy(true);
@@ -96,7 +118,6 @@ export default function JobTimerCard({ jobId, jobStatus }) {
   };
 
   const totalMinutes = entries.reduce((sum, e) => sum + entryMinutes(e), 0);
-  const isClosed = jobStatus === 'Closed';
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
@@ -104,25 +125,33 @@ export default function JobTimerCard({ jobId, jobStatus }) {
         <h2 className="font-bold text-slate-900 flex items-center gap-1.5">
           <Clock className="w-4 h-4 text-amber-600" /> Time on This Job
         </h2>
-        <span className="text-sm font-bold text-slate-900">
-          {formatHours(totalMinutes)} hrs
-        </span>
+        {isAdmin && (
+          <span className="text-sm font-bold text-slate-900">
+            {formatHours(totalMinutes)} hrs
+          </span>
+        )}
       </div>
+
+      {!isAdmin && (
+        <p className="text-xs text-slate-400">
+          Optional. Clock in when you start and out when you stop.
+        </p>
+      )}
 
       {!isClosed && (
         <button
-          onClick={() => clock(mineOpen ? 'clock_out' : 'clock_in')}
+          onClick={() => clock(myOpen ? 'clock_out' : 'clock_in')}
           disabled={busy}
           className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 ${
-            mineOpen
+            myOpen
               ? 'bg-red-600 text-white active:bg-red-700'
               : 'bg-green-600 text-white active:bg-green-700'
           }`}
         >
-          {mineOpen ? (
+          {myOpen ? (
             <>
               <Square className="w-4 h-4" /> Clock Out ·{' '}
-              {formatTimer(mineOpen, tick)}
+              {formatTimer(myOpen, tick)}
             </>
           ) : (
             <>
@@ -134,7 +163,7 @@ export default function JobTimerCard({ jobId, jobStatus }) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {entries.length > 0 && (
+      {isAdmin && entries.length > 0 && (
         <div className="space-y-1 pt-1 border-t border-slate-100">
           {entries.map((e) => {
             const running = !e.clock_out;
@@ -173,24 +202,22 @@ export default function JobTimerCard({ jobId, jobStatus }) {
                 >
                   {running ? 'Running' : `${formatHours(entryMinutes(e))} hrs`}
                 </span>
-                {isAdmin && (
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      onClick={() => setEditing(e)}
-                      title="Edit this entry"
-                      className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setRemoving(e)}
-                      title="Delete this entry"
-                      className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    onClick={() => setEditing(e)}
+                    title="Edit this entry"
+                    className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setRemoving(e)}
+                    title="Delete this entry"
+                    className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             );
           })}
