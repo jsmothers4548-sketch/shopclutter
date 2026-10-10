@@ -43,7 +43,9 @@ export default async function (req: Request): Promise<Response> {
     }
     const isEntryAction =
       action === "update_entry" || action === "delete_entry";
-    if (isEntryAction ? !entryId : !jobId) {
+    // The job board asks about the clock without naming a job, so `status` is
+    // the one action that may leave it out.
+    if (isEntryAction ? !entryId : action !== "status" && !jobId) {
       return Response.json(
         { error: "That time action is missing its record." },
         { status: 400 }
@@ -68,10 +70,25 @@ export default async function (req: Request): Promise<Response> {
         { sort: "-clock_in", limit: 100 }
       );
       const open = rowsOf(minePage).filter((e: any) => !e.clock_out);
-      return Response.json({
-        open_entry: open.find((e: any) => e.job_id === jobId) || null,
-        open_elsewhere: open.find((e: any) => e.job_id !== jobId) || null,
-      });
+      const payload: any = { open_entry: null, open_elsewhere: null };
+      if (!jobId) {
+        // No job named (the board): the one running clock, wherever it is.
+        payload.open_entry = open[0] || null;
+      } else {
+        payload.open_entry = open.find((e: any) => e.job_id === jobId) || null;
+        payload.open_elsewhere =
+          open.find((e: any) => e.job_id !== jobId) || null;
+      }
+      // The whole job's time is sent to administrators only; a technician is
+      // never given anyone else's records.
+      if (user.role === "admin" && jobId) {
+        const jobPage = await sr.entities.JobTimeEntry.filter(
+          { shop_id: shopId, job_id: jobId },
+          { sort: "-clock_in", limit: 200 }
+        );
+        payload.entries = rowsOf(jobPage);
+      }
+      return Response.json(payload);
     }
 
     // Correcting or removing recorded time is an administrator's job: it is

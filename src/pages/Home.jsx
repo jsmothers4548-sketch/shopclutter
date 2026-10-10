@@ -4,6 +4,7 @@ import JobCard from '@/components/JobCard';
 import JobQuickAdd from '@/components/JobQuickAdd';
 import JobStatusDropdown from '@/components/JobStatusDropdown';
 import UnitsInShopCard from '@/components/UnitsInShopCard';
+import ActiveJobClock from '@/components/ActiveJobClock';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, Bell, Calendar, MapPin, Search, UserCheck } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
@@ -241,6 +242,7 @@ export default function Home() {
           </button>
         </div>
       </div>
+      <ActiveJobClock />
       <UnitsInShopCard
         locationFilter={locationFilter}
         onSelect={(value) => {

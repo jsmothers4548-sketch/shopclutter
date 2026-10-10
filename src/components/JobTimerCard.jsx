@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { entryMinutes, formatHours, formatTimer } from '@/lib/jobTime';
 import usePlanFeature from '@/hooks/usePlanFeature';
 import UpgradePrompt from '@/components/UpgradePrompt';
-import { Play, Square, Clock, Pencil, Trash2 } from 'lucide-react';
+import {
+  Play,
+  Square,
+  Clock,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+} from 'lucide-react';
 import JobTimeEntryForm from '@/components/JobTimeEntryForm';
 import {
   AlertDialog,
@@ -24,10 +32,11 @@ import {
 // also enforces the shop's one-job-at-a-time rule.
 export default function JobTimerCard({ jobId, jobStatus }) {
   const { user } = useAuth();
-  const { locked } = usePlanFeature('job_time_clock');
+  const { locked, loading: planLoading } = usePlanFeature('job_time_clock');
   const isAdmin = user?.role === 'admin';
   const [entries, setEntries] = useState([]);
   const [myOpen, setMyOpen] = useState(null);
+  const [myElsewhere, setMyElsewhere] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [tick, setTick] = useState(Date.now());
@@ -35,51 +44,37 @@ export default function JobTimerCard({ jobId, jobStatus }) {
   const [removing, setRemoving] = useState(null);
   const [removingBusy, setRemovingBusy] = useState(false);
 
+  // The server is the single source of truth for the clock: it reports the
+  // caller's own running timer here, on another job, and — for administrators —
+  // every entry recorded against this job.
   const load = async () => {
-    if (isAdmin) {
-      const page = await base44.entities.JobTimeEntry.filter(
-        { job_id: jobId },
-        { sort: '-clock_in', limit: 200 }
-      );
-      const list = Array.isArray(page) ? page : page?.items || [];
-      setEntries(list);
-      const email = (user?.email || '').toLowerCase();
-      setMyOpen(
-        list.find(
-          (e) => !e.clock_out && (e.staff_email || '').toLowerCase() === email
-        ) || null
-      );
-      return;
-    }
-    // A technician asks the server only about their own clock, since the
-    // records themselves are administrator-only. A shop without the tool
-    // simply shows no clock.
-    try {
-      const res = await base44.functions.invoke('jobTimeClock', {
-        action: 'status',
-        job_id: jobId,
-      });
-      setMyOpen(res?.data?.open_entry || null);
-    } catch {
-      setMyOpen(null);
-    }
+    const res = await base44.functions.invoke('jobTimeClock', {
+      action: 'status',
+      job_id: jobId,
+    });
+    const data = res?.data || {};
+    setMyOpen(data.open_entry || null);
+    setMyElsewhere(data.open_elsewhere || null);
+    setEntries(Array.isArray(data.entries) ? data.entries : []);
   };
 
   useEffect(() => {
+    if (planLoading || locked) return;
     load();
-  }, [jobId, isAdmin]);
+  }, [jobId, planLoading, locked]);
 
+  const running = myOpen || myElsewhere;
   useEffect(() => {
-    if (!myOpen) return;
+    if (!running) return;
     const t = setInterval(() => setTick(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [myOpen?.id]);
+  }, [running?.id]);
 
   if (locked) return <UpgradePrompt feature="job_time_clock" />;
 
   const isClosed = jobStatus === 'Closed';
   // A closed job keeps no clock for a technician, so there is nothing to show.
-  if (!isAdmin && isClosed && !myOpen) return null;
+  if (!isAdmin && isClosed && !running) return null;
 
   const clock = async (action) => {
     setBusy(true);
@@ -132,26 +127,42 @@ export default function JobTimerCard({ jobId, jobStatus }) {
         )}
       </div>
 
-      {!isAdmin && (
+      {!isAdmin && !running && (
         <p className="text-xs text-slate-400">
           Optional. Clock in when you start and out when you stop.
         </p>
       )}
 
+      {myElsewhere && (
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-2">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 min-w-0">
+            You're still clocked in on{' '}
+            <Link
+              to={`/jobs/${myElsewhere.job_id}`}
+              className="font-semibold underline"
+            >
+              {myElsewhere.job_label || 'another job'}
+            </Link>
+            . Clock out below to stop it.
+          </p>
+        </div>
+      )}
+
       {!isClosed && (
         <button
-          onClick={() => clock(myOpen ? 'clock_out' : 'clock_in')}
+          onClick={() => clock(running ? 'clock_out' : 'clock_in')}
           disabled={busy}
           className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 ${
-            myOpen
+            running
               ? 'bg-red-600 text-white active:bg-red-700'
               : 'bg-green-600 text-white active:bg-green-700'
           }`}
         >
-          {myOpen ? (
+          {running ? (
             <>
               <Square className="w-4 h-4" /> Clock Out ·{' '}
-              {formatTimer(myOpen, tick)}
+              {formatTimer(running, tick)}
             </>
           ) : (
             <>
@@ -166,7 +177,7 @@ export default function JobTimerCard({ jobId, jobStatus }) {
       {isAdmin && entries.length > 0 && (
         <div className="space-y-1 pt-1 border-t border-slate-100">
           {entries.map((e) => {
-            const running = !e.clock_out;
+            const open = !e.clock_out;
             return (
               <div
                 key={e.id}
@@ -197,10 +208,10 @@ export default function JobTimerCard({ jobId, jobStatus }) {
                 </div>
                 <span
                   className={`text-sm font-semibold tabular-nums ${
-                    running ? 'text-green-600' : 'text-slate-700'
+                    open ? 'text-green-600' : 'text-slate-700'
                   }`}
                 >
-                  {running ? 'Running' : `${formatHours(entryMinutes(e))} hrs`}
+                  {open ? 'Running' : `${formatHours(entryMinutes(e))} hrs`}
                 </span>
                 <div className="flex items-center gap-0.5">
                   <button
