@@ -25,6 +25,7 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
   );
   const [taxRate, setTaxRate] = useState(template?.tax_rate ?? null);
   const [laborRate, setLaborRate] = useState(template?.default_labor_rate ?? null);
+  const [flatRate, setFlatRate] = useState(template?.flat_rate ?? 0);
   const [settings, setSettings] = useState(null);
 
   useEffect(() => {
@@ -96,6 +97,7 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
         problem_description: problemDescription,
         tax_rate: taxRate,
         default_labor_rate: laborRate,
+        flat_rate: Number(flatRate) || 0,
         parts_data: JSON.stringify(parts.filter((p) => p.name)),
         labor_data: JSON.stringify(labor.filter((l) => l.description)),
       };
@@ -160,6 +162,25 @@ export default function JobTemplateForm({ template, onClose, onSaved }) {
                 onChange={(e) => setLaborRate(parseFloat(e.target.value) || 0)}
               />
             </div>
+          </div>
+          <div>
+            <Label>Flat Rate ($)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={flatRate ?? ''}
+              onChange={(e) =>
+                setFlatRate(
+                  e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
+                )
+              }
+              placeholder="0.00"
+            />
+            <p className="text-xs text-slate-400 mt-1">
+              A set price for the whole service, like blade sharpening or an oil
+              change. Leave 0 to price by the hour instead.
+            </p>
           </div>
 
           {/* Parts Section */}

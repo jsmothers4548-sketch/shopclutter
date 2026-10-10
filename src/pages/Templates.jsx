@@ -100,6 +100,11 @@ export default function Templates() {
                       {countItems(t.labor_data)} labor entr
                       {countItems(t.labor_data) !== 1 ? 'ies' : 'y'}
                     </span>
+                    {t.flat_rate > 0 && (
+                      <span className="font-semibold text-amber-600">
+                        ${Number(t.flat_rate).toFixed(2)} flat rate
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-1">

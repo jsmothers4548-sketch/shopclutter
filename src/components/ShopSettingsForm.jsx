@@ -14,6 +14,7 @@ import { Settings, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { withShop } from '@/lib/shopScope';
+import TemplateRatesSection from '@/components/TemplateRatesSection';
 import {
   recordAudit,
   AUDIT_CATEGORIES,
@@ -251,6 +252,7 @@ export default function ShopSettingsForm() {
             />
           </div>
         </div>
+        <TemplateRatesSection />
       </div>
 
       <div className="flex shrink-0 items-center gap-2 border-t border-slate-200 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">

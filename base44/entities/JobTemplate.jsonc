@@ -22,6 +22,10 @@
       "type": "number",
       "default": 75
     },
+    "flat_rate": {
+      "type": "number",
+      "default": 0
+    },
     "parts_data": {
       "type": "string"
     },

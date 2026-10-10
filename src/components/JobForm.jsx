@@ -252,7 +252,22 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
         saved = await createJobWithTicket(payload);
         if (template) {
           const parts = template.parts_data ? JSON.parse(template.parts_data) : [];
-          const labor = template.labor_data ? JSON.parse(template.labor_data) : [];
+          const flatRate = Number(template.flat_rate) || 0;
+          // A flat-rate template prices the whole service, so it stands in for
+          // the preset labor lines. The parts still carry over, and everything
+          // stays editable on the new job.
+          const labor =
+            flatRate > 0
+              ? [
+                  {
+                    description: `${template.name} — flat rate`,
+                    hours: 1,
+                    hourly_rate: flatRate,
+                  },
+                ]
+              : template.labor_data
+              ? JSON.parse(template.labor_data)
+              : [];
           if (parts.length) {
             await base44.entities.Part.bulkCreate(
               withShopAll(
