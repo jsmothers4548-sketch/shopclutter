@@ -10,6 +10,7 @@ import {
   LayoutTemplate,
   MoreHorizontal,
   Lock,
+  LifeBuoy,
 } from 'lucide-react';
 import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
@@ -25,6 +26,7 @@ const moreItems = [
   { to: '/staff-tasks', label: 'Tasks', icon: ClipboardList, feature: 'staff_tasks' },
   { to: '/reminders', label: 'Reminders', icon: Bell },
   { to: '/templates', label: 'Templates', icon: LayoutTemplate, feature: 'templates' },
+  { to: '/help', label: 'Help', icon: LifeBuoy },
 ];
 
 export default function BottomNav() {

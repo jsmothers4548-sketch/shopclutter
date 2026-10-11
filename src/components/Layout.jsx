@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Wrench, Clock, Boxes, Lock } from 'lucide-react';
+import { Wrench, Clock, Boxes, Lock, LifeBuoy } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
@@ -48,6 +48,10 @@ export default function Layout() {
           {brand.name}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
+          <NavLink to="/help" className={headerBtnClass}>
+            <LifeBuoy className="w-4 h-4" />
+            <span className="hidden sm:inline">Help</span>
+          </NavLink>
           <NavLink
             to={clockLocked ? '/billing' : '/clock'}
             className={headerBtnClass}
