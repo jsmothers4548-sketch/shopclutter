@@ -49,19 +49,23 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Sign up',
-        body: 'From the welcome screen choose to create an account and enter your email and a password.',
+        body: 'From the welcome screen choose to create an account and enter your email and a password. Use a password you will remember — it protects your shop data.',
       },
       {
         heading: 'Verify your email',
-        body: 'We send a short code to your email. Enter it on the next screen to finish creating the account.',
+        body: 'We send a short code to your email. Enter it on the next screen to finish creating the account. If it does not arrive, check your spam folder and use the resend option.',
       },
       {
         heading: 'Log in',
-        body: 'After that you log in with your email and password. Use "Forgot password?" on the login screen if you ever need to reset it.',
+        body: 'After that you log in with your email and password. Use "Forgot password?" on the login screen if you ever need to reset it — we email you a link to set a new one.',
       },
       {
         heading: 'Joining an existing shop',
-        body: 'If your shop already uses ShopClutter, you do not sign up on your own — an admin sends you an invite and you accept it from the email.',
+        body: 'If your shop already uses ShopClutter, you do not sign up on your own — an admin sends you an invite and you accept it from the email, then set your own password.',
+      },
+      {
+        heading: 'What you can see',
+        body: 'Everyone in a shop sees the shared job board, customers, and inventory. Money and time figures — profit, pay rates, and clock details — are only shown to shop administrators.',
       },
     ],
   },
@@ -73,15 +77,27 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Open your admin tools',
-        body: 'Tap "Admin" in the top bar to open the menu. Everything below lives there.',
+        body: 'Tap "Admin" in the top bar to open the menu. Everything below lives there, and only administrators see this menu.',
       },
       {
         heading: 'Set your default rates',
-        body: 'Admin → Default Rates. Enter your labor rates, service call fee, pickup and return fees, and your tax rate. New jobs start from these numbers, and you can still change any of them on an individual job.',
+        body: 'Admin → Default Rates. Enter your on-site and off-site labor rates, service call fee, in-town and out-of-town pickup and return fees, and your job and sales tax rates. New jobs start from these numbers, and you can still change any of them on an individual job.',
+      },
+      {
+        heading: 'Set your overtime rule',
+        body: 'In Default Rates choose whether overtime follows the federal weekly rule or a daily rule, so your time reports match how you actually pay.',
+      },
+      {
+        heading: 'Allow overlapping job timers',
+        body: 'If your techs sometimes need to track time on more than one job at once, turn on overlapping timers in Default Rates. Leave it off if a tech should only ever be on one job.',
       },
       {
         heading: 'Add your shop branding',
-        body: 'Admin → Branding. Add your shop name, logo, address, phone, and email. These appear at the top of your estimates and invoices and on the login screen.',
+        body: 'Admin → Branding. Add your shop name, logo, address, phone, and email. These appear at the top of your estimates and invoices, in the app header, and on the login screen.',
+      },
+      {
+        heading: 'Revisit any time',
+        body: 'These settings are not one-time. Change them whenever your rates or details change — existing jobs keep the numbers they already had, while new jobs pick up the new ones.',
       },
     ],
   },
@@ -97,11 +113,19 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Fill in their details',
-        body: 'Name and contact info, a role title, their pay rate, and their hire date. The pay rate is used for labor cost and profit figures.',
+        body: 'Name and contact info, a role title, their pay rate, and their hire date. The pay rate is used for labor cost and profit figures, and is only visible to administrators.',
       },
       {
         heading: 'Invite them to log in',
-        body: 'To give someone their own login, invite them by email from the staff directory. They set their own password from the invite email.',
+        body: 'To give someone their own login, invite them by email from the staff directory. They accept the invite and set their own password. Until they have a login they still exist as a staff record you can assign work to.',
+      },
+      {
+        heading: 'Mark someone inactive',
+        body: 'When a staff member leaves, set their status to inactive instead of deleting them. Their name stays on past jobs and time records, but they drop off the active list.',
+      },
+      {
+        heading: 'Employee IDs',
+        body: 'Each staff member can have an employee ID. That ID is what they enter in the clock portal to clock in and out, so keep it short and easy to remember.',
       },
     ],
   },
@@ -113,7 +137,7 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Add the customer',
-        body: 'Open Customers and tap Add. Enter their name and phone at minimum; email and address are optional.',
+        body: 'Open Customers and tap Add. Enter their name and phone at minimum; email and address are optional but make on-site visits and reminders easier.',
       },
       {
         heading: 'Reach them fast',
@@ -121,7 +145,15 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'See their history',
-        body: 'A customer profile lists every job and unit on record, plus their visit count used for loyalty milestones.',
+        body: 'A customer profile lists every job and unit on record, plus their visit count used for loyalty milestones. Tap any job to open it.',
+      },
+      {
+        heading: 'Add notes and instructions',
+        body: 'Use the notes area for anything the shop should remember about this customer — gate codes, preferred contact times, or special handling.',
+      },
+      {
+        heading: 'Start a job from here',
+        body: 'You can create a new job straight from a customer profile, so their details are already attached to the ticket.',
       },
     ],
   },
@@ -137,23 +169,31 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Choose where the work happens',
-        body: 'Pick On-site (you go to them) or Off-site (they bring it in). This decides which service and pickup fees apply.',
+        body: 'Pick On-site (you go to them) or Off-site (they bring it in). This decides which service and pickup fees apply, and whether an off-site address is needed.',
       },
       {
         heading: 'Optionally start from a template',
-        body: 'If you have a template for common work, choose it to pre-fill the parts and labor. You can still change everything.',
+        body: 'If you have a template for common work, choose it to pre-fill the equipment type, problem description, parts, and labor. You can still change everything after it fills in.',
       },
       {
         heading: 'Pick or add the customer',
-        body: 'Search for an existing customer or add a new one on the spot.',
+        body: 'Search for an existing customer or add a new one on the spot without leaving the screen.',
       },
       {
         heading: 'Describe the equipment and problem',
-        body: 'Enter the equipment type, make, model, serial number, and what the customer says is wrong. Save to create the ticket.',
+        body: 'Enter the equipment type, make, model, serial number, and what the customer says is wrong. The more you note now, the less you have to chase down later.',
+      },
+      {
+        heading: 'Set pickup and delivery fees',
+        body: 'If you are picking up or returning equipment, choose the pickup type (None, In-town, or Out-of-town). The matching fees fill in from your Default Rates and stay editable on the job.',
       },
       {
         heading: 'Label the unit (optional)',
-        body: 'If you printed a label for a new unit, you can print it right from the intake screen so it matches the ticket.',
+        body: 'If you printed a label for a new unit, you can print it right from the intake screen so the label matches the ticket number.',
+      },
+      {
+        heading: 'Save the ticket',
+        body: 'Save to create the job. It starts in the Intake status and appears at the top of the Job Board, ready to diagnose.',
       },
     ],
   },
@@ -165,7 +205,7 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Status filter',
-        body: 'The board opens showing Intake jobs, so new work is right in front of you. Tap the status button to switch to any other status or All.',
+        body: 'The board opens showing Intake jobs, so new work is right in front of you. Tap the status button to switch to any other status or All, and each status shows how many jobs are in it.',
       },
       {
         heading: 'Location counts',
@@ -177,11 +217,19 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Your assignments',
-        body: 'The "My Assignments" button lists jobs assigned to you. Tap "Assigned to me" to hide everyone else\'s work.',
+        body: 'The "My Assignments" button lists jobs assigned to you. Tap "Assigned to me" to hide everyone else\'s work and focus on your own list.',
+      },
+      {
+        heading: 'Today\'s schedule',
+        body: 'Reminders and appointments due today show on the board under "Today\'s Schedule", so you can see the day at a glance.',
       },
       {
         heading: 'QR code',
         body: 'The QR button lets you scan a unit label to jump straight to its job, or print a label for a new unit.',
+      },
+      {
+        heading: 'Quick actions on a card',
+        body: 'Each job card shows the customer, equipment, status, and visit count. Tap the card to open the job, or use the phone and text shortcuts on the card to reach the customer without opening it.',
       },
     ],
   },
@@ -196,12 +244,68 @@ export const HELP_ARTICLES = [
         body: 'A job moves through: Intake, Diagnosed, Estimate Sent, Approved, In Progress, Waiting on Parts, Ready for Pickup, and Closed.',
       },
       {
+        heading: 'What each one means',
+        body: 'Intake is new work just in. Diagnosed is after you have looked it over. Estimate Sent is waiting on the customer. Approved means they said go. In Progress is active work. Waiting on Parts is blocked on a delivery. Ready for Pickup is finished and waiting for them. Closed is done and billed.',
+      },
+      {
         heading: 'Change the status',
-        body: 'Open the job and use the status control to set where it is now. The board and counts update to match.',
+        body: 'Open the job and use the status control to set where it is now, or change it right from the job card on the board. The board, counts, and badge grid update to match.',
       },
       {
         heading: 'Closed jobs',
-        body: 'A Closed job is locked from further edits unless you are an admin, so finished work stays intact.',
+        body: 'A Closed job is locked from further edits unless you are an admin, so finished work stays intact. Reopen it by setting the status back only if you truly need to.',
+      },
+    ],
+  },
+  {
+    id: 'job-costs',
+    topic: 'jobs',
+    title: 'Add parts, labor, and expenses to a job',
+    summary: 'Build up what a job costs so the estimate and invoice are correct.',
+    steps: [
+      {
+        heading: 'Parts',
+        body: 'On the job page, add each part you used with its description, part number, quantity, and price. Parts feed the job total and, if the part came from inventory, tie back to your stock.',
+      },
+      {
+        heading: 'Labor',
+        body: 'Add labor lines with a description, the hours, and the hourly rate. The rate starts from your default rate and stays editable per line.',
+      },
+      {
+        heading: 'Expenses',
+        body: 'Use expenses for money you spent directly on a job — a sublet, a trip, a bought-in part. Mark whether it is billable to the customer and whether it has been reimbursed to the person who paid.',
+      },
+      {
+        heading: 'Discounts',
+        body: 'Apply a parts discount and a labor discount on the job, each as a fixed amount or a percentage. A loyalty discount, when applied, comes off the whole ticket subtotal.',
+      },
+      {
+        heading: 'See the totals',
+        body: 'The job page totals everything — parts, labor, expenses, fees, discounts, and tax — so you always know the running figure before you bill.',
+      },
+      {
+        heading: 'Profit (admins only)',
+        body: 'Administrators also see a profit figure that compares what the job earns against the pay cost of the labor on it. Technicians do not see this.',
+      },
+    ],
+  },
+  {
+    id: 'job-timeline',
+    topic: 'jobs',
+    title: 'Keep a job timeline',
+    summary: 'Record what happened on a job, with photos, as you go.',
+    steps: [
+      {
+        heading: 'Add an entry',
+        body: 'On the job page open the timeline and add a note about what you did or found. Entries are stamped with who wrote them and when.',
+      },
+      {
+        heading: 'Attach photos',
+        body: 'You can attach photos to a timeline entry — useful for documenting damage, a serial plate, or work completed before it leaves the shop.',
+      },
+      {
+        heading: 'Why keep it',
+        body: 'The timeline becomes the story of the job: what came in, what you tried, and what you did. It is handy when a customer asks questions later.',
       },
     ],
   },
@@ -213,11 +317,15 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Assign from the job',
-        body: 'Open the job and tap Assign, then choose the staff member.',
+        body: 'Open the job and tap Assign, then choose the staff member. You can assign more than one person if a job is shared.',
       },
       {
         heading: 'What they see',
         body: 'The assigned person sees the job under "My Assignments" and can filter the board with "Assigned to me".',
+      },
+      {
+        heading: 'Change or remove',
+        body: 'Open the assignments list on the job to add another person or remove someone when the work moves on.',
       },
     ],
   },
@@ -229,19 +337,23 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Open the estimate',
-        body: 'On the job page tap Estimate. It opens with the job and customer details already filled in.',
+        body: 'On the job page tap Estimate. It opens with the job, customer, and equipment details already filled in.',
       },
       {
         heading: 'Add parts and labor',
         body: 'List the parts and labor lines for the job. Add discounts or adjust tax if the customer gets a break.',
       },
       {
+        heading: 'Check the total',
+        body: 'The estimate shows each line, any discounts, tax, and the final total the customer will see. Review it before sending.',
+      },
+      {
         heading: 'Print or share it',
-        body: 'Use the print control to produce a clean, branded estimate you can print or save and send to the customer.',
+        body: 'Use the print control to produce a clean, branded estimate you can print or save and send, or use the text button to send a summary to the customer\'s phone.',
       },
       {
         heading: 'Record their answer',
-        body: 'Once the customer approves, set the job status to Approved so it is clear the work can go ahead.',
+        body: 'Once the customer approves, set the job status to Approved so it is clear the work can go ahead. If they decline, note it and close or hold the job.',
       },
     ],
   },
@@ -253,19 +365,23 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Open the invoice',
-        body: 'On the job page tap Invoice. It carries over the job, customer, parts, and labor.',
+        body: 'On the job page tap Invoice. It carries over the job, customer, equipment, parts, labor, and expenses.',
       },
       {
         heading: 'Review the charges',
-        body: 'Check the lines, tax, and any discounts. Adjust anything that changed during the job.',
+        body: 'Check the lines, tax, fees, and any discounts. Adjust anything that changed during the job before you hand it over.',
       },
       {
         heading: 'Record payments',
-        body: 'As the customer pays, record the payment against the invoice. The balance updates, and the job shows as paid once the balance reaches zero.',
+        body: 'As the customer pays, record the payment against the job. Partial payments are fine — the balance updates each time and the job shows as paid once the balance reaches zero.',
       },
       {
         heading: 'Print it',
-        body: 'Use the print control for a branded invoice to hand over or send.',
+        body: 'Use the print control for a branded invoice to hand over, or use the text button to send the customer a summary with the amount due.',
+      },
+      {
+        heading: 'Close it out',
+        body: 'When the work is done and the balance is settled, set the job to Closed so it is locked and out of the active list.',
       },
     ],
   },
@@ -284,12 +400,24 @@ export const HELP_ARTICLES = [
         body: 'Add a part with its name, part number, category, supplier, stock quantity, unit cost, and reorder threshold.',
       },
       {
-        heading: 'Restock and reorder',
-        body: 'Use Restock to add stock when a shipment arrives, and check parts at or below their reorder threshold to know what to order.',
+        heading: 'Restock',
+        body: 'Use Restock to add stock when a shipment arrives, so the quantity on hand stays accurate.',
+      },
+      {
+        heading: 'Know what to reorder',
+        body: 'Parts at or below their reorder threshold stand out, so you can see at a glance what needs ordering before you run out mid-job.',
+      },
+      {
+        heading: 'Supplier orders',
+        body: 'From a part you can put together a supplier order for what you need, then restock when it arrives.',
       },
       {
         heading: 'Organize categories',
-        body: 'Use the "Add Category" button to create and manage the categories your parts are grouped under.',
+        body: 'Use the "Add Category" button to create and manage the categories your parts are grouped under, so a busy shelf stays easy to search.',
+      },
+      {
+        heading: 'Purchase history',
+        body: 'A part keeps a record of what you bought and what you paid, so you can see how its cost has moved over time.',
       },
     ],
   },
@@ -301,11 +429,11 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Units for sale',
-        body: 'Open Inventory and use the Units for Sale tab. Add a unit with its condition, cost, and price.',
+        body: 'Open Inventory and use the Units for Sale tab. Add a unit with its name, make, model, condition, cost, and price.',
       },
       {
         heading: 'Mark it sold',
-        body: 'When a unit sells, mark it sold so it drops off the for-sale list and the sale is recorded.',
+        body: 'When a unit sells, mark it sold so it drops off the for-sale list and the sale is recorded against it.',
       },
       {
         heading: 'Customer units',
@@ -314,6 +442,10 @@ export const HELP_ARTICLES = [
       {
         heading: 'Labels and QR codes',
         body: 'Print a unit label with its number and QR code, then scan that code anywhere in the app to open the unit or its open job.',
+      },
+      {
+        heading: 'Label sheets',
+        body: 'You can print a whole sheet of labels at once for a batch of new units, rather than one at a time.',
       },
     ],
   },
@@ -325,15 +457,47 @@ export const HELP_ARTICLES = [
     steps: [
       {
         heading: 'Clock portal',
-        body: 'Tap "Clock" in the top bar to open the clock portal, then enter your ID to clock in or out for your shift.',
+        body: 'Tap "Clock" in the top bar to open the clock portal, then enter your employee ID to clock in or out for your shift.',
       },
       {
         heading: 'Job timers',
-        body: 'On a job you can clock in and out of that specific job to measure time spent on it. Admins can turn on overlapping timers in settings if you need to run more than one at a time.',
+        body: 'On a job you can clock in and out of that specific job to measure time spent on it. These job timers are separate from your shift clock and are an admin tool for seeing where time goes.',
+      },
+      {
+        heading: 'Overlapping timers',
+        body: 'Admins can turn on overlapping timers in settings if you need to run more than one job timer at a time. Otherwise only one runs at once.',
       },
       {
         heading: 'Clock out from anywhere',
-        body: 'If you are clocked into a job, the active timer shows on the Job Board with a direct way to clock out, so you are never stuck.',
+        body: 'If you are clocked into a job, the active timer shows on the Job Board with a direct way to clock out, so you are never stuck without a way to stop it.',
+      },
+      {
+        heading: 'Who sees what',
+        body: 'You can always see and manage your own clock. The detailed clock-in and clock-out times for everyone are visible to administrators only.',
+      },
+    ],
+  },
+  {
+    id: 'timecards',
+    topic: 'staff',
+    title: 'Review staff timecards',
+    summary: 'Check hours worked, week by week (admins).',
+    steps: [
+      {
+        heading: 'Open timecards',
+        body: 'Admin → Staff Directory, then open a staff member and look at their timecard, or open the time clock area to see everyone.',
+      },
+      {
+        heading: 'Read the weeks',
+        body: 'Time is grouped by week, with each day\'s hours shown. Open a week to see the individual clock-in and clock-out entries behind the totals.',
+      },
+      {
+        heading: 'Correct an entry',
+        body: 'If an entry is wrong, edit it and add a short correction note so there is a record of why it changed.',
+      },
+      {
+        heading: 'Overtime',
+        body: 'Overtime is worked out using the rule you set in Default Rates, so the figures here match how you pay.',
       },
     ],
   },
@@ -350,6 +514,10 @@ export const HELP_ARTICLES = [
       {
         heading: 'Create a task',
         body: 'Add a task with a title and who it is for. Tasks are separate from repair jobs and are for chores like ordering, cleaning, or callbacks.',
+      },
+      {
+        heading: 'Track progress',
+        body: 'Tasks can be marked done as they are finished, so you can see what is still outstanding without asking.',
       },
     ],
   },
@@ -369,11 +537,19 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Link a customer',
-        body: 'Attach a customer so the address and contact come along, which is handy for on-site visits.',
+        body: 'Attach a customer so their address and contact come along, which is handy for on-site visits — you can tap to call or text right from the reminder.',
       },
       {
         heading: 'Today\'s schedule',
         body: 'Anything due today shows on the Job Board under "Today\'s Schedule", and the Reminders button shows a count of what is due.',
+      },
+      {
+        heading: 'Yours alone',
+        body: 'Reminders you create are personal to you — other staff do not see your reminder list.',
+      },
+      {
+        heading: 'Finish one',
+        body: 'Mark a reminder complete when it is handled, and it drops off your active list.',
       },
     ],
   },
@@ -389,11 +565,67 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Build a template',
-        body: 'Give it a name and set the equipment type, the usual problem description, the parts, and the labor. You can also set a flat rate.',
+        body: 'Give it a name and set the equipment type, the usual problem description, the parts, and the labor. You can also set a flat rate for the job.',
+      },
+      {
+        heading: 'Set template rates',
+        body: 'You can give a template its own default rates, so a recurring job type always starts from the right price. The rates stay editable when the template is used.',
       },
       {
         heading: 'Use it at intake',
-        body: 'When you start a new job, pick the template and its parts and labor fill in automatically. Everything stays editable.',
+        body: 'When you start a new job, pick the template and its parts and labor fill in automatically. Everything stays editable, so a one-off change does not affect the template.',
+      },
+      {
+        heading: 'Keep them current',
+        body: 'Update a template when your prices or usual parts change, so new jobs keep starting from accurate numbers.',
+      },
+    ],
+  },
+  {
+    id: 'quick-actions',
+    topic: 'tools',
+    title: 'Reach customers and use quick actions',
+    summary: 'Call, text, and add jobs without retyping anything.',
+    steps: [
+      {
+        heading: 'Tap to call or text',
+        body: 'Wherever a customer\'s phone number appears — on their profile, a job card, or a job page — tapping it starts a call or a text on your phone.',
+      },
+      {
+        heading: 'Send an estimate or invoice by text',
+        body: 'From an estimate or invoice, use the text button to send the customer a summary with the total or amount due.',
+      },
+      {
+        heading: 'Pickup and delivery messages',
+        body: 'When you need to arrange a pickup or drop-off, the job has a ready-made message you can send with the details filled in.',
+      },
+      {
+        heading: 'Voice intake',
+        body: 'You can start a new job by describing it out loud instead of typing, which is handy when your hands are busy in the shop.',
+      },
+      {
+        heading: 'Scan a label',
+        body: 'Use the QR button to scan a unit label and jump straight to that unit or its open job.',
+      },
+    ],
+  },
+  {
+    id: 'reimbursements',
+    topic: 'tools',
+    title: 'Track reimbursements',
+    summary: 'Keep track of money staff spent on jobs that is owed back (admins).',
+    steps: [
+      {
+        heading: 'Open reimbursements',
+        body: 'Admin → Reimbursements. This gathers the expenses staff marked as paid out of pocket.',
+      },
+      {
+        heading: 'See what is owed',
+        body: 'Each entry shows the job, who paid, and the amount, so you can see what is still outstanding.',
+      },
+      {
+        heading: 'Mark it paid',
+        body: 'Once you have paid someone back, mark the expense as reimbursed so it clears off the list.',
       },
     ],
   },
@@ -412,8 +644,16 @@ export const HELP_ARTICLES = [
         body: 'Record a sale with its line items, price, and tax. Sales are separate from repair invoices and are for parts or units sold over the counter.',
       },
       {
+        heading: 'Add lines',
+        body: 'Add each item on its own line with its quantity and price, so the receipt and your reports are accurate.',
+      },
+      {
         heading: 'Track payment',
         body: 'The sales list shows what is paid and what is still outstanding, so you can follow up on balances.',
+      },
+      {
+        heading: 'Open a sale',
+        body: 'Tap any sale to open its full detail, including the lines, total, and what has been paid.',
       },
     ],
   },
@@ -421,7 +661,7 @@ export const HELP_ARTICLES = [
     id: 'reports',
     topic: 'reports',
     title: 'Read your reports',
-    summary: 'See how the shop is doing.',
+    summary: 'See how the shop is doing (admins).',
     steps: [
       {
         heading: 'Open reports',
@@ -430,6 +670,14 @@ export const HELP_ARTICLES = [
       {
         heading: 'Choose a section',
         body: 'Reports cover Profit & Loss, Employee Earnings, Job and Sales breakdowns, Parts, Expenditures, and Time on Jobs. Tap a section to open it.',
+      },
+      {
+        heading: 'Profit & Loss',
+        body: 'Shows what came in against what went out over the period, so you can see whether the shop is ahead.',
+      },
+      {
+        heading: 'Employee earnings',
+        body: 'Shows hours and pay by staff member. This is payroll-sensitive, so it is admin-only.',
       },
       {
         heading: 'Drill in and print',
@@ -452,8 +700,36 @@ export const HELP_ARTICLES = [
         body: 'Set a visit count and a discount, either a percentage or a fixed amount. The discount applies to the whole ticket subtotal.',
       },
       {
+        heading: 'How visits count',
+        body: 'A customer\'s visit count is based on their job tickets, which you can see on their profile and on each job card.',
+      },
+      {
         heading: 'Apply it',
-        body: 'When a customer reaches a milestone, a reminder appears for admins. Open their latest job to apply the discount, or dismiss it.',
+        body: 'When a customer reaches a milestone, a reminder appears for admins. Open their latest job to apply the discount, or dismiss it if it does not apply this time.',
+      },
+      {
+        heading: 'Only admins see it',
+        body: 'Loyalty reminders and the discount details are visible to administrators only, so technicians are not distracted by them.',
+      },
+    ],
+  },
+  {
+    id: 'change-history',
+    topic: 'reports',
+    title: 'Review change history',
+    summary: 'See a record of important changes made in the shop (admins).',
+    steps: [
+      {
+        heading: 'Open the history',
+        body: 'Admin → Change History.',
+      },
+      {
+        heading: 'Filter the log',
+        body: 'Filter by category, action, or who made the change. Each entry shows what changed, who did it, and when.',
+      },
+      {
+        heading: 'Why it matters',
+        body: 'Time and pay changes are recorded here, so there is always a clear record of who changed what on money-related records.',
       },
     ],
   },
@@ -469,31 +745,35 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Compare plans',
-        body: 'The page shows your current plan and what each tier includes. Features like reports, the time clock, and templates are unlocked by plan.',
+        body: 'The page shows your current plan and what each tier includes. Features like reports, the time clock, templates, and branding are unlocked by plan.',
       },
       {
         heading: 'Change plan',
         body: 'Tap "Change plan" and follow the checkout to move up or down. Your data stays with the shop.',
       },
+      {
+        heading: 'Locked features',
+        body: 'If a feature shows a lock, it is not part of your current plan. Tapping it takes you here so you can compare and upgrade.',
+      },
     ],
   },
   {
-    id: 'change-history',
+    id: 'roadmap',
     topic: 'reports',
-    title: 'Review change history',
-    summary: 'See a record of important changes made in the shop.',
+    title: 'Keep a shop roadmap',
+    summary: 'Note ideas and improvements for the shop (admins).',
     steps: [
       {
-        heading: 'Open the history',
-        body: 'Admin → Change History.',
+        heading: 'Open the roadmap',
+        body: 'Admin → Roadmap.',
       },
       {
-        heading: 'Filter the log',
-        body: 'Filter by category, action, or who made the change. Each entry shows what changed, who did it, and when.',
+        heading: 'Add a note',
+        body: 'Add an idea or a task under a topic, with any details you want to remember. Group things by topic so related ideas stay together.',
       },
       {
-        heading: 'Why it matters',
-        body: 'Time and pay changes are recorded here, so there is always a clear record of who changed what on money-related records.',
+        heading: 'Mark it done',
+        body: 'Tick off notes as you get to them, so the list stays a picture of what is still ahead.',
       },
     ],
   },
