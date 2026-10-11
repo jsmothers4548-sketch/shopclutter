@@ -16,12 +16,19 @@ export default function Help() {
   const results = useMemo(() => filterArticles(query), [query]);
   const searching = query.trim().length > 0;
 
+  // Return to the topic and search list, keeping the search text, and start
+  // the list from the top rather than wherever the guide was scrolled to.
+  const closeArticle = () => {
+    setActive(null);
+    window.scrollTo({ top: 0 });
+  };
+
   if (active) {
     return (
       <HelpArticleView
         article={active}
         topicLabel={topicLabel(active.topic)}
-        onBack={() => setActive(null)}
+        onBack={closeArticle}
       />
     );
   }
