@@ -58,3 +58,9 @@ export function requiresAdmin(entity: string, op: string): boolean {
 export function isClosedJobGuarded(entity: string): boolean {
   return CLOSED_JOB_GUARDED.includes(entity);
 }
+
+// The field carrying the job's status differs by entity: a Job holds its own
+// `status`, while the records hanging off it mirror that status in `job_status`.
+export function closedJobField(entity: string): string {
+  return entity === "Job" ? "status" : "job_status";
+}

@@ -5,6 +5,7 @@ import {
   READ_ADMIN_ONLY,
   requiresAdmin,
   isClosedJobGuarded,
+  closedJobField,
   isAdmin,
 } from "../../shared/entityPermissions.ts";
 
@@ -158,7 +159,7 @@ export default async function (req: Request): Promise<Response> {
     const blockedByClosedJob = (record: any) =>
       isClosedJobGuarded(entity) &&
       !isAdmin(user) &&
-      record?.job_status === "Closed";
+      record?.[closedJobField(entity)] === "Closed";
 
     if (op === "create") {
       const record = await records.create({
@@ -225,7 +226,7 @@ export default async function (req: Request): Promise<Response> {
     if (isClosedJobGuarded(entity) && !isAdmin(user)) {
       deleteQuery.$and = [
         ...(Array.isArray(deleteQuery.$and) ? deleteQuery.$and : []),
-        { job_status: { $ne: "Closed" } },
+        { [closedJobField(entity)]: { $ne: "Closed" } },
       ];
     }
     await records.deleteMany({ ...deleteQuery, shop_id: shopId });
