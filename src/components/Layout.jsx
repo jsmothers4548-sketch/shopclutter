@@ -50,7 +50,7 @@ export default function Layout() {
         <div className="ml-auto flex items-center gap-1.5">
           <NavLink to="/help" className={headerBtnClass}>
             <LifeBuoy className="w-4 h-4" />
-            <span className="hidden sm:inline">Help</span>
+            <span>Help</span>
           </NavLink>
           <NavLink
             to={clockLocked ? '/billing' : '/clock'}
