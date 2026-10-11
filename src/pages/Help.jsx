@@ -8,12 +8,18 @@ import {
 } from '@/lib/helpContent';
 import HelpArticleCard from '@/components/help/HelpArticleCard';
 import HelpArticleView from '@/components/help/HelpArticleView';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Help() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(null);
 
-  const results = useMemo(() => filterArticles(query), [query]);
+  const results = useMemo(
+    () => filterArticles(query, isAdmin),
+    [query, isAdmin]
+  );
   const searching = query.trim().length > 0;
 
   // Return to the topic and search list, keeping the search text, and start
@@ -23,7 +29,9 @@ export default function Help() {
     window.scrollTo({ top: 0 });
   };
 
-  if (active) {
+  // A regular user can never open an administrator-only guide, even if one
+  // were somehow selected directly.
+  if (active && (isAdmin || !active.adminOnly)) {
     return (
       <HelpArticleView
         article={active}
@@ -36,7 +44,9 @@ export default function Help() {
   // Browse view: articles grouped under each topic, in topic order.
   const grouped = HELP_TOPICS.map((topic) => ({
     topic,
-    articles: HELP_ARTICLES.filter((a) => a.topic === topic.key),
+    articles: HELP_ARTICLES.filter(
+      (a) => a.topic === topic.key && (isAdmin || !a.adminOnly)
+    ),
   })).filter((g) => g.articles.length > 0);
 
   return (

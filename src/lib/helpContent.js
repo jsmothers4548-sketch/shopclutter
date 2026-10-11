@@ -72,6 +72,7 @@ export const HELP_ARTICLES = [
   {
     id: 'set-up-shop',
     topic: 'start',
+    adminOnly: true,
     title: 'Set up your shop',
     summary: 'Set your rates and your shop details once, so jobs and paperwork come out right.',
     steps: [
@@ -104,6 +105,7 @@ export const HELP_ARTICLES = [
   {
     id: 'add-staff',
     topic: 'start',
+    adminOnly: true,
     title: 'Add your staff',
     summary: 'Create staff records so you can assign jobs and track time.',
     steps: [
@@ -132,6 +134,7 @@ export const HELP_ARTICLES = [
   {
     id: 'bring-in-data',
     topic: 'start',
+    adminOnly: true,
     title: 'Bring in your existing data',
     summary: 'Move customers, jobs, inventory and sales over from a spreadsheet.',
     steps: [
@@ -360,6 +363,7 @@ export const HELP_ARTICLES = [
   {
     id: 'assign-job',
     topic: 'jobs',
+    adminOnly: true,
     title: 'Assign a job to a technician',
     summary: 'Put a name on a ticket so everyone knows who has it.',
     steps: [
@@ -528,6 +532,7 @@ export const HELP_ARTICLES = [
   {
     id: 'timecards',
     topic: 'staff',
+    adminOnly: true,
     title: 'Review staff timecards',
     summary: 'Check hours worked, week by week (admins).',
     steps: [
@@ -660,6 +665,7 @@ export const HELP_ARTICLES = [
   {
     id: 'reimbursements',
     topic: 'tools',
+    adminOnly: true,
     title: 'Track reimbursements',
     summary: 'Keep track of money staff spent on jobs that is owed back (admins).',
     steps: [
@@ -708,6 +714,7 @@ export const HELP_ARTICLES = [
   {
     id: 'reports',
     topic: 'reports',
+    adminOnly: true,
     title: 'Read your reports',
     summary: 'See how the shop is doing (admins).',
     steps: [
@@ -736,6 +743,7 @@ export const HELP_ARTICLES = [
   {
     id: 'loyalty',
     topic: 'reports',
+    adminOnly: true,
     title: 'Set up loyalty discounts',
     summary: 'Reward repeat customers automatically.',
     steps: [
@@ -764,6 +772,7 @@ export const HELP_ARTICLES = [
   {
     id: 'change-history',
     topic: 'reports',
+    adminOnly: true,
     title: 'Review change history',
     summary: 'See a record of important changes made in the shop (admins).',
     steps: [
@@ -784,6 +793,7 @@ export const HELP_ARTICLES = [
   {
     id: 'billing',
     topic: 'reports',
+    adminOnly: true,
     title: 'Manage your plan and billing',
     summary: 'Change your plan or review your subscription.',
     steps: [
@@ -808,6 +818,7 @@ export const HELP_ARTICLES = [
   {
     id: 'roadmap',
     topic: 'reports',
+    adminOnly: true,
     title: 'Keep a shop roadmap',
     summary: 'Note ideas and improvements for the shop (admins).',
     steps: [
@@ -833,11 +844,16 @@ const articleText = (a) =>
     .join(' ')
     .toLowerCase();
 
-export const filterArticles = (query) => {
+// Guides that describe administrator-only tools are hidden from regular users
+// and technicians, in the topic list and in search results alike.
+export const filterArticles = (query, isAdmin = false) => {
+  const pool = isAdmin
+    ? HELP_ARTICLES
+    : HELP_ARTICLES.filter((a) => !a.adminOnly);
   const q = (query || '').trim().toLowerCase();
-  if (!q) return HELP_ARTICLES;
+  if (!q) return pool;
   const words = q.split(/\s+/);
-  return HELP_ARTICLES.filter((a) => {
+  return pool.filter((a) => {
     const text = articleText(a);
     return words.every((w) => text.includes(w));
   });
