@@ -37,6 +37,14 @@ export const ADMIN_ONLY_OPS: Record<string, string[]> = {
     "deleteMany",
   ],
   ShopSettings: ["update", "delete", "bulkUpdate", "deleteMany"],
+  JobTimeEntry: [
+    "create",
+    "update",
+    "delete",
+    "bulkCreate",
+    "bulkUpdate",
+    "deleteMany",
+  ],
 };
 
 // A non-admin may not change one of these once the record's job is Closed.
