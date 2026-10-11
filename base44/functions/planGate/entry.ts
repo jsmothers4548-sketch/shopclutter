@@ -174,7 +174,10 @@ export default async function (req: Request): Promise<Response> {
       const mine = id ? await findMine(id) : null;
       if (!mine) return notYours();
       if (blockedByClosedJob(mine)) return closedForbidden();
-      const record = await records.update(id, bodyFor(entity, payload?.data));
+      const record = await records.update(id, {
+        ...bodyFor(entity, payload?.data),
+        shop_id: shopId,
+      });
       return Response.json({ record });
     }
 
