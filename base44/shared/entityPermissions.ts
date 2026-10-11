@@ -5,8 +5,9 @@
 // Closed. Keeping the mirror in one place keeps the gate and the entity
 // schemas in step.
 
-// Reads that entity rules reserve for an administrator (Staff, PartPurchase).
-export const READ_ADMIN_ONLY = ["Staff", "PartPurchase"];
+// Reads that entity rules reserve for an administrator (Staff, PartPurchase,
+// JobTimeEntry — time-clock details are payroll-sensitive).
+export const READ_ADMIN_ONLY = ["Staff", "PartPurchase", "JobTimeEntry"];
 
 // Operations that entity rules reserve for an administrator, per entity.
 export const ADMIN_ONLY_OPS: Record<string, string[]> = {
