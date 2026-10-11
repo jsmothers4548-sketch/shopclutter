@@ -17,7 +17,7 @@ import BrandingForm from '@/components/BrandingForm';
 import LoyaltyDiscountsForm from '@/components/LoyaltyDiscountsForm';
 import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -40,7 +40,8 @@ export default function AdminMenu() {
     pathname.startsWith('/reports') ||
     pathname.startsWith('/roadmap') ||
     pathname.startsWith('/audit-log') ||
-    pathname.startsWith('/billing');
+    pathname.startsWith('/billing') ||
+    pathname.startsWith('/migration');
 
   return (
     <>
@@ -119,6 +120,12 @@ export default function AdminMenu() {
             onClick={() => navigate('/audit-log')}
           >
             <History className="w-4 h-4" /> Change History
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate('/migration')}
+          >
+            <Upload className="w-4 h-4" /> Import Data
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}

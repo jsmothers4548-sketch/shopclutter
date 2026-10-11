@@ -130,6 +130,54 @@ export const HELP_ARTICLES = [
     ],
   },
   {
+    id: 'bring-in-data',
+    topic: 'start',
+    title: 'Bring in your existing data',
+    summary: 'Move customers, jobs, inventory and sales over from a spreadsheet.',
+    steps: [
+      {
+        heading: 'Open the importer',
+        body: 'Admin → Import Data. Only administrators see this menu.',
+      },
+      {
+        heading: 'Pick what you are bringing in',
+        body: 'Choose Customers, Equipment & units, Jobs & history, Parts & inventory, or Sales. Do one at a time so you can check each one as you go.',
+      },
+      {
+        heading: 'Order matters',
+        body: 'Import customers first. Equipment, jobs and sales are linked to a customer by name, so those customers need to be in the app already. If a job cannot find its customer, that row is left out and you can bring it in after.',
+      },
+      {
+        heading: 'Start from a template or your own file',
+        body: 'Download the template to see the exact columns, fill it in, and bring it back. If you already keep your records in a spreadsheet, just upload your CSV file instead — you do not have to reshape it first.',
+      },
+      {
+        heading: 'Your file stays on your device',
+        body: 'The file is read in the app on the device you are using and is never uploaded anywhere. Only the finished records are saved to your shop.',
+      },
+      {
+        heading: 'Match your columns',
+        body: 'ShopClutter matches your column names to its own fields automatically. Check the list and change anything it got wrong, then choose which column feeds each field. Anything marked with a star has to be matched before you can continue.',
+      },
+      {
+        heading: 'Check the rows',
+        body: 'The preview shows how many rows are ready and how many need attention. Rows with a problem — a missing name, a price that is not a number — are listed by row number and are left out of the import. Fix them in your file and bring it back, or import the good rows now and the rest later.',
+      },
+      {
+        heading: 'Review the matches',
+        body: 'ShopClutter looks for rows that look like records you already have, and shows you what it found. For each one choose to skip it, update the existing record with the new details, or add it as a new record. Nothing is written until you confirm.',
+      },
+      {
+        heading: 'Import and read the results',
+        body: 'The last screen shows how many records were added, updated, skipped and failed. If any rows failed, download them with their error notes, fix them in your spreadsheet, and import just that file again.',
+      },
+      {
+        heading: 'If something goes wrong partway',
+        body: 'Large files are imported in batches. If the import stops before it finishes, the results screen tells you exactly how many records were saved before it stopped. Because every import checks for duplicates first, running it again is safe — the records that already made it in show up in the duplicate review instead of being added twice.',
+      },
+    ],
+  },
+  {
     id: 'add-customer',
     topic: 'jobs',
     title: 'Add a customer',
