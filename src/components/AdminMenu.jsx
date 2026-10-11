@@ -16,6 +16,7 @@ import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
 import LoyaltyDiscountsForm from '@/components/LoyaltyDiscountsForm';
 import useShop from '@/hooks/useShop';
+import useIsAppOwner from '@/hooks/useIsAppOwner';
 import { getPlan, hasFeature } from '@/lib/plans';
 import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload } from 'lucide-react';
 
@@ -30,6 +31,7 @@ export default function AdminMenu() {
   const [showBranding, setShowBranding] = useState(false);
   const [showLoyalty, setShowLoyalty] = useState(false);
   const { shop } = useShop();
+  const isAppOwner = useIsAppOwner();
   const plan = getPlan(shop?.plan_id);
   const brandingLocked = !hasFeature(plan, 'branding');
   const reportsLocked = !hasFeature(plan, 'reports');
@@ -133,12 +135,14 @@ export default function AdminMenu() {
           >
             <ListChecks className="w-4 h-4" /> Roadmap
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className={itemClass}
-            onClick={() => navigate('/beta-access')}
-          >
-            <KeyRound className="w-4 h-4" /> Beta access
-          </DropdownMenuItem>
+          {isAppOwner && (
+            <DropdownMenuItem
+              className={itemClass}
+              onClick={() => navigate('/beta-access')}
+            >
+              <KeyRound className="w-4 h-4" /> Beta access
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

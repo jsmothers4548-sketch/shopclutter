@@ -25,7 +25,18 @@ export default async function (req: Request): Promise<Response> {
       .trim()
       .toLowerCase();
     const callerEmail = String(user.email || "").trim().toLowerCase();
-    if (!ownerEmail || callerEmail !== ownerEmail) {
+    const isOwner = !!ownerEmail && callerEmail === ownerEmail;
+
+    const body = await req.json().catch(() => ({}));
+    const action = body?.action || "list";
+
+    // The client asks who it is before rendering the owner-only menu item.
+    // This is the only action a non-owner may call.
+    if (action === "check") {
+      return Response.json({ isOwner });
+    }
+
+    if (!isOwner) {
       return Response.json(
         { error: "This screen is only available to the app owner." },
         { status: 403 }
@@ -33,8 +44,6 @@ export default async function (req: Request): Promise<Response> {
     }
 
     const sr = base44.asServiceRole;
-    const body = await req.json().catch(() => ({}));
-    const action = body?.action || "list";
 
     if (action === "list") {
       const shops = await sr.entities.Shop.list("-created_date", 200);
