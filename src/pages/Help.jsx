@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Search, LifeBuoy } from 'lucide-react';
 import {
   HELP_TOPICS,
@@ -7,11 +7,9 @@ import {
   topicLabel,
 } from '@/lib/helpContent';
 import HelpArticleCard from '@/components/help/HelpArticleCard';
-import HelpArticleView from '@/components/help/HelpArticleView';
 import LiveHelpButton from '@/components/support/LiveHelpButton';
 import { useAuth } from '@/lib/AuthContext';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
-import { restoreScroll } from '@/lib/scroll';
 
 export default function Help() {
   const { user } = useAuth();
@@ -19,7 +17,6 @@ export default function Help() {
   const isOwner = useIsAppOwner();
   const canLiveSupport = isAdmin || isOwner;
   const [query, setQuery] = useState('');
-  const [active, setActive] = useState(null);
 
   const results = useMemo(
     () => filterArticles(query, isAdmin),
@@ -27,42 +24,8 @@ export default function Help() {
   );
   const searching = query.trim().length > 0;
 
-  // Remember where the topic list was scrolled to, so coming back from a guide
-  // lands on the guide that was being read instead of the top of the list.
-  const browseScroll = useRef(0);
-  const cancelRestore = useRef(null);
-
-  useEffect(() => () => cancelRestore.current?.(), []);
-
-  const openArticle = (article) => {
-    browseScroll.current = window.scrollY;
-    cancelRestore.current?.();
-    cancelRestore.current = null;
-    setActive(article);
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  };
-
-  // Return to the topic and search list, keeping the search text, at the point
-  // the guide was opened from.
-  const closeArticle = () => {
-    setActive(null);
-    cancelRestore.current?.();
-    cancelRestore.current = restoreScroll(browseScroll.current);
-  };
-
-  // A regular user can never open an administrator-only guide, even if one
-  // were somehow selected directly.
-  if (active && (isAdmin || !active.adminOnly)) {
-    return (
-      <HelpArticleView
-        article={active}
-        topicLabel={topicLabel(active.topic)}
-        onBack={closeArticle}
-      />
-    );
-  }
-
-  // Browse view: articles grouped under each topic, in topic order.
+  // Browse view: articles grouped under each topic, in topic order. Each guide
+  // opens on its own screen, so Back from a guide returns to this list.
   const grouped = HELP_TOPICS.map((topic) => ({
     topic,
     articles: HELP_ARTICLES.filter(
@@ -109,7 +72,6 @@ export default function Help() {
                 key={a.id}
                 article={a}
                 topicLabel={topicLabel(a.topic)}
-                onOpen={openArticle}
               />
             ))}
           </div>
@@ -132,11 +94,7 @@ export default function Help() {
                 <p className="text-xs text-slate-500">{topic.description}</p>
               </div>
               {articles.map((a) => (
-                <HelpArticleCard
-                  key={a.id}
-                  article={a}
-                  onOpen={openArticle}
-                />
+                <HelpArticleCard key={a.id} article={a} />
               ))}
             </div>
           ))}
