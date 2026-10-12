@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import {
@@ -11,18 +12,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, MonitorUp, CheckCircle2 } from 'lucide-react';
+import { Loader2, Send, MonitorUp, CheckCircle2, Bot } from 'lucide-react';
 import MessageList from '@/components/support/MessageList';
+import AiActionPrompt from '@/components/support/AiActionPrompt';
+import SessionPanel from '@/components/support/SessionPanel';
 
 export default function SupportChatDialog({ open, onOpenChange }) {
   const { user } = useAuth();
-  const shopId = user?.data?.shop_id;
+  const navigate = useNavigate();
+  const shopId = user?.shop_id || user?.data?.shop_id;
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subject, setSubject] = useState('');
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [actionBusy, setActionBusy] = useState(null);
   const [error, setError] = useState('');
   const scrollRef = useRef(null);
 
@@ -32,6 +37,12 @@ export default function SupportChatDialog({ open, onOpenChange }) {
       { sort: 'created_date', limit: 300 }
     );
     setMessages(page.items || []);
+    const convPage = await base44.entities.SupportConversation.filter(
+      { id: conv.id },
+      { limit: 1 }
+    );
+    const fresh = (convPage.items || [])[0];
+    if (fresh) setConversation(fresh);
   }, []);
 
   useEffect(() => {
@@ -72,73 +83,92 @@ export default function SupportChatDialog({ open, onOpenChange }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const startChat = async () => {
-    const first = draft.trim();
-    if (!first) {
+  const ask = async (text, withSubject = false) => {
+    const body = text.trim();
+    if (!body) {
       setError('Type your question first.');
       return;
     }
     setSending(true);
     setError('');
     try {
-      const conv = await base44.entities.SupportConversation.create({
-        shop_id: shopId,
-        user_id: user.id,
-        user_name: user.full_name || user.email,
-        user_email: user.email,
-        subject: subject.trim() || first.slice(0, 60),
-        status: 'open',
-        last_message_at: new Date().toISOString(),
-        last_message_preview: first.slice(0, 120),
-        unread_for_owner: true,
+      const res = await base44.functions.invoke('supportHelp', {
+        action: 'ask',
+        conversation_id: conversation?.id,
+        message: body,
+        subject: withSubject ? subject.trim() : undefined,
       });
-      await base44.entities.SupportMessage.create({
-        shop_id: shopId,
-        conversation_id: conv.id,
-        user_id: user.id,
-        sender_role: 'user',
-        sender_name: user.full_name || user.email,
-        body: first,
-      });
-      setConversation(conv);
+      const conv = res.data?.conversation || conversation;
+      if (conv) setConversation(conv);
       setDraft('');
-      await loadThread(conv);
+      if (conv) await loadThread(conv);
     } catch (e) {
-      setError(e.message || 'Could not start the chat.');
+      setError(e.message || 'Could not send your message.');
     } finally {
       setSending(false);
     }
   };
 
-  const send = async () => {
-    const text = draft.trim();
-    if (!text || !conversation) return;
+  const requestSession = async () => {
+    if (!conversation) return;
     setSending(true);
     setError('');
     try {
-      await base44.entities.SupportMessage.create({
-        shop_id: shopId,
+      const res = await base44.functions.invoke('supportHelp', {
+        action: 'request_session',
         conversation_id: conversation.id,
-        user_id: user.id,
-        sender_role: 'user',
-        sender_name: user.full_name || user.email,
-        body: text,
       });
-      const patch = {
-        last_message_at: new Date().toISOString(),
-        last_message_preview: text.slice(0, 120),
-        unread_for_owner: true,
-        unread_for_user: false,
-        status: 'open',
-      };
-      await base44.entities.SupportConversation.update(conversation.id, patch);
-      setConversation({ ...conversation, ...patch });
-      setDraft('');
+      if (res.data?.conversation) setConversation(res.data.conversation);
       await loadThread(conversation);
     } catch (e) {
-      setError(e.message || 'Could not send your message.');
+      setError(e.message || 'Could not request a session.');
     } finally {
       setSending(false);
+    }
+  };
+
+  const confirmSession = async () => {
+    if (!conversation) return;
+    setSending(true);
+    setError('');
+    try {
+      const res = await base44.functions.invoke('supportHelp', {
+        action: 'confirm_session',
+        conversation_id: conversation.id,
+      });
+      if (res.data?.conversation) setConversation(res.data.conversation);
+      await loadThread(conversation);
+    } catch (e) {
+      setError(e.message || 'Could not confirm that time.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const runAction = async (message, action) => {
+    if (!conversation) return;
+    if (action.type === 'open_page') {
+      onOpenChange(false);
+      navigate(action.path);
+      return;
+    }
+    setActionBusy(message.id);
+    setError('');
+    try {
+      await base44.functions.invoke('supportHelp', {
+        action: 'run_action',
+        conversation_id: conversation.id,
+        message_id: message.id,
+        action_type: action.type,
+        title: action.title,
+        due_date: action.due_date,
+        task_id: action.task_id,
+      });
+      await loadThread(conversation);
+    } catch (e) {
+      setError(e.message || 'Could not complete that.');
+    } finally {
+      setActionBusy(null);
     }
   };
 
@@ -203,7 +233,8 @@ export default function SupportChatDialog({ open, onOpenChange }) {
             <MonitorUp className="w-4 h-4 text-amber-600" /> Live Help
           </DialogTitle>
           <DialogDescription className="text-xs">
-            Chat with us and we'll get back to you as soon as we can.
+            Our assistant answers right away, and you can request a live session with us
+            when you need a person.
           </DialogDescription>
         </DialogHeader>
 
@@ -227,15 +258,15 @@ export default function SupportChatDialog({ open, onOpenChange }) {
               <Textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Describe the issue and we'll take it from here."
+                placeholder="Ask a question and the assistant will answer."
                 rows={5}
                 className="mt-1"
               />
             </div>
             {error && <p className="text-xs text-red-600">{error}</p>}
-            <Button onClick={startChat} disabled={sending} className="w-full">
+            <Button onClick={() => ask(draft, true)} disabled={sending} className="w-full">
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Start chat
+              Send
             </Button>
           </div>
         ) : (
@@ -245,6 +276,20 @@ export default function SupportChatDialog({ open, onOpenChange }) {
               className="flex-1 overflow-y-auto px-5 py-4 bg-slate-100"
             >
               <MessageList messages={messages} selfRole="user" />
+              {messages
+                .filter((m) => m.sender_role === 'ai' && m.action_json)
+                .slice(-1)
+                .map((m) => (
+                  <div key={`action-${m.id}`} className="flex justify-start">
+                    <div className="max-w-[82%]">
+                      <AiActionPrompt
+                        message={m}
+                        onRun={runAction}
+                        running={actionBusy === m.id}
+                      />
+                    </div>
+                  </div>
+                ))}
             </div>
 
             {showScreenShareOffer && (
@@ -259,6 +304,13 @@ export default function SupportChatDialog({ open, onOpenChange }) {
               </div>
             )}
 
+            <SessionPanel
+              conversation={conversation}
+              onRequest={requestSession}
+              onConfirm={confirmSession}
+              busy={sending}
+            />
+
             <div className="px-4 py-3 border-t bg-white space-y-2">
               {error && <p className="text-xs text-red-600">{error}</p>}
               <div className="flex items-end gap-2">
@@ -271,11 +323,11 @@ export default function SupportChatDialog({ open, onOpenChange }) {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      send();
+                      ask(draft);
                     }
                   }}
                 />
-                <Button onClick={send} disabled={sending} size="icon">
+                <Button onClick={() => ask(draft)} disabled={sending} size="icon">
                   {sending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -283,19 +335,24 @@ export default function SupportChatDialog({ open, onOpenChange }) {
                   )}
                 </Button>
               </div>
-              {conversation.status === 'resolved' ? (
+              <div className="flex items-center justify-between gap-2">
                 <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Marked resolved
+                  <Bot className="w-3.5 h-3.5" /> Answers come from our help guides.
                 </p>
-              ) : (
-                <button
-                  onClick={markResolved}
-                  disabled={sending}
-                  className="text-[11px] text-slate-500 hover:text-slate-800 underline"
-                >
-                  Mark as resolved
-                </button>
-              )}
+                {conversation.status === 'resolved' ? (
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Marked resolved
+                  </span>
+                ) : (
+                  <button
+                    onClick={markResolved}
+                    disabled={sending}
+                    className="text-[11px] text-slate-500 hover:text-slate-800 underline"
+                  >
+                    Mark as resolved
+                  </button>
+                )}
+              </div>
             </div>
           </>
         )}

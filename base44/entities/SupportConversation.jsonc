@@ -53,6 +53,27 @@
     "contact_shared": {
       "type": "boolean",
       "default": false
+    },
+    "session_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "requested",
+        "scheduled"
+      ],
+      "default": "none"
+    },
+    "session_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_proposed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_scheduled_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [

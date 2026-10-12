@@ -16,6 +16,7 @@ import {
 import moment from 'moment';
 import MessageList from '@/components/support/MessageList';
 import OwnerSupportSettings from '@/components/support/OwnerSupportSettings';
+import SessionProposePanel from '@/components/support/SessionProposePanel';
 
 export default function SupportInbox() {
   const isOwner = useIsAppOwner();
@@ -69,6 +70,22 @@ export default function SupportInbox() {
       conversation_id: selected.id,
     });
     setMessages(res.data?.messages || []);
+    const conv = res.data?.conversation;
+    if (conv) {
+      setSelected((prev) => ({ ...prev, ...conv }));
+      setConversations((list) =>
+        list.map((c) => (c.id === conv.id ? { ...c, ...conv } : c))
+      );
+    }
+  };
+
+  const proposeSession = async (iso) => {
+    if (!selected) return;
+    await act({
+      action: 'propose_session',
+      conversation_id: selected.id,
+      proposed_at: iso,
+    });
   };
 
   useEffect(() => {
@@ -184,6 +201,12 @@ export default function SupportInbox() {
               )}
             </div>
 
+            <SessionProposePanel
+              conversation={selected}
+              onPropose={proposeSession}
+              busy={sending}
+            />
+
             <div className="px-4 py-3 border-t space-y-2">
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -257,6 +280,16 @@ export default function SupportInbox() {
                   </span>
                   {c.unread_for_owner && (
                     <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                  )}
+                  {c.session_status === 'requested' && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-blue-100 text-blue-700">
+                      session requested
+                    </span>
+                  )}
+                  {c.session_status === 'scheduled' && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-green-100 text-green-700">
+                      session scheduled
+                    </span>
                   )}
                   <span
                     className={`ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
