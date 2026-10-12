@@ -8,11 +8,15 @@ import {
 } from '@/lib/helpContent';
 import HelpArticleCard from '@/components/help/HelpArticleCard';
 import HelpArticleView from '@/components/help/HelpArticleView';
+import LiveHelpButton from '@/components/support/LiveHelpButton';
 import { useAuth } from '@/lib/AuthContext';
+import useIsAppOwner from '@/hooks/useIsAppOwner';
 
 export default function Help() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isOwner = useIsAppOwner();
+  const canLiveSupport = isAdmin || isOwner;
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(null);
 
@@ -64,6 +68,8 @@ export default function Help() {
           </p>
         </div>
       </div>
+
+      {canLiveSupport && <LiveHelpButton />}
 
       <div className="relative">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />

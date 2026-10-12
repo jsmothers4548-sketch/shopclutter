@@ -6,8 +6,6 @@ import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
 import BottomNav from '@/components/BottomNav';
 import AdminMenu from '@/components/AdminMenu';
-import LiveHelpButton from '@/components/support/LiveHelpButton';
-import useIsAppOwner from '@/hooks/useIsAppOwner';
 import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 const headerBtnClass = ({ isActive }) =>
@@ -18,7 +16,6 @@ const headerBtnClass = ({ isActive }) =>
 export default function Layout() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const isOwner = useIsAppOwner();
   const { shop } = useShop();
   const clockLocked = !hasFeature(getPlan(shop?.plan_id), 'time_clock');
   const brand = useVisibleBrand();
@@ -40,11 +37,6 @@ export default function Layout() {
           {brand.name}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
-          <NavLink to="/help" className={headerBtnClass}>
-            <LifeBuoy className="w-4 h-4" />
-            <span>Help</span>
-          </NavLink>
-          {(isAdmin || isOwner) && <LiveHelpButton />}
           <NavLink
             to={clockLocked ? '/billing' : '/clock'}
             className={headerBtnClass}
@@ -62,6 +54,23 @@ export default function Layout() {
           )}
         </div>
       </header>
+      <div className="bg-white/70 border-b border-slate-400/30 print:hidden">
+        <div className="w-full max-w-6xl mx-auto px-4 py-2">
+          <NavLink
+            to="/help"
+            className={({ isActive }) =>
+              `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                isActive
+                  ? 'bg-amber-500 text-slate-900'
+                  : 'bg-slate-900/10 hover:bg-slate-900/20 text-slate-800'
+              }`
+            }
+          >
+            <LifeBuoy className="w-4 h-4" />
+            Help Center
+          </NavLink>
+        </div>
+      </div>
       <main className="flex-1 w-full max-w-6xl mx-auto pb-20 print:pb-0">
         <Outlet />
       </main>
