@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarClock, Loader2, CheckCircle2, UserRound } from 'lucide-react';
 
 // The user's side of the human-session flow: request a live session, see the
-// earliest it can start, confirm the owner's proposed time, or see it scheduled.
+// earliest it can start, confirm the proposed time, or see it scheduled.
 export default function SessionPanel({ conversation, onRequest, onConfirm, busy }) {
   if (!conversation) return null;
   const status = conversation.session_status || 'none';
@@ -67,7 +67,7 @@ export default function SessionPanel({ conversation, onRequest, onConfirm, busy 
     <div className="px-4 py-2 border-t bg-slate-50 flex items-center gap-2">
       <UserRound className="w-4 h-4 text-slate-500 shrink-0" />
       <div className="flex-1 text-[11px] text-slate-600">
-        Need a person? Request a live session with the shop owner.
+        Need a person? Request a live session with a ShopClutter associate.
       </div>
       <Button size="sm" variant="outline" className="bg-white" onClick={onRequest} disabled={busy}>
         {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Request session
