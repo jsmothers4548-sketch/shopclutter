@@ -10,7 +10,7 @@ export default function Invoice() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [brand, setBrand] = useState({
-    name: 'Shop Clutter',
+    name: 'ShopClutter',
     logo: '',
     address: '',
     phone: '',
@@ -21,7 +21,7 @@ export default function Invoice() {
     getShopSettings()
       .then((s) =>
         setBrand({
-          name: s.brand_name || 'Shop Clutter',
+          name: s.brand_name || 'ShopClutter',
           logo: s.brand_logo_url || '',
           address: s.brand_address || '',
           phone: s.brand_phone || '',

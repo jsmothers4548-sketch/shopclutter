@@ -67,7 +67,7 @@ export default function SessionPanel({ conversation, onRequest, onConfirm, busy 
     <div className="px-4 py-2 border-t bg-slate-50 flex items-center gap-2">
       <UserRound className="w-4 h-4 text-slate-500 shrink-0" />
       <div className="flex-1 text-[11px] text-slate-600">
-        Need a person? Request a live session with Shop Clutter support.
+        Need a person? Request a live session with ShopClutter support.
       </div>
       <Button size="sm" variant="outline" className="bg-white" onClick={onRequest} disabled={busy}>
         {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Request session

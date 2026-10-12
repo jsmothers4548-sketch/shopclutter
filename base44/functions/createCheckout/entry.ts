@@ -60,7 +60,7 @@ export default async function (req: Request): Promise<Response> {
       "line_items[0][price_data][unit_amount]": String(Math.round(amount * 100)),
       "line_items[0][price_data][recurring][interval]":
         billingPeriod === "annual" ? "year" : "month",
-      "line_items[0][price_data][product_data][name]": `Shop Clutter ${label}`,
+      "line_items[0][price_data][product_data][name]": `ShopClutter ${label}`,
       "metadata[base44_app_id]": appId(),
       "metadata[shop_id]": shopId,
       "metadata[plan_id]": plan.id,

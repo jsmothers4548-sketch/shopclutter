@@ -11,7 +11,7 @@ import useShop from '@/hooks/useShop';
 import { getPlan, canWhiteLabel } from '@/lib/plans';
 import { withShop } from '@/lib/shopScope';
 
-const FALLBACK = { brand_name: 'Shop Clutter', brand_logo_url: '' };
+const FALLBACK = { brand_name: 'ShopClutter', brand_logo_url: '' };
 
 export default function BrandingForm() {
   const { shop, loading: shopLoading } = useShop();
@@ -27,7 +27,7 @@ export default function BrandingForm() {
       .then((s) => {
         setRecord(s.id || null);
         setForm({
-          brand_name: s.brand_name || 'Shop Clutter',
+          brand_name: s.brand_name || 'ShopClutter',
           brand_logo_url: s.brand_logo_url || '',
           brand_address: s.brand_address || '',
           brand_phone: s.brand_phone || '',
@@ -79,7 +79,7 @@ export default function BrandingForm() {
     setSaving(true);
     setSaved(false);
     const payload = {
-      brand_name: form.brand_name?.trim() || 'Shop Clutter',
+      brand_name: form.brand_name?.trim() || 'ShopClutter',
       brand_logo_url: form.brand_logo_url || '',
       brand_address: form.brand_address || '',
       brand_phone: form.brand_phone || '',

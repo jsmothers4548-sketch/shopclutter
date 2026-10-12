@@ -7,6 +7,7 @@ import { getPlan, hasFeature } from '@/lib/plans';
 import BottomNav from '@/components/BottomNav';
 import AdminMenu from '@/components/AdminMenu';
 import LiveHelpButton from '@/components/support/LiveHelpButton';
+import useIsAppOwner from '@/hooks/useIsAppOwner';
 import { getShopSettings } from '@/lib/shopSettings';
 
 const headerBtnClass = ({ isActive }) =>
@@ -17,15 +18,16 @@ const headerBtnClass = ({ isActive }) =>
 export default function Layout() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isOwner = useIsAppOwner();
   const { shop } = useShop();
   const clockLocked = !hasFeature(getPlan(shop?.plan_id), 'time_clock');
-  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
 
   useEffect(() => {
     getShopSettings()
       .then((s) =>
         setBrand({
-          name: s.brand_name || 'Shop Clutter',
+          name: s.brand_name || 'ShopClutter',
           logo: s.brand_logo_url || '',
         })
       )
@@ -53,7 +55,7 @@ export default function Layout() {
             <LifeBuoy className="w-4 h-4" />
             <span>Help</span>
           </NavLink>
-          <LiveHelpButton />
+          {(isAdmin || isOwner) && <LiveHelpButton />}
           <NavLink
             to={clockLocked ? '/billing' : '/clock'}
             className={headerBtnClass}

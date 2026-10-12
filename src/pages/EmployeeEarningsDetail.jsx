@@ -194,7 +194,7 @@ function EarningsDetail() {
       {/* Print cover header */}
       <div className="hidden print:block text-center border-b-2 border-slate-900 pb-3">
         <p className="text-xs uppercase tracking-widest text-slate-600">
-          ShopFlow Small Engine Repair
+          ShopClutter
         </p>
         <h1 className="text-2xl font-bold text-slate-900">
           Employee Earnings — {name}

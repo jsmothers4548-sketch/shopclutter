@@ -9,13 +9,13 @@ export default function Estimate() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
 
   useEffect(() => {
     getShopSettings()
       .then((s) =>
         setBrand({
-          name: s.brand_name || 'Shop Clutter',
+          name: s.brand_name || 'ShopClutter',
           logo: s.brand_logo_url || '',
         })
       )

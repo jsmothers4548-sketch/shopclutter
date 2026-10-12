@@ -78,7 +78,7 @@ export default function SupplierOrderDialog({ items, onClose }) {
       supplier && supplier !== 'No supplier' ? ` ${supplier}` : ''
     }, we'd like to order:\n\n${lines}\n\nEstimated total: $${total.toFixed(
       2
-    )}\n\nThanks!\nShopFlow Small Engine Repair`;
+    )}\n\nThanks!\nShopClutter`;
   };
 
   const sendText = () => {

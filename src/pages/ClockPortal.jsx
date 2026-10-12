@@ -14,13 +14,13 @@ export default function ClockPortal() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [brand, setBrand] = useState({ name: 'Shop Clutter', logo: '' });
+  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
 
   useEffect(() => {
     getShopSettings()
       .then((s) =>
         setBrand({
-          name: s.brand_name || 'Shop Clutter',
+          name: s.brand_name || 'ShopClutter',
           logo: s.brand_logo_url || '',
         })
       )
