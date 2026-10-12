@@ -11,9 +11,11 @@ import { Label } from '@/components/ui/label';
 import { Truck, MessageSquare, Mail, ArrowLeft } from 'lucide-react';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 export default function SupplierOrderDialog({ items, onClose }) {
   const { locked: supplierOrderLocked } = usePlanFeature('supplier_orders');
+  const brand = useVisibleBrand();
   const lowStock = useMemo(
     () =>
       items.filter(
@@ -78,7 +80,7 @@ export default function SupplierOrderDialog({ items, onClose }) {
       supplier && supplier !== 'No supplier' ? ` ${supplier}` : ''
     }, we'd like to order:\n\n${lines}\n\nEstimated total: $${total.toFixed(
       2
-    )}\n\nThanks!\nShopClutter`;
+    )}\n\nThanks!\n${brand.name}`;
   };
 
   const sendText = () => {

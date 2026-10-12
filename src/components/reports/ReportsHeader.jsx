@@ -1,6 +1,7 @@
 import React from 'react';
 import { Printer } from 'lucide-react';
 import { MONTHS } from '@/lib/reportPeriod';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 const PERIOD_OPTIONS = [
   ['full', 'Year'],
@@ -31,6 +32,7 @@ export default function ReportsHeader({
   onStatusChange,
   onPrint,
 }) {
+  const brand = useVisibleBrand();
   const today = new Date().toLocaleDateString();
 
   return (
@@ -115,7 +117,7 @@ export default function ReportsHeader({
       {/* Print cover header */}
       <div className="hidden print:block text-center border-b-2 border-slate-900 pb-3">
         <p className="text-xs uppercase tracking-widest text-slate-600">
-          ShopClutter
+          {brand.name}
         </p>
         <h1 className="text-2xl font-bold text-slate-900">{printTitle}</h1>
         <p className="text-sm text-slate-600">{periodLabel}</p>

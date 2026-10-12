@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, PackagePlus, Printer } from 'lucide-react';
 import { formatCurrency } from '@/lib/format';
 import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
-import { getShopSettings } from '@/lib/shopSettings';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 import EarningsPeriodControls from '@/components/reports/EarningsPeriodControls';
 import PartPurchaseForm from '@/components/PartPurchaseForm';
 
@@ -23,7 +23,7 @@ export default function PartHistory() {
 
   const [data, setData] = useState(null);
   const [locked, setLocked] = useState(false);
-  const [settings, setSettings] = useState(null);
+  const brand = useVisibleBrand();
   const [periodKey, setPeriodKey] = useState(
     params.get('periodKey') || 'full'
   );
@@ -61,7 +61,6 @@ export default function PartHistory() {
         setLocked(!!err?.locked);
       }
       const [partsData, saleItemsData, jobsData, salesData, purchasesData] = lists;
-      const shopSettings = await getShopSettings();
       setData({
         parts: Array.isArray(partsData) ? partsData : [],
         saleItems: Array.isArray(saleItemsData) ? saleItemsData : [],
@@ -73,7 +72,6 @@ export default function PartHistory() {
           (Array.isArray(salesData) ? salesData : []).map((s) => [s.id, s])
         ),
       });
-      setSettings(shopSettings);
     })();
   }, []);
 
@@ -275,7 +273,7 @@ export default function PartHistory() {
       {/* Print cover header */}
       <div className="hidden print:block text-center border-b-2 border-slate-900 pb-3">
         <p className="text-xs uppercase tracking-widest text-slate-600">
-          {settings?.brand_name || 'ShopClutter'}
+          {brand.name}
         </p>
         <h1 className="text-2xl font-bold text-slate-900">
           Part History — {name}

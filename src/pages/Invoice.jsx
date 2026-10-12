@@ -3,33 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, MessageSquare } from 'lucide-react';
 import { computeBilling, sumPayments } from '@/lib/billing';
-import { getShopSettings } from '@/lib/shopSettings';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 export default function Invoice() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [brand, setBrand] = useState({
-    name: 'ShopClutter',
-    logo: '',
-    address: '',
-    phone: '',
-    email: '',
-  });
-
-  useEffect(() => {
-    getShopSettings()
-      .then((s) =>
-        setBrand({
-          name: s.brand_name || 'ShopClutter',
-          logo: s.brand_logo_url || '',
-          address: s.brand_address || '',
-          phone: s.brand_phone || '',
-          email: s.brand_email || '',
-        })
-      )
-      .catch(() => {});
-  }, []);
+  const brand = useVisibleBrand();
 
   useEffect(() => {
     (async () => {
@@ -107,6 +87,9 @@ export default function Invoice() {
             )}
             <div>
               <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">{brand.name}</h1>
+              {brand.subtitle &&
+              <p className="text-xs text-slate-500">{brand.subtitle}</p>
+              }
               {brand.address &&
               <p className="text-xs text-slate-500">{brand.address}</p>
               }

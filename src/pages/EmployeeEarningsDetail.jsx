@@ -8,6 +8,7 @@ import { buildPeriod, inPeriod } from '@/lib/reportPeriod';
 import EarningsPeriodControls from '@/components/reports/EarningsPeriodControls';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import usePlanFeature from '@/hooks/usePlanFeature';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 export default function EmployeeEarningsDetail() {
   const { locked, loading: planLoading } = usePlanFeature('employee_earnings');
@@ -20,6 +21,7 @@ function EarningsDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const brand = useVisibleBrand();
   const name = params.get('name') || 'Unassigned';
   const year = Number(params.get('year')) || new Date().getFullYear();
 
@@ -194,7 +196,7 @@ function EarningsDetail() {
       {/* Print cover header */}
       <div className="hidden print:block text-center border-b-2 border-slate-900 pb-3">
         <p className="text-xs uppercase tracking-widest text-slate-600">
-          ShopClutter
+          {brand.name}
         </p>
         <h1 className="text-2xl font-bold text-slate-900">
           Employee Earnings — {name}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Wrench, Clock, Boxes, Lock, LifeBuoy } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
@@ -8,7 +8,7 @@ import BottomNav from '@/components/BottomNav';
 import AdminMenu from '@/components/AdminMenu';
 import LiveHelpButton from '@/components/support/LiveHelpButton';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
-import { getShopSettings } from '@/lib/shopSettings';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 const headerBtnClass = ({ isActive }) =>
   `flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
@@ -21,18 +21,7 @@ export default function Layout() {
   const isOwner = useIsAppOwner();
   const { shop } = useShop();
   const clockLocked = !hasFeature(getPlan(shop?.plan_id), 'time_clock');
-  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
-
-  useEffect(() => {
-    getShopSettings()
-      .then((s) =>
-        setBrand({
-          name: s.brand_name || 'ShopClutter',
-          logo: s.brand_logo_url || '',
-        })
-      )
-      .catch(() => {});
-  }, []);
+  const brand = useVisibleBrand();
   return (
     <div className="min-h-screen bg-slate-300 flex flex-col">
       <header className="text-white px-4 py-3 flex items-center gap-2 sticky top-0 z-30 print:hidden bg-[hsl(var(--chart-3))]">

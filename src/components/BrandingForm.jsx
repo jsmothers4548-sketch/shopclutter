@@ -11,7 +11,7 @@ import useShop from '@/hooks/useShop';
 import { getPlan, canWhiteLabel } from '@/lib/plans';
 import { withShop } from '@/lib/shopScope';
 
-const FALLBACK = { brand_name: 'ShopClutter', brand_logo_url: '' };
+const FALLBACK = { brand_name: '', brand_tagline: '', brand_logo_url: '' };
 
 export default function BrandingForm() {
   const { shop, loading: shopLoading } = useShop();
@@ -27,7 +27,8 @@ export default function BrandingForm() {
       .then((s) => {
         setRecord(s.id || null);
         setForm({
-          brand_name: s.brand_name || 'ShopClutter',
+          brand_name: s.brand_name || '',
+          brand_tagline: s.brand_tagline || '',
           brand_logo_url: s.brand_logo_url || '',
           brand_address: s.brand_address || '',
           brand_phone: s.brand_phone || '',
@@ -79,7 +80,8 @@ export default function BrandingForm() {
     setSaving(true);
     setSaved(false);
     const payload = {
-      brand_name: form.brand_name?.trim() || 'ShopClutter',
+      brand_name: form.brand_name?.trim() || '',
+      brand_tagline: form.brand_tagline?.trim() || '',
       brand_logo_url: form.brand_logo_url || '',
       brand_address: form.brand_address || '',
       brand_phone: form.brand_phone || '',
@@ -115,10 +117,25 @@ export default function BrandingForm() {
           id="brand_name"
           type="text"
           value={form.brand_name}
+          placeholder={shop?.name || 'Your shop name'}
           onChange={(e) => setForm({ ...form, brand_name: e.target.value })}
         />
         <p className="text-xs text-slate-400 mt-1">
           Shown in the header, time clock, and printed documents
+        </p>
+      </div>
+
+      <div>
+        <Label htmlFor="brand_tagline">Tagline (optional)</Label>
+        <Input
+          id="brand_tagline"
+          type="text"
+          value={form.brand_tagline}
+          placeholder="e.g. Small engine repair & service"
+          onChange={(e) => setForm({ ...form, brand_tagline: e.target.value })}
+        />
+        <p className="text-xs text-slate-400 mt-1">
+          A short line under your name on estimates and invoices
         </p>
       </div>
 

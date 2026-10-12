@@ -17,7 +17,7 @@ export default function ColumnMapper({ category, headers, mapping, onChange, onB
       </button>
 
       <p className="text-sm text-slate-500">
-        We matched your columns to ShopClutter fields. Change anything that looks
+        We matched your columns to the app's fields. Change anything that looks
         wrong.
       </p>
 

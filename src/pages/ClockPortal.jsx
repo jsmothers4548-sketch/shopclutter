@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { gated } from '@/lib/planApi';
-import { getShopSettings } from '@/lib/shopSettings';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 import UpgradePrompt from '@/components/UpgradePrompt';
 import { withShopAsync } from '@/lib/shopScope';
 import usePlanFeature from '@/hooks/usePlanFeature';
@@ -14,18 +14,7 @@ export default function ClockPortal() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
-
-  useEffect(() => {
-    getShopSettings()
-      .then((s) =>
-        setBrand({
-          name: s.brand_name || 'ShopClutter',
-          logo: s.brand_logo_url || '',
-        })
-      )
-      .catch(() => {});
-  }, []);
+  const brand = useVisibleBrand();
 
   const handleClock = async (e) => {
     e.preventDefault();

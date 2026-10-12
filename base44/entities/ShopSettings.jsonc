@@ -55,7 +55,11 @@
     },
     "brand_name": {
       "type": "string",
-      "default": "ShopClutter"
+      "default": ""
+    },
+    "brand_tagline": {
+      "type": "string",
+      "default": ""
     },
     "brand_logo_url": {
       "type": "string",

@@ -3,24 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, MessageSquare } from 'lucide-react';
 import { computeBilling } from '@/lib/billing';
-import { getShopSettings } from '@/lib/shopSettings';
+import useVisibleBrand from '@/hooks/useVisibleBrand';
 
 export default function Estimate() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [brand, setBrand] = useState({ name: 'ShopClutter', logo: '' });
-
-  useEffect(() => {
-    getShopSettings()
-      .then((s) =>
-        setBrand({
-          name: s.brand_name || 'ShopClutter',
-          logo: s.brand_logo_url || '',
-        })
-      )
-      .catch(() => {});
-  }, []);
+  const brand = useVisibleBrand();
 
   useEffect(() => {
     (async () => {
@@ -92,7 +81,9 @@ export default function Estimate() {
             )}
             <div>
               <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">{brand.name}</h1>
-              <p className="text-xs text-slate-400">Small Engine Repair</p>
+              {brand.subtitle && (
+                <p className="text-xs text-slate-400">{brand.subtitle}</p>
+              )}
             </div>
           </div>
           <div className="text-right">
