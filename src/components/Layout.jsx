@@ -6,6 +6,7 @@ import useShop from '@/hooks/useShop';
 import { getPlan, hasFeature } from '@/lib/plans';
 import BottomNav from '@/components/BottomNav';
 import AdminMenu from '@/components/AdminMenu';
+import LiveHelpButton from '@/components/support/LiveHelpButton';
 import { getShopSettings } from '@/lib/shopSettings';
 
 const headerBtnClass = ({ isActive }) =>
@@ -52,6 +53,7 @@ export default function Layout() {
             <LifeBuoy className="w-4 h-4" />
             <span>Help</span>
           </NavLink>
+          <LiveHelpButton />
           <NavLink
             to={clockLocked ? '/billing' : '/clock'}
             className={headerBtnClass}

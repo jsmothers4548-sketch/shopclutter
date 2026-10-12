@@ -18,7 +18,7 @@ import LoyaltyDiscountsForm from '@/components/LoyaltyDiscountsForm';
 import useShop from '@/hooks/useShop';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload, MessageCircle } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -135,6 +135,14 @@ export default function AdminMenu() {
           >
             <ListChecks className="w-4 h-4" /> Roadmap
           </DropdownMenuItem>
+          {isAppOwner && (
+            <DropdownMenuItem
+              className={itemClass}
+              onClick={() => navigate('/support-inbox')}
+            >
+              <MessageCircle className="w-4 h-4" /> Live Help inbox
+            </DropdownMenuItem>
+          )}
           {isAppOwner && (
             <DropdownMenuItem
               className={itemClass}
