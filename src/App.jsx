@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ScrollToTop from './components/ScrollToTop';
+import ScrollRestoration from '@/components/ScrollRestoration';
 import Layout from '@/components/Layout';
 import Home from '@/pages/Home';
 import Customers from '@/pages/Customers';
@@ -115,7 +115,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <ScrollToTop />
+          <ScrollRestoration />
           <AuthenticatedApp />
         </Router>
         <Toaster />

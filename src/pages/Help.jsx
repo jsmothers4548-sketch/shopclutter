@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, LifeBuoy } from 'lucide-react';
 import {
   HELP_TOPICS,
@@ -11,6 +11,7 @@ import HelpArticleView from '@/components/help/HelpArticleView';
 import LiveHelpButton from '@/components/support/LiveHelpButton';
 import { useAuth } from '@/lib/AuthContext';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
+import { restoreScroll } from '@/lib/scroll';
 
 export default function Help() {
   const { user } = useAuth();
@@ -26,11 +27,27 @@ export default function Help() {
   );
   const searching = query.trim().length > 0;
 
-  // Return to the topic and search list, keeping the search text, and start
-  // the list from the top rather than wherever the guide was scrolled to.
+  // Remember where the topic list was scrolled to, so coming back from a guide
+  // lands on the guide that was being read instead of the top of the list.
+  const browseScroll = useRef(0);
+  const cancelRestore = useRef(null);
+
+  useEffect(() => () => cancelRestore.current?.(), []);
+
+  const openArticle = (article) => {
+    browseScroll.current = window.scrollY;
+    cancelRestore.current?.();
+    cancelRestore.current = null;
+    setActive(article);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
+
+  // Return to the topic and search list, keeping the search text, at the point
+  // the guide was opened from.
   const closeArticle = () => {
     setActive(null);
-    window.scrollTo({ top: 0 });
+    cancelRestore.current?.();
+    cancelRestore.current = restoreScroll(browseScroll.current);
   };
 
   // A regular user can never open an administrator-only guide, even if one
@@ -92,7 +109,7 @@ export default function Help() {
                 key={a.id}
                 article={a}
                 topicLabel={topicLabel(a.topic)}
-                onOpen={setActive}
+                onOpen={openArticle}
               />
             ))}
           </div>
@@ -118,7 +135,7 @@ export default function Help() {
                 <HelpArticleCard
                   key={a.id}
                   article={a}
-                  onOpen={setActive}
+                  onOpen={openArticle}
                 />
               ))}
             </div>
