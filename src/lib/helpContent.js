@@ -235,6 +235,10 @@ export const HELP_ARTICLES = [
         body: 'Enter the equipment type, make, model, serial number, and what the customer says is wrong. The more you note now, the less you have to chase down later.',
       },
       {
+        heading: 'Enter the off-site address',
+        body: 'On an off-site job you must enter the address where the work happens. It can differ from the customer\'s own address. That address is what the Get Directions button on the job routes to, so it is worth getting right at intake.',
+      },
+      {
         heading: 'Set pickup and delivery fees',
         body: 'If you are picking up or returning equipment, choose the pickup type (None, In-town, or Out-of-town). The matching fees fill in from your Default Rates and stay editable on the job.',
       },
@@ -691,6 +695,10 @@ export const HELP_ARTICLES = [
       {
         heading: 'Pickup and delivery messages',
         body: 'When you need to arrange a pickup or drop-off, the job has a ready-made message you can send with the details filled in.',
+      },
+      {
+        heading: 'Directions to an off-site job',
+        body: 'On an off-site job, the address you saved at intake shows on the job page with a "Get Directions" button. Tapping it opens your phone\'s map app with the address already set as the destination, so routing starts without retyping anything. If you did not enter a separate off-site address on the job, the customer\'s own address is used instead.',
       },
       {
         heading: 'Voice intake',

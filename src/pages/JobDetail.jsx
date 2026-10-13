@@ -15,6 +15,7 @@ import PaymentForm from '@/components/PaymentForm';
 import ExpenseForm from '@/components/ExpenseForm';
 import PickupTextDialog from '@/components/PickupTextDialog';
 import UnitLabel from '@/components/UnitLabel';
+import JobLocationCard from '@/components/JobLocationCard';
 import {
   ArrowLeft,
   Edit,
@@ -283,6 +284,9 @@ export default function JobDetail() {
           </p>
         </div>
       </div>
+
+      {/* Where the work is, with a way to route to it */}
+      <JobLocationCard job={job} customer={customer} />
 
       {/* Quick actions */}
       <div className="grid grid-cols-3 gap-2">
