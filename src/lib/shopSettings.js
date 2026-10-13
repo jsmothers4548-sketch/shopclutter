@@ -1,6 +1,8 @@
 import { base44 } from '@/api/base44Client';
+import { LATE_FEE_DEFAULTS } from '@/lib/lateFees';
 
 export const DEFAULT_SETTINGS = {
+  ...LATE_FEE_DEFAULTS,
   on_site_rate: 40,
   off_site_rate: 40,
   service_call_fee: 80,

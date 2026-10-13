@@ -78,6 +78,10 @@
       ],
       "default": "Intake"
     },
+    "pickup_ready_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "tax_rate": {
       "type": "number",
       "default": 7

@@ -1,0 +1,114 @@
+{
+  "name": "LateFee",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_label": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "ready_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "trigger_days": {
+      "type": "number",
+      "default": 30
+    },
+    "days_late": {
+      "type": "number",
+      "default": 0
+    },
+    "basis_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "base_fee_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "daily_fee_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "total_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "applied"
+      ],
+      "default": "pending"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "applied_expense_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id"
+  ],
+  "rls": {
+    "read": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$and": [
+        {
+          "data.shop_id": "{{user.data.shop_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

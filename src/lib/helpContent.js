@@ -884,6 +884,35 @@ export const HELP_ARTICLES = [
       },
     ],
   },
+  {
+    id: 'late-pickup-fees',
+    topic: 'money',
+    adminOnly: true,
+    title: 'Charge for late unit pickups',
+    summary: 'Set a fee for units left past the pickup window (admins).',
+    steps: [
+      {
+        heading: 'Turn it on',
+        body: 'Admin → Late Pickup Fees → Settings. Switch on Charge for late pickups and set how many days a unit can sit ready before the fee applies — 30 by default.',
+      },
+      {
+        heading: 'Choose the one-time fee',
+        body: 'Enter the fee as a flat dollar amount or as a percentage of the pre-tax job total. The percentage is worked out from the parts, labor, fees and expenses on that job, before tax.',
+      },
+      {
+        heading: 'Add a daily fee',
+        body: 'Switch on Charge every day after to keep charging for each day past the day limit. The one-time fee still applies on its own when the daily fee is off.',
+      },
+      {
+        heading: 'Review the overdue units',
+        body: 'The Late pickup fees card at the top of the job board shows how many units are past the window. Open it to see each customer, how long the unit has been ready, and the fee it has earned so far.',
+      },
+      {
+        heading: 'Record the fee on the job',
+        body: 'Tap Record on job to put the fee on that job as a billable charge, so it shows on the invoice and in your totals. Nothing is charged automatically, and amounts are worked out fresh from the day the unit was marked ready, so a fee is never added twice.',
+      },
+    ],
+  },
 ];
 
 // Split an article into searchable text.

@@ -57,9 +57,11 @@ const RATE_FIELDS = [
   ['job_tax_rate', 'Job tax rate', 'percent'],
   ['sales_tax_rate', 'Sales tax rate', 'percent'],
   ['overtime_rule', 'Overtime rule', 'overtime'],
+  ['late_fee_value', 'Late pickup fee', 'money'],
+  ['daily_fee_value', 'Late pickup daily fee', 'money'],
 ];
 
-export default function ShopSettingsForm() {
+export default function ShopSettingsForm({ onSaved }) {
   const [record, setRecord] = useState(null);
   const [form, setForm] = useState(null);
   const [initial, setInitial] = useState(null);
@@ -82,6 +84,13 @@ export default function ShopSettingsForm() {
           sales_tax_rate: s.sales_tax_rate,
           overtime_rule: s.overtime_rule || 'federal',
           allow_overlapping_job_timers: !!s.allow_overlapping_job_timers,
+          late_fee_enabled: !!s.late_fee_enabled,
+          late_fee_days: s.late_fee_days ?? 30,
+          late_fee_type: s.late_fee_type || 'flat',
+          late_fee_value: s.late_fee_value ?? 0,
+          daily_fee_enabled: !!s.daily_fee_enabled,
+          daily_fee_type: s.daily_fee_type || 'flat',
+          daily_fee_value: s.daily_fee_value ?? 0,
         };
         setInitial(values);
         setForm(values);
@@ -107,6 +116,13 @@ export default function ShopSettingsForm() {
       sales_tax_rate: Number(form.sales_tax_rate) || 0,
       overtime_rule: form.overtime_rule || 'federal',
       allow_overlapping_job_timers: !!form.allow_overlapping_job_timers,
+      late_fee_enabled: !!form.late_fee_enabled,
+      late_fee_days: Number(form.late_fee_days) || 30,
+      late_fee_type: form.late_fee_type || 'flat',
+      late_fee_value: Number(form.late_fee_value) || 0,
+      daily_fee_enabled: !!form.daily_fee_enabled,
+      daily_fee_type: form.daily_fee_type || 'flat',
+      daily_fee_value: Number(form.daily_fee_value) || 0,
     };
     if (record) {
       await base44.entities.ShopSettings.update(record, payload);
@@ -142,6 +158,7 @@ export default function ShopSettingsForm() {
 
     setSaving(false);
     setSaved(true);
+    onSaved?.();
   };
 
   return (
@@ -251,6 +268,128 @@ export default function ShopSettingsForm() {
               }
             />
           </div>
+        </div>
+        <div className="pt-1 border-t border-slate-100 space-y-3">
+          <h3 className="font-semibold text-slate-900 text-sm">
+            Late Pickup Fees
+          </h3>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <Label htmlFor="late_fee_enabled">Charge for late pickups</Label>
+              <p className="text-xs text-slate-400 mt-1">
+                For units left in the shop after they are ready
+              </p>
+            </div>
+            <Switch
+              id="late_fee_enabled"
+              checked={!!form.late_fee_enabled}
+              onCheckedChange={(v) =>
+                setForm({ ...form, late_fee_enabled: v })
+              }
+            />
+          </div>
+
+          {form.late_fee_enabled && (
+            <>
+              <div>
+                <Label htmlFor="late_fee_days">Days ready before the fee</Label>
+                <Input
+                  id="late_fee_days"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={form.late_fee_days}
+                  onChange={(e) =>
+                    setForm({ ...form, late_fee_days: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="late_fee_value">One-time fee</Label>
+                <div className="flex gap-2">
+                  <Select
+                    value={form.late_fee_type}
+                    onValueChange={(v) =>
+                      setForm({ ...form, late_fee_type: v })
+                    }
+                  >
+                    <SelectTrigger className="w-20 shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="flat">$</SelectItem>
+                      <SelectItem value="percentage">%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="late_fee_value"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.late_fee_value}
+                    onChange={(e) =>
+                      setForm({ ...form, late_fee_value: e.target.value })
+                    }
+                  />
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Charged once. A percentage comes off the pre-tax job total.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label htmlFor="daily_fee_enabled">
+                    Charge every day after
+                  </Label>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Adds up for each day past the day limit, on top of the
+                    one-time fee
+                  </p>
+                </div>
+                <Switch
+                  id="daily_fee_enabled"
+                  checked={!!form.daily_fee_enabled}
+                  onCheckedChange={(v) =>
+                    setForm({ ...form, daily_fee_enabled: v })
+                  }
+                />
+              </div>
+              {form.daily_fee_enabled && (
+                <div>
+                  <Label htmlFor="daily_fee_value">Daily fee</Label>
+                  <div className="flex gap-2">
+                    <Select
+                      value={form.daily_fee_type}
+                      onValueChange={(v) =>
+                        setForm({ ...form, daily_fee_type: v })
+                      }
+                    >
+                      <SelectTrigger className="w-20 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="flat">$</SelectItem>
+                        <SelectItem value="percentage">%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      id="daily_fee_value"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.daily_fee_value}
+                      onChange={(e) =>
+                        setForm({ ...form, daily_fee_value: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-slate-400">
+                Review and record fees from Late pickup fees on the job board.
+              </p>
+            </>
+          )}
         </div>
         <TemplateRatesSection />
       </div>

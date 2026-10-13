@@ -110,7 +110,13 @@ export default function JobDetail() {
   const balanceDue = Math.max(grandTotal - paidAmount, 0);
 
   const updateStatus = async (newStatus) => {
-    await base44.entities.Job.update(job.id, { status: newStatus });
+    await base44.entities.Job.update(job.id, {
+      status: newStatus,
+      // A unit only ages toward a late pickup fee while it is actually sitting
+      // ready, so moving it back out of Ready for Pickup restarts the clock.
+      pickup_ready_at:
+        newStatus === 'Ready for Pickup' ? new Date().toISOString() : '',
+    });
     await Promise.all([
       base44.entities.Part.updateMany(
         { job_id: id },

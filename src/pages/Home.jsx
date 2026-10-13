@@ -14,6 +14,7 @@ import QrScanner from '@/components/QrScanner';
 import QrMenuButton from '@/components/QrMenuButton';
 import UnitLabel from '@/components/UnitLabel';
 import LoyaltyRemindersCard from '@/components/LoyaltyRemindersCard';
+import OverdueUnitsCard from '@/components/latefees/OverdueUnitsCard';
 import useLoyalty from '@/hooks/useLoyalty';
 import { normalizeTicketInput } from '@/lib/ticketNumbers';
 
@@ -271,6 +272,7 @@ export default function Home() {
           </button>
         </div>
       </div>
+      <OverdueUnitsCard isAdmin={user?.role === 'admin'} />
       <ActiveJobClock />
       <LoyaltyRemindersCard
         reminders={loyaltyReminders}

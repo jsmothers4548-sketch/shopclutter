@@ -53,6 +53,42 @@
       "type": "boolean",
       "default": false
     },
+    "late_fee_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "late_fee_days": {
+      "type": "number",
+      "default": 30
+    },
+    "late_fee_type": {
+      "type": "string",
+      "enum": [
+        "flat",
+        "percentage"
+      ],
+      "default": "flat"
+    },
+    "late_fee_value": {
+      "type": "number",
+      "default": 0
+    },
+    "daily_fee_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "daily_fee_type": {
+      "type": "string",
+      "enum": [
+        "flat",
+        "percentage"
+      ],
+      "default": "flat"
+    },
+    "daily_fee_value": {
+      "type": "number",
+      "default": 0
+    },
     "brand_name": {
       "type": "string",
       "default": ""

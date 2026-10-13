@@ -15,10 +15,11 @@ import ReimbursementsDialog from '@/components/ReimbursementsDialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
 import BrandingForm from '@/components/BrandingForm';
 import LoyaltyDiscountsForm from '@/components/LoyaltyDiscountsForm';
+import LateFeeDialog from '@/components/latefees/LateFeeDialog';
 import useShop from '@/hooks/useShop';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload, MessageCircle } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload, MessageCircle, AlertTriangle } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -30,6 +31,7 @@ export default function AdminMenu() {
   const [showRates, setShowRates] = useState(false);
   const [showBranding, setShowBranding] = useState(false);
   const [showLoyalty, setShowLoyalty] = useState(false);
+  const [showLateFees, setShowLateFees] = useState(false);
   const { shop } = useShop();
   const isAppOwner = useIsAppOwner();
   const plan = getPlan(shop?.plan_id);
@@ -99,6 +101,12 @@ export default function AdminMenu() {
             onClick={() => setShowLoyalty(true)}
           >
             <Gift className="w-4 h-4" /> Loyalty Discounts
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => setShowLateFees(true)}
+          >
+            <AlertTriangle className="w-4 h-4" /> Late Pickup Fees
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
@@ -179,6 +187,8 @@ export default function AdminMenu() {
           <LoyaltyDiscountsForm />
         </DialogContent>
       </Dialog>
+
+      <LateFeeDialog open={showLateFees} onOpenChange={setShowLateFees} />
     </>
   );
 }

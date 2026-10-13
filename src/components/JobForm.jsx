@@ -245,6 +245,15 @@ export default function JobForm({ customer, unit, job, template, jobLocation, on
         finalUnitId = createdUnit.id;
       }
       const payload = { ...form, unit_id: finalUnitId || null };
+      // Start the pickup clock when the unit becomes ready; clear it if the job
+      // is moved back out, so the late fee clock only runs while it is ready.
+      if (payload.status === 'Ready for Pickup') {
+        if (job?.status !== 'Ready for Pickup') {
+          payload.pickup_ready_at = new Date().toISOString();
+        }
+      } else {
+        payload.pickup_ready_at = '';
+      }
       let saved;
       if (job) {
         saved = await base44.entities.Job.update(job.id, payload);
