@@ -44,6 +44,9 @@ import RootGate from '@/components/RootGate';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Terms from '@/pages/Terms';
 import Pricing from '@/pages/Pricing';
+import Features from '@/pages/Features';
+import FeatureDetail from '@/pages/FeatureDetail';
+import About from '@/pages/About';
 import Billing from '@/pages/Billing';
 import BetaAccess from '@/pages/BetaAccess';
 import Migration from '@/pages/Migration';
@@ -72,6 +75,9 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/features" element={<Features />} />
+      <Route path="/features/:slug" element={<FeatureDetail />} />
+      <Route path="/about" element={<About />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
           <Route path="/board" element={<Home />} />

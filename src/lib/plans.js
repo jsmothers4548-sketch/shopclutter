@@ -107,6 +107,9 @@ export const PLANS = [
       '1 location',
       'Jobs, customers & estimates',
       'Invoices, payments & reminders',
+      'Appointments, scheduling & reminders',
+      'Change history & audit log',
+      'Bring your records over from a spreadsheet',
     ],
   },
   {
@@ -147,6 +150,8 @@ export const PLANS = [
       'Staff tasks',
       'Reimbursements & employee earnings',
       'Supplier orders & restocking',
+      'Job directions & on-site routing',
+      'QuickBooks sync',
     ],
   },
   {
