@@ -31,7 +31,7 @@ export const HELP_TOPICS = [
   {
     key: 'tools',
     label: 'Daily Tools',
-    description: 'Reminders, tasks, and job templates.',
+    description: 'Reminders, appointments, tasks, and job templates.',
   },
   {
     key: 'reports',
@@ -577,8 +577,8 @@ export const HELP_ARTICLES = [
   {
     id: 'reminders',
     topic: 'tools',
-    title: 'Reminders and appointments',
-    summary: 'Keep track of callbacks, follow-ups, and scheduled visits.',
+    title: 'Keep your own reminders',
+    summary: 'Track callbacks and follow-ups, and turn appointments into reminders.',
     steps: [
       {
         heading: 'Open reminders',
@@ -597,12 +597,52 @@ export const HELP_ARTICLES = [
         body: 'Anything due today shows on the Job Board under "Today\'s Schedule", and the Reminders button shows a count of what is due.',
       },
       {
+        heading: 'Reminders from appointments',
+        body: 'Appointments have their own page, and you can turn any of them into a reminder. When you schedule or edit an appointment, tick "Remind me" and choose the day you want reminding — the appointment arrives in your list here with its time, customer, and address already filled in. On the Appointments page that booking then shows a "Reminder set" tag, so you can tell at a glance which ones will remind you. Untick the box when editing the appointment to take the reminder away again.',
+      },
+      {
         heading: 'Yours alone',
         body: 'Reminders you create are personal to you — other staff do not see your reminder list.',
       },
       {
         heading: 'Finish one',
         body: 'Mark a reminder complete when it is handled, and it drops off your active list.',
+      },
+    ],
+  },
+  {
+    id: 'appointments',
+    topic: 'tools',
+    title: 'Schedule an appointment',
+    summary: 'Book on-site visits, off-site drop-offs, and general shop appointments.',
+    steps: [
+      {
+        heading: 'Open appointments',
+        body: 'Open the More menu in the bottom bar and tap Appointments. Every booking for the shop lives here, in one list that the whole shop shares — separate from your own reminder list.',
+      },
+      {
+        heading: 'Create one',
+        body: 'Tap Add. Give the appointment a title and a date, which are the only required fields, then choose the type: General for shop business, On-site when you are going to the customer, or Off-site when they are coming to you.',
+      },
+      {
+        heading: 'Add a time',
+        body: 'Set a start time, and an end time if you want the whole block on the card. Appointments with a time sort ahead of the rest on the same day, so the day reads in order.',
+      },
+      {
+        heading: 'Link a customer',
+        body: 'Pick a customer to carry their name, phone number, and address onto the appointment. For an off-site visit the address sits right on the card, and the card gives you tap-to-call and tap-to-text buttons so you can reach them from the shop or the road.',
+      },
+      {
+        heading: 'Add notes',
+        body: 'Use notes for whatever the visit needs — a gate code, the unit to look at, or who to ask for when you arrive.',
+      },
+      {
+        heading: 'Remind yourself',
+        body: 'Tick "Remind me" and choose the day to be reminded on. That puts the appointment into your own Reminders list, with the time, customer, and address already filled in, and the appointment card then shows a "Reminder set" tag.',
+      },
+      {
+        heading: 'Work the list',
+        body: 'The Upcoming tab shows what is still ahead and the Past tab shows what is finished. On any card, tap the circle to mark the appointment complete, the pencil to change it, or the bin to delete it.',
       },
     ],
   },
