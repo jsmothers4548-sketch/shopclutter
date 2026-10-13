@@ -49,6 +49,9 @@
         "completed"
       ],
       "default": "scheduled"
+    },
+    "reminder_id": {
+      "type": "string"
     }
   },
   "required": [

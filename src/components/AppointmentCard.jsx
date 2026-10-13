@@ -1,31 +1,19 @@
 import React from 'react';
-import { Pencil, Trash2, MapPin, CheckCircle2, Circle } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  MapPin,
+  CheckCircle2,
+  Circle,
+  Bell,
+} from 'lucide-react';
 import ContactButtons from '@/components/ContactButtons';
+import { formatTime, formatDay } from '@/lib/appointmentTime';
 
 const TYPE_STYLES = {
   'On-site': 'bg-blue-100 text-blue-700',
   'Off-site': 'bg-green-100 text-green-700',
   General: 'bg-slate-100 text-slate-600',
-};
-
-export const formatTime = (value) => {
-  if (!value) return '';
-  const [h, m] = value.split(':').map(Number);
-  if (Number.isNaN(h)) return value;
-  const suffix = h >= 12 ? 'PM' : 'AM';
-  const hour = h % 12 === 0 ? 12 : h % 12;
-  return `${hour}:${String(m || 0).padStart(2, '0')} ${suffix}`;
-};
-
-const formatDay = (value) => {
-  if (!value) return '';
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
 };
 
 // One appointment in the list: when it is, what it is, and who it is with.
@@ -76,6 +64,11 @@ export default function AppointmentCard({
             {timeRange && (
               <span className="text-xs font-medium text-slate-400">
                 {timeRange}
+              </span>
+            )}
+            {a.reminder_id && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
+                <Bell className="w-3 h-3" /> Reminder set
               </span>
             )}
           </div>

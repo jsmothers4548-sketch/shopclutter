@@ -12,8 +12,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import CustomerPicker from '@/components/CustomerPicker';
-import { MapPin } from 'lucide-react';
+import { Bell, MapPin } from 'lucide-react';
 import { withShop } from '@/lib/shopScope';
+import { formatTime } from '@/lib/appointmentTime';
 
 const APPOINTMENT_TYPES = ['General', 'On-site', 'Off-site'];
 const selectClass =
@@ -37,11 +38,24 @@ export default function AppointmentForm({ appointment, onClose, onSaved }) {
     notes: appointment?.notes || '',
     status: appointment?.status || 'scheduled',
   });
+  const [makeReminder, setMakeReminder] = useState(!!appointment?.reminder_id);
+  const [reminderDate, setReminderDate] = useState(
+    appointment?.appointment_date || ''
+  );
   const [customers, setCustomers] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     base44.entities.Customer.list('name', 200).then(setCustomers).catch(() => {});
+    // Editing an appointment that already has a reminder: start from the date
+    // that reminder is set for.
+    if (appointment?.reminder_id) {
+      base44.entities.Reminder.get(appointment.reminder_id)
+        .then((r) => {
+          if (r?.due_date) setReminderDate(r.due_date);
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const handleCustomerChange = (c) => {
@@ -64,14 +78,67 @@ export default function AppointmentForm({ appointment, onClose, onSaved }) {
     }
   };
 
+  // The reminder carries the appointment's details into the signed-in user's
+  // own list, where it shows up on the day it's set for.
+  const buildReminder = () => {
+    const when = [
+      form.appointment_date,
+      form.start_time ? `at ${formatTime(form.start_time)}` : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    return withShop({
+      title: `Appointment: ${form.title}`,
+      description: [
+        `${form.appointment_type} — ${when}`,
+        form.customer_name
+          ? `With ${form.customer_name}${
+              form.customer_address ? `, ${form.customer_address}` : ''
+            }`
+          : '',
+        form.notes,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      due_date: reminderDate || form.appointment_date,
+      appointment_type: form.appointment_type,
+      priority: 'high',
+      status: 'pending',
+      customer_id: form.customer_id,
+      customer_name: form.customer_name,
+      customer_address: form.customer_address,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
+      // Reminders are private to whoever made them, so a reminder set by
+      // someone else is left untouched if the sync below can't reach it.
+      let reminderId = appointment?.reminder_id || '';
+      try {
+        if (makeReminder) {
+          const payload = buildReminder();
+          if (reminderId) {
+            await base44.entities.Reminder.update(reminderId, payload);
+          } else {
+            const created = await base44.entities.Reminder.create(payload);
+            reminderId = created?.id || '';
+          }
+        } else if (reminderId) {
+          await base44.entities.Reminder.delete(reminderId);
+          reminderId = '';
+        }
+      } catch (err) {
+        reminderId = appointment?.reminder_id || '';
+      }
+
+      const payload = { ...form, reminder_id: reminderId };
       if (appointment) {
-        await base44.entities.Appointment.update(appointment.id, form);
+        await base44.entities.Appointment.update(appointment.id, payload);
       } else {
-        await base44.entities.Appointment.create(withShop(form));
+        await base44.entities.Appointment.create(withShop(payload));
       }
       onSaved();
     } finally {
@@ -195,6 +262,40 @@ export default function AppointmentForm({ appointment, onClose, onSaved }) {
               rows={3}
               placeholder="What to bring, who to ask for, anything else..."
             />
+          </div>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
+            <label className="flex items-start gap-2 text-sm font-medium text-slate-800">
+              <input
+                type="checkbox"
+                checked={makeReminder}
+                onChange={(e) => {
+                  setMakeReminder(e.target.checked);
+                  if (e.target.checked && !reminderDate) {
+                    setReminderDate(form.appointment_date || today());
+                  }
+                }}
+                className="mt-0.5 w-4 h-4 accent-amber-500"
+              />
+              <span>
+                <span className="flex items-center gap-1.5">
+                  <Bell className="w-4 h-4 text-amber-600" /> Remind me
+                </span>
+                <span className="block text-xs font-normal text-slate-500 mt-0.5">
+                  Puts this appointment in My Reminders so it's on your list the
+                  day it's set for.
+                </span>
+              </span>
+            </label>
+            {makeReminder && (
+              <div>
+                <Label>Remind on</Label>
+                <Input
+                  type="date"
+                  value={reminderDate}
+                  onChange={(e) => setReminderDate(e.target.value)}
+                />
+              </div>
+            )}
           </div>
           {appointment && (
             <div>
