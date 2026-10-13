@@ -1,0 +1,72 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "General",
+        "On-site",
+        "Off-site"
+      ],
+      "default": "General"
+    },
+    "appointment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "customer_phone": {
+      "type": "string"
+    },
+    "customer_address": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "completed"
+      ],
+      "default": "scheduled"
+    }
+  },
+  "required": [
+    "title",
+    "appointment_date"
+  ],
+  "rls": {
+    "read": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "create": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "update": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    },
+    "delete": {
+      "data.shop_id": "{{user.data.shop_id}}"
+    }
+  }
+}

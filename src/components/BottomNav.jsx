@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   ClipboardList,
   Bell,
+  CalendarDays,
   LayoutTemplate,
   MoreHorizontal,
   Lock,
@@ -25,6 +26,7 @@ const mainItems = [
 const moreItems = [
   { to: '/staff-tasks', label: 'Tasks', icon: ClipboardList, feature: 'staff_tasks' },
   { to: '/reminders', label: 'Reminders', icon: Bell },
+  { to: '/appointments', label: 'Appointments', icon: CalendarDays },
   { to: '/templates', label: 'Templates', icon: LayoutTemplate, feature: 'templates' },
   { to: '/help', label: 'Help', icon: LifeBuoy },
 ];
