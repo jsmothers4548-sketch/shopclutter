@@ -75,6 +75,10 @@ export const gated = {
   salesStock: entityApi('sales', 'ShopItem'),
   supplierStock: entityApi('supplier_orders', 'ShopItem'),
   partPurchases: entityApi('supplier_orders', 'PartPurchase'),
+  // Every plan logs job expenses, so this path is checked for the shop rather
+  // than for a paid tool: the gate refuses an out-of-pocket entry when the
+  // shop's plan has no reimbursements.
+  expenses: entityApi('expenses', 'JobExpense'),
   reimbursements: entityApi('reimbursements', 'JobExpense'),
   branding: entityApi('branding', 'ShopSettings'),
   // Team and up.

@@ -38,6 +38,14 @@ export const FEATURES = {
     label: 'Profit reports',
     blurb: 'See revenue, costs, profit and tax collected across any period.',
   },
+  // Logging what a job cost is part of every plan, including Solo. The key
+  // exists so the expense form writes through the checked server path; the
+  // out-of-pocket half of an expense is checked against reimbursements there.
+  expenses: {
+    rank: 0,
+    label: 'Job expenses',
+    blurb: 'Log what you spent on a job and mark whether it bills to the customer.',
+  },
   branding: {
     rank: 1,
     label: 'Your logo & business name',

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.52";
 import { requireFeature } from "../../shared/planGuard.ts";
+import { hasFeature, refusalMessage } from "../../shared/plans.ts";
 import { FEATURE_ENTITIES, BRAND_FIELDS } from "../../shared/gatedEntities.ts";
 import {
   READ_ADMIN_ONLY,
@@ -138,6 +139,26 @@ export default async function (req: Request): Promise<Response> {
     }
 
     const payload = body?.payload;
+
+    // An expense someone paid out of their own pocket and expects back is part
+    // of the reimbursements tool. A plan without it still records plain job
+    // expenses, but no out-of-pocket one — the form hides the field, and this
+    // refuses a hand-made or stale submission that carries it anyway.
+    if (entity === "JobExpense" && !hasFeature(shop.plan_id, "reimbursements")) {
+      const rows = Array.isArray(payload)
+        ? [...payload, payload?.data]
+        : [payload, payload?.data];
+      const namesPayer = rows.some(
+        (row: any) => typeof row?.paid_by === "string" && row.paid_by.trim() !== ""
+      );
+      if (namesPayer) {
+        return Response.json(
+          { error: refusalMessage("reimbursements") },
+          { status: 403 }
+        );
+      }
+    }
+
     const records = sr.entities[entity];
 
     // The service role skips the data rules, so ownership is confirmed here

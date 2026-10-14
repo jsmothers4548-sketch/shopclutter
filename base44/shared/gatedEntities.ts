@@ -9,6 +9,9 @@ export const FEATURE_ENTITIES: Record<string, string[]> = {
   supplier_orders: ["PartPurchase", "ShopItem"],
   time_clock: ["TimeClock"],
   staff_tasks: ["StaffTask"],
+  // Plain job expenses are on every plan; an out-of-pocket entry is checked
+  // against reimbursements inside the gate.
+  expenses: ["JobExpense"],
   reimbursements: ["JobExpense"],
   branding: ["ShopSettings"],
   staff: ["Staff", "StaffInvite"],

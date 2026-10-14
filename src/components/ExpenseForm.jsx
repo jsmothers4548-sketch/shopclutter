@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { withShop } from '@/lib/shopScope';
+import { gated } from '@/lib/planApi';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function ExpenseForm({
   jobId,
@@ -35,6 +36,9 @@ export default function ExpenseForm({
     expense?.markup_percent !== undefined ? expense.markup_percent : 0
   );
   const [saving, setSaving] = useState(false);
+  // Out-of-pocket entries belong to the reimbursements tool, so a plan without
+  // it logs a plain job expense: no "paid by" field and nothing owed back.
+  const { locked: outOfPocketLocked } = usePlanFeature('reimbursements');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,15 +49,15 @@ export default function ExpenseForm({
       description,
       amount: Number(amount) || 0,
       expense_date: expenseDate,
-      paid_by: paidBy,
+      ...(outOfPocketLocked ? {} : { paid_by: paidBy }),
       billable,
       markup_percent: Number(markupPercent) || 0,
       reimbursed: expense?.reimbursed || false,
     };
     if (expense?.id) {
-      await base44.entities.JobExpense.update(expense.id, payload);
+      await gated.expenses.update(expense.id, payload);
     } else {
-      await base44.entities.JobExpense.create(withShop(payload));
+      await gated.expenses.create(withShop(payload));
     }
     setSaving(false);
     onSaved();
@@ -64,7 +68,11 @@ export default function ExpenseForm({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {expense ? 'Edit Expense' : 'Log Out-of-Pocket Expense'}
+            {expense
+              ? 'Edit Expense'
+              : outOfPocketLocked
+                ? 'Log Job Expense'
+                : 'Log Out-of-Pocket Expense'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -90,15 +98,17 @@ export default function ExpenseForm({
               required
             />
           </div>
-          <div>
-            <Label htmlFor="paidBy">Paid By (out of pocket)</Label>
-            <Input
-              id="paidBy"
-              value={paidBy}
-              onChange={(e) => setPaidBy(e.target.value)}
-              placeholder="Employee name"
-            />
-          </div>
+          {!outOfPocketLocked && (
+            <div>
+              <Label htmlFor="paidBy">Paid By (out of pocket)</Label>
+              <Input
+                id="paidBy"
+                value={paidBy}
+                onChange={(e) => setPaidBy(e.target.value)}
+                placeholder="Employee name"
+              />
+            </div>
+          )}
           <div>
             <Label htmlFor="date">Date</Label>
             <Input

@@ -31,6 +31,7 @@ import {
 import { computeBilling, computeJobProfit, sumPayments } from '@/lib/billing';
 import { withShop } from '@/lib/shopScope';
 import { useAuth } from '@/lib/AuthContext';
+import usePlanFeature from '@/hooks/usePlanFeature';
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -102,6 +103,9 @@ export default function JobDetail() {
     expensesTotal,
   } = billing;
   const { user } = useAuth();
+  // Without reimbursements there is no out-of-pocket tracking, so the section
+  // reads as plain job expenses.
+  const { locked: outOfPocketLocked } = usePlanFeature('reimbursements');
   const isAdmin = user?.role === 'admin';
   const isClosed = job?.status === 'Closed';
   const canEdit = isAdmin || !isClosed;
@@ -583,7 +587,9 @@ export default function JobDetail() {
       {/* Expenses */}
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-slate-900">Out-of-Pocket Expenses</h2>
+          <h2 className="font-bold text-slate-900">
+            {outOfPocketLocked ? 'Job Expenses' : 'Out-of-Pocket Expenses'}
+          </h2>
           {canEdit && (
             <button
               onClick={() => {
@@ -620,7 +626,7 @@ export default function JobDetail() {
                   {e.billable
                     ? ` · Bill customer${e.markup_percent ? ` (+${e.markup_percent}%)` : ''}`
                     : ' · Shop'}
-                  {e.reimbursed ? ' · Reimbursed' : ' · Owed'}
+                  {!outOfPocketLocked && (e.reimbursed ? ' · Reimbursed' : ' · Owed')}
                 </p>
               </div>
               <span className="text-sm font-semibold">
