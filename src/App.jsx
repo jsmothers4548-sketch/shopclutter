@@ -51,6 +51,7 @@ import Billing from '@/pages/Billing';
 import BetaAccess from '@/pages/BetaAccess';
 import Migration from '@/pages/Migration';
 import SupportInbox from '@/pages/SupportInbox';
+import QuickBooks from '@/pages/QuickBooks';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
@@ -109,6 +110,7 @@ const AuthenticatedApp = () => {
           <Route path="/billing" element={<Billing />} />
           <Route path="/beta-access" element={<BetaAccess />} />
           <Route path="/migration" element={<Migration />} />
+          <Route path="/quickbooks" element={<QuickBooks />} />
           <Route path="/support-inbox" element={<SupportInbox />} />
         </Route>
         <Route path="/clock" element={<ClockPortal />} />

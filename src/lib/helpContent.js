@@ -958,6 +958,47 @@ export const HELP_ARTICLES = [
       },
     ],
   },
+  {
+    id: 'quickbooks',
+    topic: 'reports',
+    adminOnly: true,
+    title: 'Connect QuickBooks',
+    summary: 'Keep your shop’s QuickBooks company in step with ShopClutter (admins).',
+    steps: [
+      {
+        heading: 'Which plans include it',
+        body: 'QuickBooks sync is part of Team and up. On Solo and Pro, QuickBooks shows a lock in the Admin menu, and tapping it takes you to Plan & Billing to compare.',
+      },
+      {
+        heading: 'Open QuickBooks',
+        body: 'Admin → QuickBooks. Only administrators see this menu.',
+      },
+      {
+        heading: 'Connect your own company',
+        body: 'Tap Connect QuickBooks and sign in to the QuickBooks company this shop keeps its books in. Each shop connects its own company — no shop ever shares books with another. When you come back, the page shows the company you connected.',
+      },
+      {
+        heading: 'Choose which way records move',
+        body: 'Pick Both ways, To QuickBooks, or From QuickBooks. Both ways sends your ShopClutter details up and brings back QuickBooks customers you do not have yet.',
+      },
+      {
+        heading: 'Run a sync',
+        body: 'Tap Sync now. The result shows how many records were added, updated, left alone, or failed, and each run is kept in the list below so you can look back at what happened.',
+      },
+      {
+        heading: 'When the same customer is in both places',
+        body: 'Your ShopClutter details win, so nothing you typed is overwritten. If QuickBooks has a different name for that customer, the run tells you about it so you can decide which one you want.',
+      },
+      {
+        heading: 'Reconnecting or disconnecting',
+        body: 'Disconnect removes the connection and the stored sign-in for your shop. Your customers and jobs stay exactly where they are. Connect again any time to start syncing afresh.',
+      },
+      {
+        heading: 'Payroll is separate',
+        body: 'Payroll needs Intuit’s Payroll API approval for this app, so that section shows as not available yet. Accounting sync is not affected and works on its own.',
+      },
+    ],
+  },
 ];
 
 // Split an article into searchable text.

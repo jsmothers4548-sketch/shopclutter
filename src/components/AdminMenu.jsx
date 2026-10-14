@@ -19,7 +19,7 @@ import LateFeeDialog from '@/components/latefees/LateFeeDialog';
 import useShop from '@/hooks/useShop';
 import useIsAppOwner from '@/hooks/useIsAppOwner';
 import { getPlan, hasFeature } from '@/lib/plans';
-import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload, MessageCircle, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, UserCog, BarChart3, Wallet, Percent, Gift, Palette, CreditCard, KeyRound, Lock, ListChecks, History, Upload, MessageCircle, AlertTriangle, Link2 } from 'lucide-react';
 
 const itemClass =
   'flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700';
@@ -41,6 +41,7 @@ export default function AdminMenu() {
   const loyaltyLocked = !hasFeature(plan, 'loyalty');
   const lateFeesLocked = !hasFeature(plan, 'late_fees');
   const migrationLocked = !hasFeature(plan, 'migration');
+  const quickbooksLocked = !hasFeature(plan, 'quickbooks');
 
   const isActive =
     pathname.startsWith('/staff') ||
@@ -48,7 +49,8 @@ export default function AdminMenu() {
     pathname.startsWith('/roadmap') ||
     pathname.startsWith('/audit-log') ||
     pathname.startsWith('/billing') ||
-    pathname.startsWith('/migration');
+    pathname.startsWith('/migration') ||
+    pathname.startsWith('/quickbooks');
 
   return (
     <>
@@ -150,6 +152,15 @@ export default function AdminMenu() {
           >
             <Upload className="w-4 h-4" /> Import Data
             {migrationLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={itemClass}
+            onClick={() => navigate(quickbooksLocked ? '/billing' : '/quickbooks')}
+          >
+            <Link2 className="w-4 h-4" /> QuickBooks
+            {quickbooksLocked && (
               <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
             )}
           </DropdownMenuItem>
