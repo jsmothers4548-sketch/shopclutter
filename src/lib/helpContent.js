@@ -739,7 +739,7 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Voice intake',
-        body: 'You can start a new job by describing it out loud instead of typing, which is handy when your hands are busy in the shop.',
+        body: 'You can start a new job by describing it out loud instead of typing, which is handy when your hands are busy in the shop. Each recording is sent off to be transcribed and read, so there is a limit of 30 recordings an hour per person. If you reach it, wait a little while and try again.',
       },
       {
         heading: 'Scan a label',
