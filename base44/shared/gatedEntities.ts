@@ -12,6 +12,8 @@ export const FEATURE_ENTITIES: Record<string, string[]> = {
   reimbursements: ["JobExpense"],
   branding: ["ShopSettings"],
   staff: ["Staff", "StaffInvite"],
+  loyalty: ["LoyaltyMilestone", "LoyaltyReminder"],
+  late_fees: ["LateFee", "JobExpense"],
   reports: [
     "Job",
     "Part",

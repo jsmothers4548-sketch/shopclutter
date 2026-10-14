@@ -10,6 +10,8 @@ import ColumnMapper from '@/components/migration/ColumnMapper';
 import ImportPreview from '@/components/migration/ImportPreview';
 import DuplicateReview from '@/components/migration/DuplicateReview';
 import ImportResults from '@/components/migration/ImportResults';
+import UpgradePrompt from '@/components/UpgradePrompt';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { ShieldAlert } from 'lucide-react';
 
 const CHUNK = 200;
@@ -27,8 +29,13 @@ export default function Migration() {
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const { locked: migrationLocked, loading: planLoading } =
+    usePlanFeature('migration');
 
   const category = categoryKey ? getCategory(categoryKey) : null;
+
+  if (planLoading) return null;
+  if (migrationLocked) return <UpgradePrompt feature="migration" />;
 
   if (user && user.role !== 'admin') {
     return (

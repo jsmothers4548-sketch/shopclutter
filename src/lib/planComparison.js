@@ -68,8 +68,16 @@ export const COMPARISON_GROUPS = [
         values: { free: false, pro: true, team: true, enterprise: true },
       },
       {
-        label: 'Profit reports',
-        values: { free: false, pro: true, team: true, enterprise: true },
+        label: 'Profit reports & tax',
+        values: { free: true, pro: true, team: true, enterprise: true },
+      },
+      {
+        label: 'Loyalty discounts',
+        values: { free: false, pro: false, team: true, enterprise: true },
+      },
+      {
+        label: 'Late pickup fees',
+        values: { free: false, pro: false, team: true, enterprise: true },
       },
       {
         label: 'Supplier orders & restocking',
@@ -118,8 +126,8 @@ export const COMPARISON_GROUPS = [
         values: { free: false, pro: true, team: true, enterprise: true },
       },
       {
-        label: 'Bulk data migration',
-        values: { free: true, pro: true, team: true, enterprise: true },
+        label: 'Import your existing records',
+        values: { free: false, pro: false, team: true, enterprise: true },
       },
       {
         label: 'Multiple locations',

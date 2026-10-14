@@ -34,7 +34,7 @@ export const FEATURES = {
     blurb: 'Ring up counter sales and keep a running balance on each one.',
   },
   reports: {
-    rank: 1,
+    rank: 0,
     label: 'Profit reports',
     blurb: 'See revenue, costs, profit and tax collected across any period.',
   },
@@ -91,6 +91,23 @@ export const FEATURES = {
     label: 'QuickBooks sync',
     blurb: 'Push customers, invoices and payments into QuickBooks.',
   },
+  migration: {
+    rank: 2,
+    label: 'Import your existing records',
+    blurb:
+      'Bring customers, units, jobs, parts and sales over from a spreadsheet.',
+  },
+  late_fees: {
+    rank: 2,
+    label: 'Late pickup fees',
+    blurb: 'Charge for units left in the shop past their pickup window.',
+  },
+  loyalty: {
+    rank: 2,
+    label: 'Loyalty discounts',
+    blurb:
+      'Reward repeat customers automatically when they reach a visit milestone.',
+  },
   multi_location: {
     rank: 2,
     label: 'Multiple locations',
@@ -114,8 +131,8 @@ export const PLANS = [
       'Jobs, customers & estimates',
       'Invoices, payments & reminders',
       'Appointments, scheduling & reminders',
+      'Profit reports & tax',
       'Change history & audit log',
-      'Bring your records over from a spreadsheet',
     ],
   },
   {
@@ -134,7 +151,7 @@ export const PLANS = [
       'Job templates',
       'Parts & inventory tracking',
       'Storefront sales',
-      'Profit reports',
+      'Profit reports & tax',
       'Voice intake & QR unit labels',
       'Your logo & business name',
     ],
@@ -158,6 +175,8 @@ export const PLANS = [
       'Supplier orders & restocking',
       'Job directions & on-site routing',
       'QuickBooks sync',
+      'Import your existing records',
+      'Loyalty discounts & late pickup fees',
     ],
   },
   {

@@ -7,7 +7,14 @@
 
 // Reads that entity rules reserve for an administrator (Staff, PartPurchase,
 // JobTimeEntry — time-clock details are payroll-sensitive).
-export const READ_ADMIN_ONLY = ["Staff", "PartPurchase", "JobTimeEntry"];
+export const READ_ADMIN_ONLY = [
+  "Staff",
+  "PartPurchase",
+  "JobTimeEntry",
+  "LoyaltyMilestone",
+  "LoyaltyReminder",
+  "LateFee",
+];
 
 // Operations that entity rules reserve for an administrator, per entity.
 export const ADMIN_ONLY_OPS: Record<string, string[]> = {
@@ -38,6 +45,30 @@ export const ADMIN_ONLY_OPS: Record<string, string[]> = {
   ],
   ShopSettings: ["update", "delete", "bulkUpdate", "deleteMany"],
   JobTimeEntry: [
+    "create",
+    "update",
+    "delete",
+    "bulkCreate",
+    "bulkUpdate",
+    "deleteMany",
+  ],
+  LoyaltyMilestone: [
+    "create",
+    "update",
+    "delete",
+    "bulkCreate",
+    "bulkUpdate",
+    "deleteMany",
+  ],
+  LoyaltyReminder: [
+    "create",
+    "update",
+    "delete",
+    "bulkCreate",
+    "bulkUpdate",
+    "deleteMany",
+  ],
+  LateFee: [
     "create",
     "update",
     "delete",

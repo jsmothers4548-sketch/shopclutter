@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import useLateFees from '@/hooks/useLateFees';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import LateFeeDialog from '@/components/latefees/LateFeeDialog';
 
 // The admin's at-a-glance entry point, sitting at the top of the job board.
 export default function OverdueUnitsCard({ isAdmin }) {
   const [open, setOpen] = useState(false);
-  const { settings, units, loading } = useLateFees(!!isAdmin);
+  const { locked } = usePlanFeature('late_fees');
+  const enabled = !!isAdmin && !locked;
+  const { settings, units, loading } = useLateFees(enabled);
 
-  if (!isAdmin || loading) return null;
+  if (!enabled || loading) return null;
 
   const count = units.length;
   const on = !!settings?.late_fee_enabled;

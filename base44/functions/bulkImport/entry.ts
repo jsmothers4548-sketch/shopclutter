@@ -1,4 +1,5 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.52";
+import { requireFeature } from "../../shared/planGuard.ts";
 
 // Administrator-only CSV migration. Every record is stamped with the caller's
 // own shop, and a customer is linked only from that same shop's customer list,
@@ -310,24 +311,11 @@ export default async function (req: Request): Promise<Response> {
     }
 
     const sr = base44.asServiceRole;
-    const linkedShopId = user?.shop_id || user?.data?.shop_id || null;
-    let shop: any = linkedShopId
-      ? await sr.entities.Shop.get(linkedShopId).catch(() => null)
-      : null;
-    if (!shop) {
-      const owned = await sr.entities.Shop.filter(
-        { owner_id: user.id },
-        { sort: "-created_date", limit: 1 }
-      );
-      shop = rowsOf(owned)[0] || null;
-    }
-    if (!shop) {
-      return Response.json(
-        { error: "We could not find your shop yet. Reload the app and try again." },
-        { status: 403 }
-      );
-    }
-    const shopId = shop.id;
+    // Importing is a Team-and-up tool, so the shop's plan is checked — from the
+    // signed-in user, never the request body — before any row is touched.
+    const guard = await requireFeature(base44, user, "migration");
+    if (!guard.ok) return guard.response;
+    const shopId = guard.shop.id;
 
     if (body.action === "match") {
       const rows = Array.isArray(body.rows) ? body.rows.slice(0, MAX_MATCH_ROWS) : [];

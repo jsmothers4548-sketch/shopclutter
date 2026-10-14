@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Gift, Plus, Trash2, Check } from 'lucide-react';
 import { withShopAll } from '@/lib/shopScope';
+import { gated } from '@/lib/planApi';
 
 // The shop's visit milestones, kept in the Admin menu. Each row is a number of
 // visits and the reward it earns — either a percentage of the ticket or a flat
@@ -78,9 +79,7 @@ export default function LoyaltyDiscountsForm() {
         discount_value: Number(r.discount_value) || 0,
       }));
       if (toCreate.length) {
-        await base44.entities.LoyaltyMilestone.bulkCreate(
-          withShopAll(toCreate)
-        );
+        await gated.loyaltyMilestones.bulkCreate(withShopAll(toCreate));
       }
 
       const changed = kept.filter(
@@ -91,7 +90,7 @@ export default function LoyaltyDiscountsForm() {
             Number(r.discount_value) !== Number(r.original.discount_value))
       );
       for (const r of changed) {
-        await base44.entities.LoyaltyMilestone.update(r.id, {
+        await gated.loyaltyMilestones.update(r.id, {
           visit_count: Number(r.visit_count) || 0,
           discount_type: r.discount_type || 'percentage',
           discount_value: Number(r.discount_value) || 0,
@@ -99,7 +98,7 @@ export default function LoyaltyDiscountsForm() {
       }
 
       for (const id of removed) {
-        await base44.entities.LoyaltyMilestone.delete(id);
+        await gated.loyaltyMilestones.delete(id);
       }
 
       setRemoved([]);

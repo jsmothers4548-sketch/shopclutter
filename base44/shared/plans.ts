@@ -31,7 +31,7 @@ export const FEATURE_RANK: Record<string, number> = {
   templates: 1,
   inventory: 1,
   sales: 1,
-  reports: 1,
+  reports: 0,
   branding: 1,
   voice_intake: 1,
   qr_scan: 1,
@@ -43,6 +43,9 @@ export const FEATURE_RANK: Record<string, number> = {
   supplier_orders: 2,
   quickbooks: 2,
   multi_location: 2,
+  migration: 2,
+  late_fees: 2,
+  loyalty: 2,
 };
 
 // Shown to the user when a tool is refused. Mirrors the wording the app uses.
@@ -63,6 +66,9 @@ export const FEATURE_LABELS: Record<string, string> = {
   supplier_orders: "Supplier orders & restocking",
   quickbooks: "QuickBooks sync",
   multi_location: "Multiple locations",
+  migration: "Import your existing records",
+  late_fees: "Late pickup fees",
+  loyalty: "Loyalty discounts",
 };
 
 export function refusalMessage(feature: string) {

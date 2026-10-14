@@ -143,6 +143,10 @@ export const HELP_ARTICLES = [
     summary: 'Move customers, jobs, inventory and sales over from a spreadsheet.',
     steps: [
       {
+        heading: 'Which plans include it',
+        body: 'Bringing in your existing records is part of Team and up. On Solo and Pro, Import Data shows a lock in the Admin menu, and tapping it takes you to Plan & Billing to compare.',
+      },
+      {
         heading: 'Open the importer',
         body: 'Admin → Import Data. Only administrators see this menu.',
       },
@@ -829,6 +833,10 @@ export const HELP_ARTICLES = [
     summary: 'Reward repeat customers automatically.',
     steps: [
       {
+        heading: 'Which plans include it',
+        body: 'Loyalty discounts are part of Team and up. On Solo and Pro, Loyalty Discounts shows a lock in the Admin menu, and tapping it takes you to Plan & Billing to compare.',
+      },
+      {
         heading: 'Open loyalty',
         body: 'Admin → Loyalty Discounts.',
       },
@@ -884,7 +892,7 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Compare plans',
-        body: 'The page shows your current plan and what each tier includes. Features like reports, the time clock, templates, and branding are unlocked by plan.',
+        body: 'The page shows your current plan and what each tier includes. Jobs, customers, estimates, invoices, reminders and reports are on every plan, including Solo. Tools like job templates, the time clock, loyalty discounts, late pickup fees and importing your records are unlocked by plan.',
       },
       {
         heading: 'Change plan',
@@ -924,6 +932,10 @@ export const HELP_ARTICLES = [
     title: 'Charge for late unit pickups',
     summary: 'Set a fee for units left past the pickup window (admins).',
     steps: [
+      {
+        heading: 'Which plans include it',
+        body: 'Late pickup fees are part of Team and up. On Solo and Pro, Late Pickup Fees shows a lock in the Admin menu, and tapping it takes you to Plan & Billing to compare.',
+      },
       {
         heading: 'Turn it on',
         body: 'Admin → Late Pickup Fees → Settings. Switch on Charge for late pickups and set how many days a unit can sit ready before the fee applies — 30 by default.',

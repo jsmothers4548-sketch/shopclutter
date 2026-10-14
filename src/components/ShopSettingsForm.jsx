@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { getShopSettings, DEFAULT_SETTINGS } from '@/lib/shopSettings';
 import { withShop } from '@/lib/shopScope';
 import TemplateRatesSection from '@/components/TemplateRatesSection';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import {
   recordAudit,
   AUDIT_CATEGORIES,
@@ -67,6 +68,8 @@ export default function ShopSettingsForm({ onSaved }) {
   const [initial, setInitial] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  // Late pickup fees are a Team-and-up tool, so the section is hidden below it.
+  const { locked: lateFeesLocked } = usePlanFeature('late_fees');
 
   useEffect(() => {
     getShopSettings()
@@ -269,6 +272,7 @@ export default function ShopSettingsForm({ onSaved }) {
             />
           </div>
         </div>
+        {!lateFeesLocked && (
         <div className="pt-1 border-t border-slate-100 space-y-3">
           <h3 className="font-semibold text-slate-900 text-sm">
             Late Pickup Fees
@@ -391,6 +395,7 @@ export default function ShopSettingsForm({ onSaved }) {
             </>
           )}
         </div>
+        )}
         <TemplateRatesSection />
       </div>
 

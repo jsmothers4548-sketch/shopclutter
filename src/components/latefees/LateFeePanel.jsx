@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { gated } from '@/lib/planApi';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import ShopSettingsForm from '@/components/ShopSettingsForm';
@@ -36,7 +36,7 @@ export default function LateFeePanel() {
     setBusyId(unit.job.id);
     setRecorded(null);
     try {
-      const expense = await base44.entities.JobExpense.create(
+      const expense = await gated.lateFeeExpenses.create(
         withShop({
           job_id: unit.job.id,
           job_status: unit.job.status,
@@ -68,9 +68,9 @@ export default function LateFeePanel() {
       });
 
       if (unit.applied) {
-        await base44.entities.LateFee.update(unit.applied.id, payload);
+        await gated.lateFees.update(unit.applied.id, payload);
       } else {
-        await base44.entities.LateFee.create(payload);
+        await gated.lateFees.create(payload);
       }
 
       setRecorded(unit.job.customer_name || 'Unit');

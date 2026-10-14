@@ -77,6 +77,11 @@ export const gated = {
   partPurchases: entityApi('supplier_orders', 'PartPurchase'),
   reimbursements: entityApi('reimbursements', 'JobExpense'),
   branding: entityApi('branding', 'ShopSettings'),
+  // Team and up.
+  loyaltyMilestones: entityApi('loyalty', 'LoyaltyMilestone'),
+  loyaltyReminders: entityApi('loyalty', 'LoyaltyReminder'),
+  lateFees: entityApi('late_fees', 'LateFee'),
+  lateFeeExpenses: entityApi('late_fees', 'JobExpense'),
 };
 
 // Reads for the tools that are views over job data: the same lists the screen

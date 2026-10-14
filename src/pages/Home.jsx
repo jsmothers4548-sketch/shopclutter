@@ -15,6 +15,7 @@ import QrMenuButton from '@/components/QrMenuButton';
 import UnitLabel from '@/components/UnitLabel';
 import LoyaltyRemindersCard from '@/components/LoyaltyRemindersCard';
 import useLoyalty from '@/hooks/useLoyalty';
+import usePlanFeature from '@/hooks/usePlanFeature';
 import { normalizeTicketInput } from '@/lib/ticketNumbers';
 
 export default function Home() {
@@ -37,13 +38,17 @@ export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Loyalty milestones are a Team-and-up tool, so nothing is earned or shown
+  // below that. The visit counts themselves stay available to every plan.
+  const { locked: loyaltyLocked } = usePlanFeature('loyalty');
+
   // How many times each customer has been in the shop, and — for an
   // administrator — the milestone reminders those visits have earned.
   const {
     visitCounts,
     reminders: loyaltyReminders,
     reload: reloadLoyalty,
-  } = useLoyalty(user?.role === 'admin');
+  } = useLoyalty(user?.role === 'admin' && !loyaltyLocked);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -272,9 +277,11 @@ export default function Home() {
         </div>
       </div>
       <ActiveJobClock />
-      <LoyaltyRemindersCard
-        reminders={loyaltyReminders}
-        onChanged={reloadLoyalty} />
+      {!loyaltyLocked && (
+        <LoyaltyRemindersCard
+          reminders={loyaltyReminders}
+          onChanged={reloadLoyalty} />
+      )}
       <UnitsInShopCard
         locationFilter={locationFilter}
         onSelect={(value) => {

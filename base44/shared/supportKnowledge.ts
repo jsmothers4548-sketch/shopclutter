@@ -38,7 +38,7 @@ const ARTICLES: Article[] = [
   {
     title: 'Bring in your existing data',
     adminOnly: true,
-    body: 'Admin > Import Data. Choose one at a time: Customers, Equipment & units, Jobs & history, Parts & inventory, or Sales. Import customers first, because units, jobs and sales link to a customer by name. Download the template or upload your own CSV. The file is read on your device and never uploaded. Match columns (starred ones are required), check the preview for problem rows, review possible duplicates (skip, update, or add new), then import and read the results; failed rows can be downloaded with error notes and re-imported. Re-running an import is safe because duplicates are caught first.',
+    body: 'Importing is a Team-and-up tool; on Solo and Pro it is locked in the Admin menu and tapping it goes to Plan & Billing. Admin > Import Data. Choose one at a time: Customers, Equipment & units, Jobs & history, Parts & inventory, or Sales. Import customers first, because units, jobs and sales link to a customer by name. Download the template or upload your own CSV. The file is read on your device and never uploaded. Match columns (starred ones are required), check the preview for problem rows, review possible duplicates (skip, update, or add new), then import and read the results; failed rows can be downloaded with error notes and re-imported. Re-running an import is safe because duplicates are caught first.',
   },
   {
     title: 'Add a customer',
@@ -127,7 +127,7 @@ const ARTICLES: Article[] = [
   {
     title: 'Set up loyalty discounts',
     adminOnly: true,
-    body: 'Admin > Loyalty Discounts. Create a milestone with a visit count and a discount (percentage or fixed); the discount applies to the whole ticket subtotal. Visit count is based on the customer\'s job tickets, shown on their profile and job cards. When a customer reaches a milestone an admin reminder appears; open their latest job to apply it or dismiss it. Loyalty reminders and discount details are admin-only.',
+    body: 'Loyalty discounts are a Team-and-up tool; on Solo and Pro the menu entry is locked and goes to Plan & Billing. Admin > Loyalty Discounts. Create a milestone with a visit count and a discount (percentage or fixed); the discount applies to the whole ticket subtotal. Visit count is based on the customer\'s job tickets, shown on their profile and job cards. When a customer reaches a milestone an admin reminder appears; open their latest job to apply it or dismiss it. Loyalty reminders and discount details are admin-only.',
   },
   {
     title: 'Review change history',
@@ -137,7 +137,7 @@ const ARTICLES: Article[] = [
   {
     title: 'Manage your plan and billing',
     adminOnly: true,
-    body: 'Admin > Plan & Billing. The page shows your current plan and what each tier includes. Features like reports, the time clock, templates, and branding are unlocked by plan. Tap "Change plan" to move up or down through checkout; your data stays with the shop. A lock on a feature means it is not in your current plan and takes you here to compare and upgrade.',
+    body: 'Admin > Plan & Billing. The page shows your current plan and what each tier includes. Reports, jobs and invoicing are on every plan, including Solo. Job templates, the time clock, loyalty discounts, late pickup fees and importing your records are unlocked by plan (most at Team and up). Tap "Change plan" to move up or down through checkout; your data stays with the shop. A lock on a feature means it is not in your current plan and takes you here to compare and upgrade.',
   },
   {
     title: 'Keep a shop roadmap',

@@ -38,6 +38,9 @@ export default function AdminMenu() {
   const brandingLocked = !hasFeature(plan, 'branding');
   const reportsLocked = !hasFeature(plan, 'reports');
   const reimbursementsLocked = !hasFeature(plan, 'reimbursements');
+  const loyaltyLocked = !hasFeature(plan, 'loyalty');
+  const lateFeesLocked = !hasFeature(plan, 'late_fees');
+  const migrationLocked = !hasFeature(plan, 'migration');
 
   const isActive =
     pathname.startsWith('/staff') ||
@@ -98,15 +101,25 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => setShowLoyalty(true)}
+            onClick={() =>
+              loyaltyLocked ? navigate('/billing') : setShowLoyalty(true)
+            }
           >
             <Gift className="w-4 h-4" /> Loyalty Discounts
+            {loyaltyLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => setShowLateFees(true)}
+            onClick={() =>
+              lateFeesLocked ? navigate('/billing') : setShowLateFees(true)
+            }
           >
             <AlertTriangle className="w-4 h-4" /> Late Pickup Fees
+            {lateFeesLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
@@ -133,9 +146,12 @@ export default function AdminMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
-            onClick={() => navigate('/migration')}
+            onClick={() => navigate(migrationLocked ? '/billing' : '/migration')}
           >
             <Upload className="w-4 h-4" /> Import Data
+            {migrationLocked && (
+              <Lock className="w-3.5 h-3.5 ml-auto text-slate-400" />
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem
             className={itemClass}
