@@ -28,8 +28,11 @@ export default async function (req: Request): Promise<Response> {
       return Response.json({ error: "That plan is free — no payment needed." }, { status: 400 });
     }
 
+    // Ownership is decided by owner_id — the same field the Shop record's own
+    // read rule and managePlan use. created_by_id is the service account for a
+    // shop created during sign-up, so it never identifies the owner.
     const shop = await base44.entities.Shop.get(shopId).catch(() => null);
-    if (!shop || shop.created_by_id !== user.id) {
+    if (!shop || shop.owner_id !== user.id) {
       return Response.json({ error: "We could not find your shop." }, { status: 404 });
     }
 

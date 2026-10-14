@@ -29,6 +29,16 @@ export default async function (req: Request): Promise<Response> {
       return Response.json({ received: true, ignored: "no shop on event" });
     }
 
+    // A Base44 merchant self-test charge is not a customer order, so it must
+    // never move a shop onto a paid plan.
+    if (
+      obj?.metadata?.base44_test_checkout === "true" &&
+      (event.type === "checkout.session.completed" ||
+        event.type === "checkout.session.async_payment_succeeded")
+    ) {
+      return Response.json({ received: true, ignored: "base44 self-test charge" });
+    }
+
     if (event.type === "checkout.session.completed") {
       let subscription: any = null;
       if (obj.subscription) {
