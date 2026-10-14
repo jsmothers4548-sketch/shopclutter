@@ -144,7 +144,10 @@ export default async function (req: Request): Promise<Response> {
     // of the reimbursements tool. A plan without it still records plain job
     // expenses, but no out-of-pocket one — the form hides the field, and this
     // refuses a hand-made or stale submission that carries it anyway.
-    if (entity === "JobExpense" && !hasFeature(shop.plan_id, "reimbursements")) {
+    if (
+      entity === "JobExpense" &&
+      !hasFeature(guard.shop.plan_id, "reimbursements")
+    ) {
       const rows = Array.isArray(payload)
         ? [...payload, payload?.data]
         : [payload, payload?.data];
