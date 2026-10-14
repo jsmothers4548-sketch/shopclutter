@@ -345,6 +345,30 @@ export const HELP_ARTICLES = [
     ],
   },
   {
+    id: 'directions',
+    topic: 'jobs',
+    title: 'Get directions to an off-site job',
+    summary: 'Open your phone\'s maps with the job address already set.',
+    steps: [
+      {
+        heading: 'Where it is',
+        body: 'Open an off-site job and look for the address card. The address you entered at intake shows there, with a "Get Directions" button.',
+      },
+      {
+        heading: 'Tap it',
+        body: 'Tapping "Get Directions" opens your phone\'s map app with that address already set as the destination, so routing starts without retyping anything.',
+      },
+      {
+        heading: 'If no address is set',
+        body: 'When a job has no separate off-site address, the customer\'s own address is used instead. Add or correct the address on the job to change where it routes.',
+      },
+      {
+        heading: 'Before you leave',
+        body: 'The same card gives you tap-to-call and tap-to-text, so you can let the customer know you are on the way.',
+      },
+    ],
+  },
+  {
     id: 'job-timeline',
     topic: 'jobs',
     title: 'Keep a job timeline',
@@ -561,9 +585,14 @@ export const HELP_ARTICLES = [
   {
     id: 'staff-tasks',
     topic: 'staff',
+    adminOnly: true,
     title: 'Give staff tasks',
-    summary: 'Hand out day-to-day work that is not a repair job.',
+    summary: 'Hand out day-to-day work that is not a repair job (admins).',
     steps: [
+      {
+        heading: 'Admins only',
+        body: 'Handing out tasks is an administrator tool. Technicians do not assign tasks — they work the ones they are given.',
+      },
       {
         heading: 'Open tasks',
         body: 'Open the More menu in the bottom bar and tap Tasks.',
