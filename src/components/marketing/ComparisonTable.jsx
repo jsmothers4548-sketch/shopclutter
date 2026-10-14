@@ -33,6 +33,11 @@ export default function ComparisonTable() {
                 className="w-24 pb-4 text-center text-xs font-bold uppercase tracking-wider text-slate-900 sm:w-28"
               >
                 {plan.name}
+                {plan.comingSoon && (
+                  <span className="mt-1 block text-[10px] font-semibold normal-case tracking-normal text-amber-600">
+                    Coming soon
+                  </span>
+                )}
               </th>
             ))}
           </tr>

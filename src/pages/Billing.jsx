@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import useShop from '@/hooks/useShop';
 import { useAuth } from '@/lib/AuthContext';
-import { PLANS, getPlan, isPaidPlan } from '@/lib/plans';
+import { PLANS, getPlan, isPaidPlan, isComingSoon } from '@/lib/plans';
 import { getPendingPlan, clearPendingPlan } from '@/lib/pendingPlan';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import CurrentPlanCard from '@/components/billing/CurrentPlanCard';
@@ -115,7 +115,8 @@ export default function Billing() {
     if (!shop || startedRef.current) return;
     if (checkout !== '1') return;
     const pending = getPendingPlan();
-    if (!pending || !isPaidPlan(getPlan(pending.plan_id))) {
+    const pendingPlan = pending ? getPlan(pending.plan_id) : null;
+    if (!pendingPlan || !isPaidPlan(pendingPlan) || isComingSoon(pendingPlan)) {
       clearPendingPlan();
       return;
     }
@@ -125,6 +126,10 @@ export default function Billing() {
 
   const handleChoose = async (planId) => {
     if (!shop) return;
+    if (isComingSoon(getPlan(planId))) {
+      setNotice('Multi-Location is coming soon and cannot be purchased yet.');
+      return;
+    }
     if (planId === 'free') {
       setNotice('');
       setBusy('plan');

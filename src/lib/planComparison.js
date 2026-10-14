@@ -6,7 +6,7 @@ export const COMPARISON_PLANS = [
   { id: 'free', name: 'Solo' },
   { id: 'pro', name: 'Pro' },
   { id: 'team', name: 'Team' },
-  { id: 'enterprise', name: 'Multi-Location' },
+  { id: 'enterprise', name: 'Multi-Location', comingSoon: true },
 ];
 
 export const COMPARISON_GROUPS = [

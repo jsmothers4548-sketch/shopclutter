@@ -6,6 +6,7 @@ import {
   periodEndIso,
   updateShop,
 } from "../../shared/stripe.ts";
+import { isComingSoon } from "../../shared/plans.ts";
 
 export default async function (req: Request): Promise<Response> {
   try {
@@ -47,6 +48,14 @@ export default async function (req: Request): Promise<Response> {
       if (session.metadata?.base44_test_checkout === "true") {
         return Response.json(
           { error: "That checkout is not a completed purchase." },
+          { status: 400 }
+        );
+      }
+      // Multi-Location is not open for purchase yet, so an old checkout for it
+      // cannot move a shop onto that tier.
+      if (isComingSoon(session.metadata?.plan_id)) {
+        return Response.json(
+          { error: "Multi-Location is coming soon and cannot be activated yet." },
           { status: 400 }
         );
       }

@@ -193,6 +193,9 @@ export const PLANS = [
     tagline: 'Several shops under one account.',
     monthly: 149,
     annual: 1490,
+    // Multi-Location is shown on the pricing and plan pages but cannot be
+    // bought yet, so every purchase action for it is turned off.
+    comingSoon: true,
     limits: { jobs_per_month: null, staff: null, locations: 5 },
     features: [
       'Everything in Team',
@@ -211,6 +214,11 @@ export function getPlan(id) {
 
 export function isPaidPlan(plan) {
   return !!plan && plan.monthly > 0;
+}
+
+// True for a tier that is shown but not yet open for purchase.
+export function isComingSoon(plan) {
+  return !!plan?.comingSoon;
 }
 
 export function planRank(plan) {

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { priceLabel, limitLabel, isPaidPlan } from '@/lib/plans';
+import { priceLabel, limitLabel, isPaidPlan, isComingSoon } from '@/lib/plans';
 
 export default function PlanOption({ plan, period, current, busy, onChoose }) {
+  const comingSoon = isComingSoon(plan);
   return (
     <div
       className={`rounded-xl border p-4 ${
@@ -32,14 +33,16 @@ export default function PlanOption({ plan, period, current, busy, onChoose }) {
         size="sm"
         className="mt-4 w-full"
         variant={current ? 'outline' : 'default'}
-        disabled={current || busy}
+        disabled={current || busy || comingSoon}
         onClick={onChoose}
       >
         {current
           ? 'Your plan'
-          : isPaidPlan(plan)
-            ? `Switch to ${plan.name}`
-            : 'Switch to Solo'}
+          : comingSoon
+            ? 'Coming soon'
+            : isPaidPlan(plan)
+              ? `Switch to ${plan.name}`
+              : 'Switch to Solo'}
       </Button>
     </div>
   );

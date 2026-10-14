@@ -892,7 +892,7 @@ export const HELP_ARTICLES = [
       },
       {
         heading: 'Compare plans',
-        body: 'The page shows your current plan and what each tier includes. Jobs, customers, estimates, invoices, reminders and reports are on every plan, including Solo. Tools like job templates, the time clock, loyalty discounts, late pickup fees and importing your records are unlocked by plan.',
+        body: 'The page shows your current plan and what each tier includes. Jobs, customers, estimates, invoices, reminders and reports are on every plan, including Solo. Tools like job templates, the time clock, loyalty discounts, late pickup fees and importing your records are unlocked by plan. Multi-Location is coming soon and cannot be bought yet, so its card shows Coming soon instead of a button.',
       },
       {
         heading: 'Change plan',

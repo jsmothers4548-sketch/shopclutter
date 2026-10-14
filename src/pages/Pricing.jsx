@@ -60,8 +60,8 @@ export default function Pricing() {
 
           <p className="mt-6 text-sm leading-relaxed text-slate-500">
             Job directions &amp; on-site routing is a new addition we have placed on Team and
-            above — tell us if you would rather see it on a different plan. Multi-location
-            support is on the way.
+            above — tell us if you would rather see it on a different plan. Multi-Location is
+            coming soon.
           </p>
         </div>
       </section>

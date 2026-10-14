@@ -2,10 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { priceLabel, monthlyEquivalent, isPaidPlan } from '@/lib/plans';
+import { priceLabel, monthlyEquivalent, isPaidPlan, isComingSoon } from '@/lib/plans';
 
 export default function PricingCard({ plan, period }) {
   const paid = isPaidPlan(plan);
+  const comingSoon = isComingSoon(plan);
   const equivalent = monthlyEquivalent(plan, period);
 
   return (
@@ -16,10 +17,16 @@ export default function PricingCard({ plan, period }) {
           : 'border-slate-200 shadow-sm'
       }`}
     >
-      {plan.recommended && (
-        <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
-          Most popular
+      {comingSoon ? (
+        <span className="absolute -top-3 left-6 rounded-full bg-slate-900 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          Coming soon
         </span>
+      ) : (
+        plan.recommended && (
+          <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+            Most popular
+          </span>
+        )
       )}
       <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
       <p className="mt-1 min-h-[40px] text-sm text-slate-500">{plan.tagline}</p>
@@ -35,15 +42,21 @@ export default function PricingCard({ plan, period }) {
           </li>
         ))}
       </ul>
-      <Button
-        asChild
-        className="mt-6 h-11 w-full"
-        variant={plan.recommended ? 'default' : 'outline'}
-      >
-        <Link to={`/register?plan=${plan.id}&period=${period}`}>
-          {paid ? `Choose ${plan.name}` : 'Start free'}
-        </Link>
-      </Button>
+      {comingSoon ? (
+        <Button className="mt-6 h-11 w-full" variant="outline" disabled>
+          Coming soon
+        </Button>
+      ) : (
+        <Button
+          asChild
+          className="mt-6 h-11 w-full"
+          variant={plan.recommended ? 'default' : 'outline'}
+        >
+          <Link to={`/register?plan=${plan.id}&period=${period}`}>
+            {paid ? `Choose ${plan.name}` : 'Start free'}
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

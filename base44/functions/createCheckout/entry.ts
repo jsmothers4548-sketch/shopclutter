@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.49';
-import { getPlan, amountFor } from "../../shared/plans.ts";
+import { getPlan, amountFor, isComingSoon } from "../../shared/plans.ts";
 import { stripePost, appId, updateShop } from "../../shared/stripe.ts";
 import { resolveOrigin } from "../../shared/origins.ts";
 
@@ -26,6 +26,14 @@ export default async function (req: Request): Promise<Response> {
     }
     if (plan.monthly <= 0) {
       return Response.json({ error: "That plan is free — no payment needed." }, { status: 400 });
+    }
+    // Multi-Location is shown in the app but is not open for purchase yet, so a
+    // stale link or a hand-made request cannot start a checkout for it.
+    if (isComingSoon(plan.id)) {
+      return Response.json(
+        { error: "Multi-Location is coming soon and cannot be purchased yet." },
+        { status: 400 }
+      );
     }
 
     // Ownership is decided by owner_id — the same field the Shop record's own

@@ -10,7 +10,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { toast } from "@/components/ui/use-toast";
-import { getPlan, priceLabel, isPaidPlan } from "@/lib/plans";
+import { getPlan, priceLabel, isPaidPlan, isComingSoon } from "@/lib/plans";
 import { setPendingPlan } from "@/lib/pendingPlan";
 
 export default function Register() {
@@ -18,11 +18,11 @@ export default function Register() {
   const planParam = urlParams.get("plan");
   const selectedPlan = planParam ? getPlan(planParam) : null;
   const selectedPeriod = urlParams.get("period") === "annual" ? "annual" : "monthly";
-  const needsCheckout = isPaidPlan(selectedPlan);
+  const needsCheckout = isPaidPlan(selectedPlan) && !isComingSoon(selectedPlan);
   const postAuthDestination = needsCheckout ? "/billing?checkout=1" : safeReturnTo();
 
   useEffect(() => {
-    if (planParam) setPendingPlan(planParam, selectedPeriod);
+    if (planParam && !isComingSoon(selectedPlan)) setPendingPlan(planParam, selectedPeriod);
   }, [planParam, selectedPeriod]);
 
   const [email, setEmail] = useState("");
@@ -158,9 +158,11 @@ export default function Register() {
             {selectedPlan.name} plan — {priceLabel(selectedPlan, selectedPeriod)}
           </p>
           <p className="mt-1 text-muted-foreground">
-            {needsCheckout
-              ? "You'll go to secure checkout right after you verify your email."
-              : "No card needed to start."}
+            {isComingSoon(selectedPlan)
+              ? "Coming soon — start free and move up when it opens."
+              : needsCheckout
+                ? "You'll go to secure checkout right after you verify your email."
+                : "No card needed to start."}
           </p>
           <Link to="/pricing" className="mt-2 inline-block font-medium text-primary hover:underline">
             Change plan
