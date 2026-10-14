@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import BrandMark from '@/components/landing/BrandMark';
+import BrandLogo from '@/components/BrandLogo';
 
 const COLUMNS = [
   {
@@ -33,10 +33,7 @@ export default function LandingFooter({ brand }) {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3">
-              <BrandMark logo={brand.logo_url} name={brand.name} className="h-8 w-8 rounded-lg" />
-              <p className="font-semibold tracking-tight text-slate-900">{brand.name}</p>
-            </div>
+            <BrandLogo brand={brand} className="h-9" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
               Shop management for small engine and equipment repair — built on a real bench,
               for a one-man shop and a full crew alike.

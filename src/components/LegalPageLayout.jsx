@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useBrand from '@/hooks/useBrand';
-import BrandMark from '@/components/landing/BrandMark';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function LegalPageLayout({ title, updated, intro, sections }) {
   const brand = useBrand();
@@ -11,8 +11,7 @@ export default function LegalPageLayout({ title, updated, intro, sections }) {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
         <div className="max-w-3xl mx-auto px-6 h-16 flex items-center gap-3">
-          <BrandMark logo={brand.logo_url} name={brand.name} className="w-9 h-9 rounded-xl" />
-          <span className="font-bold tracking-tight text-slate-900">{brand.name}</span>
+          <BrandLogo brand={brand} className="h-9" />
           <Link
             to="/"
             className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"

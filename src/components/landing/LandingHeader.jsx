@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import BrandMark from '@/components/landing/BrandMark';
+import BrandLogo from '@/components/BrandLogo';
 
 const NAV_LINKS = [
   { to: '/features', label: 'Features' },
@@ -26,8 +26,7 @@ export default function LandingHeader({ brand }) {
           onClick={() => setOpen(false)}
           className="flex shrink-0 items-center gap-2.5"
         >
-          <BrandMark logo={brand.logo_url} name={brand.name} className="h-9 w-9 rounded-xl" />
-          <span className="font-bold tracking-tight text-slate-900">{brand.name}</span>
+          <BrandLogo brand={brand} className="h-10 sm:h-11" />
         </Link>
 
         <nav className="ml-8 hidden items-center gap-1 lg:flex">
