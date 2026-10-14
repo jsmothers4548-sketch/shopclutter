@@ -43,7 +43,16 @@ export default async function (req: Request): Promise<Response> {
         return Response.json({ error: "Missing checkout session." }, { status: 400 });
       }
       const session = await stripeGet(`/checkout/sessions/${encodeURIComponent(sessionId)}`);
-      if (session.metadata?.shop_id && session.metadata.shop_id !== shop.id) {
+      // Base44's own self-test charge is not a customer purchase.
+      if (session.metadata?.base44_test_checkout === "true") {
+        return Response.json(
+          { error: "That checkout is not a completed purchase." },
+          { status: 400 }
+        );
+      }
+      // The checkout must name this shop. One made anywhere else — or one that
+      // names no shop at all — cannot be used to move this shop's plan.
+      if (session.metadata?.shop_id !== shop.id) {
         return Response.json({ error: "That checkout belongs to another shop." }, { status: 403 });
       }
       if (session.payment_status !== "paid" && session.status !== "complete") {

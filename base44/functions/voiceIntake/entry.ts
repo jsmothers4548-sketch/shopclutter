@@ -140,6 +140,11 @@ const AUDIO_EXTENSIONS: Record<string, string> = {
 // recordings are turned away before they are stored.
 const MAX_RECORDING_BYTES = 25 * 1024 * 1024;
 
+// Every recording costs the owner AI credits — a transcription plus an AI read
+// of the transcript — so each person gets a bounded allowance per hour, counted
+// on the server. A stuck loop or a curious technician cannot spend without limit.
+const MAX_INTAKES_PER_HOUR = 30;
+
 function extensionFor(mimeType: string) {
   const base = mimeType.split(";")[0].trim().toLowerCase();
   return AUDIO_EXTENSIONS[base] || "webm";
@@ -179,6 +184,26 @@ export default async function (req: Request): Promise<Response> {
     const guard = await requireFeature(base44, user, "voice_intake");
     if (!guard.ok) return guard.response;
     const sr = base44.asServiceRole;
+    const shopId = guard.shop.id;
+
+    // This person's own recordings in the last hour, counted before any work is
+    // done, so nothing is transcribed or sent to the AI once the allowance is
+    // spent.
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const recentIntakes = await sr.entities.AiUsage.count({
+      user_id: user.id,
+      feature: "voice_intake",
+      created_date: { $gte: since },
+    });
+    if (recentIntakes >= MAX_INTAKES_PER_HOUR) {
+      return Response.json(
+        {
+          error:
+            "You've reached the voice intake limit for now. Please try again a little later.",
+        },
+        { status: 429 }
+      );
+    }
 
     const base64 = audio.includes(",") ? audio.slice(audio.indexOf(",") + 1) : audio;
     const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
@@ -191,6 +216,14 @@ export default async function (req: Request): Promise<Response> {
         { status: 413 }
       );
     }
+
+    // The slot is claimed before the AI runs, so a burst of parallel recordings
+    // cannot slip past the allowance.
+    await sr.entities.AiUsage.create({
+      shop_id: shopId,
+      user_id: user.id,
+      feature: "voice_intake",
+    });
 
     const file = new File([bytes], `intake.${extensionFor(mimeType)}`, {
       type: mimeType,

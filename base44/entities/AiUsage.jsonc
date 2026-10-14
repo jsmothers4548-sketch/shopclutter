@@ -1,0 +1,40 @@
+{
+  "name": "AiUsage",
+  "type": "object",
+  "properties": {
+    "shop_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "feature": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "feature"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "service"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "service"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "service"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "service"
+      }
+    }
+  }
+}
