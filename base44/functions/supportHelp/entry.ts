@@ -16,6 +16,12 @@ import { buildKnowledge, ACTIONS_DOC, ALLOWED_PAGES } from '../../shared/support
 
 const SESSION_LEAD_MS = 24 * 60 * 60 * 1000;
 
+// Live Help costs the owner AI credits on every question, so each person gets a
+// bounded allowance and each message is bounded in size. Both are enforced here
+// on the server, never trusted from the browser.
+const MAX_MESSAGE_CHARS = 2000;
+const ASK_LIMIT_PER_HOUR = 20;
+
 async function getSettings(sr: any) {
   const rows = await sr.entities.SupportSettings.list('-created_date', 1);
   return (
@@ -85,6 +91,31 @@ export default async function (req: Request): Promise<Response> {
     if (action === 'ask') {
       const text = String(body?.message || '').trim();
       if (!text) return Response.json({ error: 'Type a message first.' }, { status: 400 });
+      if (text.length > MAX_MESSAGE_CHARS) {
+        return Response.json(
+          { error: `Please keep your question under ${MAX_MESSAGE_CHARS} characters.` },
+          { status: 413 }
+        );
+      }
+
+      // Per-person allowance: counts this caller's own questions in the last
+      // hour, so a stuck loop or a curious admin cannot spend the owner's AI
+      // credits without limit. Nothing is asked of the assistant when over.
+      const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const recentAsks = await base44.entities.SupportMessage.count({
+        user_id: user.id,
+        sender_role: 'user',
+        created_date: { $gte: since },
+      });
+      if (recentAsks >= ASK_LIMIT_PER_HOUR) {
+        return Response.json(
+          {
+            error:
+              "You've reached the Live Help limit for now. Please try again a little later, or ask for a live session.",
+          },
+          { status: 429 }
+        );
+      }
 
       let conv: any = null;
       const existingId = body?.conversation_id;
@@ -140,10 +171,14 @@ export default async function (req: Request): Promise<Response> {
 
       let taskList = '(none)';
       try {
-        const taskPage = await base44.entities.StaffTask.filter(
-          { status: { $ne: 'done' } },
-          { sort: '-created_date', limit: 15 }
-        );
+        // Only this shop's open tasks are ever read, and only when the caller
+        // is linked to a shop, so the assistant never sees another shop's work.
+        const taskQuery: any = { status: { $ne: 'done' } };
+        if (shopId) taskQuery.shop_id = shopId;
+        const taskPage = await base44.entities.StaffTask.filter(taskQuery, {
+          sort: '-created_date',
+          limit: 15,
+        });
         const tasks = taskPage?.items || [];
         if (tasks.length) {
           taskList = tasks
