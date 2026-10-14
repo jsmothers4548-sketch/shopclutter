@@ -986,6 +986,10 @@ export const HELP_ARTICLES = [
         body: 'Tap Sync now. The result shows how many records were added, updated, left alone, or failed, and each run is kept in the list below so you can look back at what happened.',
       },
       {
+        heading: 'What syncs today',
+        body: 'Customers sync now, in both directions. Invoices and payments are not syncing yet, so keep billing those in the app as you do today. Payroll needs Intuit’s Payroll API approval for this app, so that section shows as not available yet and accounting sync is not affected.',
+      },
+      {
         heading: 'When the same customer is in both places',
         body: 'Your ShopClutter details win, so nothing you typed is overwritten. If QuickBooks has a different name for that customer, the run tells you about it so you can decide which one you want.',
       },

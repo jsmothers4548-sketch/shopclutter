@@ -16,6 +16,7 @@ export const ALLOWED_PAGES = [
   '/units',
   '/help',
   '/clock',
+  '/quickbooks',
 ];
 
 type Article = { title: string; adminOnly?: boolean; body: string };
@@ -143,6 +144,11 @@ const ARTICLES: Article[] = [
     title: 'Keep a shop roadmap',
     adminOnly: true,
     body: 'Admin > Roadmap. Add an idea or task under a topic with any details, grouping related ideas by topic. Tick off notes as you get to them so the list shows what is still ahead.',
+  },
+  {
+    title: 'Connect QuickBooks',
+    adminOnly: true,
+    body: 'QuickBooks sync is a Team-and-up tool; on Solo and Pro the Admin menu entry is locked and goes to Plan & Billing. Admin > QuickBooks, administrators only. Tap Connect QuickBooks and sign in to the QuickBooks company this shop keeps its books in. Each shop connects its own company and no shop shares books with another. Choose the direction: Both ways, To QuickBooks, or From QuickBooks. Tap Sync now; the result shows how many records were added, updated, left alone, or failed, and every run is kept in the list below. Customers sync in both directions today. Where the same customer exists on both sides, the ShopClutter details are kept and any difference found in QuickBooks is reported in the run instead of overwriting anything. Invoices and payments do not sync yet. Payroll needs Intuit\'s Payroll API approval for this app and shows as not available yet. Disconnect removes the connection and the stored sign-in, and your customers and jobs stay put. The app also needs its own Intuit keys in place before a company can be connected.',
   },
 ];
 

@@ -11,6 +11,7 @@ import {
   MapPin,
   Mic,
   Upload,
+  RefreshCw,
 } from 'lucide-react';
 import { MARKETING_IMAGES as IMG } from '@/lib/marketingImages';
 
@@ -347,6 +348,45 @@ export const FEATURES = [
       'The file never leaves your device',
       'Column matching and row preview',
       'Duplicate review before writing',
+    ],
+  },
+  {
+    slug: 'quickbooks',
+    icon: RefreshCw,
+    title: 'QuickBooks sync',
+    tagline: 'Your books, without typing it all in twice.',
+    image: IMG.books,
+    imageAlt:
+      'A repair shop office desk with a laptop showing a bookkeeping ledger beside a printed invoice and a coffee cup',
+    intro:
+      'Connect the QuickBooks company your shop already keeps its books in, and your customer list stays in step with ShopClutter — no double entry at the end of the week.',
+    sections: [
+      {
+        heading: 'Your shop connects its own company',
+        body: 'Each shop connects its own QuickBooks company, so no shop ever shares books with another. You sign in once and the connection is kept for your shop alone. Disconnect at any time — your customers and jobs stay exactly where they are.',
+      },
+      {
+        heading: 'Choose which way records move',
+        body: 'Set the sync to go both ways, only to QuickBooks, or only from QuickBooks. Run it whenever you want from Admin → QuickBooks, and each run reports how many records were added, updated, left alone, or failed.',
+      },
+      {
+        heading: 'Your details win',
+        body: 'When the same customer exists in both places, the details you typed in ShopClutter are the ones that count. If QuickBooks has a different name for that customer, the run tells you about it so you can decide — nothing is overwritten behind your back.',
+      },
+      {
+        heading: 'What syncs today',
+        body: 'Customers sync now, in both directions. Invoices and payments are not syncing yet, and payroll needs Intuit\u2019s Payroll API approval before it can be switched on, so the app shows it as not available yet rather than pretending otherwise.',
+      },
+      {
+        heading: 'Part of Team and up',
+        body: 'QuickBooks sync is included on Team and Multi-Location. On Solo and Pro the menu entry shows a lock and takes you to Plan & Billing to compare. Setting it up is one sign-in to QuickBooks, and the app\u2019s own Intuit keys have to be in place first — if the QuickBooks page says it is not set up yet, that step is still outstanding.',
+      },
+    ],
+    bullets: [
+      'Per-shop QuickBooks connection',
+      'Both ways, to, or from QuickBooks',
+      'Customers in step, no double entry',
+      'A run log of every sync',
     ],
   },
 ];

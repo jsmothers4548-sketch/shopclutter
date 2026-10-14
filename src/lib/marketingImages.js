@@ -21,4 +21,6 @@ export const MARKETING_IMAGES = {
     'https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/a5991103d_generated_image.png',
   migration:
     'https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/cb26bed7c_generated_image.png',
+  books:
+    'https://media.base44.com/images/public/6a4327e878dd406a8dfd80ba/e9d280554_generated_image.png',
 };
