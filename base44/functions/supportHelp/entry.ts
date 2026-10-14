@@ -442,7 +442,19 @@ export default async function (req: Request): Promise<Response> {
 
       const messageId = body?.message_id;
       if (messageId) {
-        await sr.entities.SupportMessage.update(messageId, { action_done: true }).catch(() => {});
+        // Only the caller's own message in this conversation can be flagged.
+        // The record is read with the caller's own permissions, so an id
+        // belonging to another shop or person matches nothing and is ignored.
+        const message = await base44.entities.SupportMessage.get(messageId).catch(
+          () => null
+        );
+        if (
+          message &&
+          message.conversation_id === conv.id &&
+          message.user_id === user.id
+        ) {
+          await sr.entities.SupportMessage.update(messageId, { action_done: true });
+        }
       }
       await sr.entities.SupportMessage.create({
         shop_id: shopId,

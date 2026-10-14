@@ -73,12 +73,10 @@ export default async function (req: Request): Promise<Response> {
       cancel_url: `${origin}/billing?checkout=cancelled`,
     });
 
-    await updateShop(base44.asServiceRole, shopId, {
-      plan_id: plan.id,
-      plan_status: "pending",
-      billing_period: billingPeriod,
-    });
-
+    // The shop keeps its current plan until Stripe confirms payment: the
+    // webhook, or managePlan's confirm (which checks the session is paid),
+    // is what moves the shop onto the paid tier. Writing the chosen plan here
+    // would unlock every gated tool for a checkout that is never completed.
     return Response.json({ url: session.url, session_id: session.id });
   } catch (error: any) {
     console.error("createCheckout failed", error?.message);

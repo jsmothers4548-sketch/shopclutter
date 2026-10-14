@@ -5,10 +5,11 @@
 // Closed. Keeping the mirror in one place keeps the gate and the entity
 // schemas in step.
 
-// Reads that entity rules reserve for an administrator (Staff, PartPurchase,
-// JobTimeEntry — time-clock details are payroll-sensitive).
+// Reads that entity rules reserve for an administrator (Staff, StaffInvite,
+// PartPurchase, JobTimeEntry — time-clock details are payroll-sensitive).
 export const READ_ADMIN_ONLY = [
   "Staff",
+  "StaffInvite",
   "PartPurchase",
   "JobTimeEntry",
   "LoyaltyMilestone",
@@ -19,6 +20,14 @@ export const READ_ADMIN_ONLY = [
 // Operations that entity rules reserve for an administrator, per entity.
 export const ADMIN_ONLY_OPS: Record<string, string[]> = {
   Staff: [
+    "create",
+    "update",
+    "delete",
+    "bulkCreate",
+    "bulkUpdate",
+    "deleteMany",
+  ],
+  StaffInvite: [
     "create",
     "update",
     "delete",
