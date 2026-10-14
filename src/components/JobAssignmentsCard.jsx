@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { withShop } from '@/lib/shopScope';
 import { useAuth } from '@/lib/AuthContext';
 import usePlanFeature from '@/hooks/usePlanFeature';
-import UpgradePrompt from '@/components/UpgradePrompt';
 import { UserPlus, X, Users } from 'lucide-react';
 
 // Who is working on this job. An admin picks one or several technicians; a
@@ -36,7 +35,9 @@ export default function JobAssignmentsCard({ jobId }) {
     load();
   }, [jobId, isAdmin]);
 
-  if (locked) return <UpgradePrompt feature="job_time_clock" />;
+  // The assignments panel belongs to the job time tracking tool, so a plan
+  // without it shows nothing here rather than an upgrade notice.
+  if (locked) return null;
 
   const assignedIds = new Set(assignments.map((a) => a.staff_id));
   const available = staff.filter((s) => !assignedIds.has(s.id));

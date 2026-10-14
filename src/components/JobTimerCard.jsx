@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { entryMinutes, formatHours, formatTimer } from '@/lib/jobTime';
 import usePlanFeature from '@/hooks/usePlanFeature';
-import UpgradePrompt from '@/components/UpgradePrompt';
 import {
   Play,
   Square,
@@ -70,7 +69,9 @@ export default function JobTimerCard({ jobId, jobStatus }) {
     return () => clearInterval(t);
   }, [running?.id]);
 
-  if (locked) return <UpgradePrompt feature="job_time_clock" />;
+  // A plan without job time tracking gets no clock panel at all: the job ticket
+  // stays uncluttered rather than carrying an upgrade notice.
+  if (locked) return null;
 
   const isClosed = jobStatus === 'Closed';
   // A closed job keeps no clock for a technician, so there is nothing to show.
