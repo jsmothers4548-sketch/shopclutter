@@ -12,11 +12,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { withShop } from '@/lib/shopScope';
+import { gated } from '@/lib/planApi';
+import { Link } from 'react-router-dom';
 
 export default function StaffInviteDialog({ onClose, onInvited }) {
   const [email, setEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [locked, setLocked] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,8 +27,10 @@ export default function StaffInviteDialog({ onClose, onInvited }) {
     if (!address) return;
     setSaving(true);
     setError('');
+    setLocked(false);
     try {
-      await base44.entities.StaffInvite.create(
+      // The server checks the shop's plan before the invitation goes out.
+      await gated.staffInvites.create(
         withShop({ email: address, status: 'pending' })
       );
       try {
@@ -38,6 +43,7 @@ export default function StaffInviteDialog({ onClose, onInvited }) {
       onClose();
     } catch (err) {
       setError(err.message || 'Could not send the invitation');
+      setLocked(!!err.locked);
     } finally {
       setSaving(false);
     }
@@ -66,7 +72,19 @@ export default function StaffInviteDialog({ onClose, onInvited }) {
               autoFocus
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-600">
+              {error}{' '}
+              {locked && (
+                <Link
+                  to="/billing"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  See plan options
+                </Link>
+              )}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

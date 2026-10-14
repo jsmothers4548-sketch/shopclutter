@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import StaffInviteDialog from '@/components/StaffInviteDialog';
-import { UserPlus, Trash2, Mail } from 'lucide-react';
+import { UserPlus, Trash2, Mail, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export default function StaffInvites() {
+export default function StaffInvites({ locked = false }) {
+  const navigate = useNavigate();
   const [invites, setInvites] = useState([]);
   const [showInvite, setShowInvite] = useState(false);
 
@@ -29,12 +31,20 @@ export default function StaffInvites() {
         <div className="min-w-0">
           <h2 className="font-bold text-slate-900">Staff Logins</h2>
           <p className="text-xs text-slate-500">
-            Give your crew access to this shop only
+            {locked
+              ? 'Included on Pro and up'
+              : 'Give your crew access to this shop only'}
           </p>
         </div>
-        <Button size="sm" onClick={() => setShowInvite(true)}>
-          <UserPlus className="w-4 h-4" /> Invite
-        </Button>
+        {locked ? (
+          <Button size="sm" variant="outline" onClick={() => navigate('/billing')}>
+            <Lock className="w-4 h-4" /> Invite
+          </Button>
+        ) : (
+          <Button size="sm" onClick={() => setShowInvite(true)}>
+            <UserPlus className="w-4 h-4" /> Invite
+          </Button>
+        )}
       </div>
 
       {invites.length > 0 && (

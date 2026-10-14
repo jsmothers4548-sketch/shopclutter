@@ -61,6 +61,10 @@ function entityApi(feature, entity) {
 }
 
 export const gated = {
+  // Solo is a one-person plan, so adding a person goes through the server,
+  // which re-checks the shop's plan. Existing staff are untouched.
+  staff: entityApi('staff', 'Staff'),
+  staffInvites: entityApi('staff', 'StaffInvite'),
   timeClock: entityApi('time_clock', 'TimeClock'),
   staffTasks: entityApi('staff_tasks', 'StaffTask'),
   templates: entityApi('templates', 'JobTemplate'),

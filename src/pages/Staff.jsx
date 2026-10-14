@@ -3,14 +3,20 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StaffForm from '@/components/StaffForm';
-import { Plus, Edit, Trash2, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, Lock } from 'lucide-react';
 import TimeClockWeeks from '@/components/TimeClockWeeks';
 import StaffInvites from '@/components/StaffInvites';
+import StaffLimitNotice from '@/components/StaffLimitNotice';
 import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
+import useShop from '@/hooks/useShop';
+import { getPlan, canAddStaff } from '@/lib/plans';
 
 export default function Staff() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { shop, loading: planLoading } = useShop();
+  // Solo is a one-person plan, so adding people is a paid tool.
+  const locked = !planLoading && !canAddStaff(getPlan(shop?.plan_id));
   const [staff, setStaff] = useState([]);
   const [labor, setLabor] = useState([]);
   const [timeClocks, setTimeClocks] = useState([]);
@@ -95,17 +101,28 @@ export default function Staff() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Staff Directory</h1>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setEditingStaff(null);
-              setShowForm(true);
-            }}
-            className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
-          >
-            <Plus className="w-4 h-4" /> Add Employee
-          </button>
+          {locked ? (
+            <button
+              onClick={() => navigate('/billing')}
+              className="flex items-center gap-1 border border-slate-300 bg-white text-slate-500 px-3 py-2 rounded-lg font-semibold text-sm active:bg-slate-50"
+            >
+              <Lock className="w-4 h-4" /> Add Employee
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setEditingStaff(null);
+                setShowForm(true);
+              }}
+              className="flex items-center gap-1 bg-amber-500 text-slate-900 px-3 py-2 rounded-lg font-semibold text-sm active:bg-amber-600"
+            >
+              <Plus className="w-4 h-4" /> Add Employee
+            </button>
+          )}
         </div>
       </div>
+
+      {locked && <StaffLimitNotice />}
 
       {staff.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
@@ -206,7 +223,7 @@ export default function Staff() {
         </div>
       )}
 
-      <StaffInvites />
+      <StaffInvites locked={locked} />
 
       <TimeClockWeeks
         staff={staff}

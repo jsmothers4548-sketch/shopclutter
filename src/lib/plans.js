@@ -10,6 +10,12 @@ export const PERIODS = [
 export const PLAN_RANK = { free: 0, pro: 1, team: 2, enterprise: 3 };
 
 export const FEATURES = {
+  staff: {
+    rank: 1,
+    label: 'Staff members & logins',
+    blurb:
+      'Add your crew to the staff directory and give each person their own login to your shop.',
+  },
   templates: {
     rank: 1,
     label: 'Job templates',
@@ -202,6 +208,12 @@ export function hasFeature(plan, key) {
 // White-label branding is a benefit of every paid plan.
 export function canWhiteLabel(plan) {
   return hasFeature(plan, 'branding');
+}
+
+// Solo is a one-person plan, so adding staff records and staff logins needs a
+// paid plan. Staff already on the list stay listed and editable either way.
+export function canAddStaff(plan) {
+  return hasFeature(plan, 'staff');
 }
 
 export function priceLabel(plan, period) {

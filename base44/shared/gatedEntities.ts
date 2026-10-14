@@ -11,6 +11,7 @@ export const FEATURE_ENTITIES: Record<string, string[]> = {
   staff_tasks: ["StaffTask"],
   reimbursements: ["JobExpense"],
   branding: ["ShopSettings"],
+  staff: ["Staff", "StaffInvite"],
   reports: [
     "Job",
     "Part",

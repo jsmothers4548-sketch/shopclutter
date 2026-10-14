@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { withShop } from '@/lib/shopScope';
 import { recordAudit, AUDIT_CATEGORIES } from '@/lib/auditLog';
+import { gated } from '@/lib/planApi';
+import { Link } from 'react-router-dom';
 
 const generateId = () =>
   Math.floor(1000 + Math.random() * 9000).toString();
@@ -30,10 +32,14 @@ export default function StaffForm({ staff, onClose, onSaved }) {
     status: staff?.status || 'active',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [locked, setLocked] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    setError('');
+    setLocked(false);
     try {
       if (staff) {
         await base44.entities.Staff.update(staff.id, form);
@@ -49,7 +55,8 @@ export default function StaffForm({ staff, onClose, onSaved }) {
           });
         }
       } else {
-        await base44.entities.Staff.create(withShop(form));
+        // Adding a person goes through the server, which checks the plan.
+        await gated.staff.create(withShop(form));
         await recordAudit({
           category: AUDIT_CATEGORIES.EMPLOYEE_PAY,
           action: 'create',
@@ -61,6 +68,9 @@ export default function StaffForm({ staff, onClose, onSaved }) {
         });
       }
       onSaved();
+    } catch (err) {
+      setError(err.message || 'Could not save this staff member.');
+      setLocked(!!err.locked);
     } finally {
       setSaving(false);
     }
@@ -187,6 +197,19 @@ export default function StaffForm({ staff, onClose, onSaved }) {
               <option value="inactive">Inactive</option>
             </select>
           </div>
+          {error && (
+            <p className="text-sm text-red-600">
+              {error}{' '}
+              {locked && (
+                <Link
+                  to="/billing"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  See plan options
+                </Link>
+              )}
+            </p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

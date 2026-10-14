@@ -27,6 +27,7 @@ export const PLAN_RANK: Record<string, number> = {
 };
 
 export const FEATURE_RANK: Record<string, number> = {
+  staff: 1,
   templates: 1,
   inventory: 1,
   sales: 1,
@@ -46,6 +47,7 @@ export const FEATURE_RANK: Record<string, number> = {
 
 // Shown to the user when a tool is refused. Mirrors the wording the app uses.
 export const FEATURE_LABELS: Record<string, string> = {
+  staff: "Staff members & logins",
   templates: "Job templates",
   inventory: "Parts & inventory tracking",
   sales: "Storefront sales",

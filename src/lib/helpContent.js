@@ -129,6 +129,10 @@ export const HELP_ARTICLES = [
         heading: 'Employee IDs',
         body: 'Each staff member can have an employee ID. That ID is what they enter in the clock portal to clock in and out, so keep it short and easy to remember.',
       },
+      {
+        heading: 'How many people your plan allows',
+        body: 'Solo is a one-person plan, so adding staff members and staff logins is part of Pro and up. On Solo the staff screen explains this and shows your plan options; anyone already on your staff list stays exactly as they are, and can still be edited or marked inactive. Upgrading unlocks adding your crew and giving each person their own login.',
+      },
     ],
   },
   {
